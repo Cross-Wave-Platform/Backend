@@ -49,14 +49,16 @@ topic           NVARCHAR( 4000) NOT NULL,
 class_id        INT             NOT NULL,
 problem_type    NVARCHAR( 4000) NOT NULL,
 
-CONSTRAINT PK_answer_answer_id_problem_id PRIMARY KEY CLUSTERED ( answer_id, problem_id)
+CONSTRAINT PK_problems_problem_id PRIMARY KEY CLUSTERED ( problem_id)
 );
 
 CREATE TABLE dbo.tag_value
 (
 problem_id  VARCHAR( 30)    NOT NULL,
 tag_value   INT,
-tag_name    NVARCHAR( 4000) NOT NULL
+tag_name    NVARCHAR( 4000) NOT NULL,
+
+CONSTRAINT PK_tag_value_problem_id PRIMARY KEY CLUSTERED ( problem_id)
 );
 
 CREATE TABLE dbo.account
@@ -65,14 +67,18 @@ user_id         INT             NOT NULL,
 account_name    NVARCHAR( 4000) NOT NULL,
 email           NVARCHAR( 4000) NOT NULL,
 password        VARCHAR( 200)   NOT NULL,
-auth            INT             NOT NULL
+auth            INT             NOT NULL,
+
+CONSTRAINT PK_account_user_id PRIMARY KEY CLUSTERED ( user_id)
 );
 
 CREATE TABLE dbo.auth
 (
 class_id    INT             NOT NULL,
 class       NVARCHAR( 4000) NOT NULL,
-min_auth    INT             NOT NULL
+min_auth    INT             NOT NULL,
+
+CONSTRAINT PK_auth_class_id PRIMARY KEY CLUSTERED ( class_id)
 );
 
 CREATE TABLE dbo.auth_change_log
@@ -82,7 +88,9 @@ admin_id    INT             NOT NULL,
 user_id     INT             NOT NULL,
 old_auth    INT             NOT NULL,
 new_auth    INT             NOT NULL,
-reason      NVARCHAR( 4000) NOT NULL
+reason      NVARCHAR( 4000) NOT NULL,
+
+CONSTRAINT PK_auth_change_log_datetime PRIMARY KEY CLUSTERED ( datetime)
 );
 
 GO
