@@ -15,66 +15,74 @@ GO
 --建立tables
 CREATE TABLE dbo.survey
 (
-survey_id int,  
-age_type int,
-survey_type int,
-year int,
-wave int
+survey_id   INT     NOT NULL,
+age_type    INT     NOT NULL,
+survey_type INT     NOT NULL,
+year        INT     NOT NULL,
+wave        INT     NOT NULL,
+
+CONSTRAINT PK_survey_survey_id PRIMARY KEY CLUSTERED ( survey_id)
 );
 
 CREATE TABLE dbo.survey_problem
 (
-survey_id int,
-problem_id varchar( 30),
+survey_id   INT             NOT NULL,
+problem_id  VARCHAR( 30)    NOT NULL,
+
+CONSTRAINT PK_survey_problem_survey_id_problem_id PRIMARY KEY CLUSTERED ( survey_id, problem_id)
 );
 
 CREATE TABLE dbo.answer
 (
-answer_id bigint,
-problem_id varchar( 30),
-survey_id int,
-answer nvarchar( 4000)
+answer_id   BIGINT          NOT NULL,
+problem_id  VARCHAR( 30)    NOT NULL,
+survey_id   INT             NOT NULL,
+answer      NVARCHAR( 4000),
+
+CONSTRAINT PK_answer_answer_id_problem_id PRIMARY KEY CLUSTERED ( answer_id, problem_id)
 );
 
 CREATE TABLE dbo.problems
 (
-problem_id varchar( 4000),
-description nvarchar( 4000),
-class_id int,
-problem_type nvarchar( 4000)
+problem_id      VARCHAR( 30)    NOT NULL,
+topic           NVARCHAR( 4000) NOT NULL,
+class_id        INT             NOT NULL,
+problem_type    NVARCHAR( 4000) NOT NULL,
+
+CONSTRAINT PK_answer_answer_id_problem_id PRIMARY KEY CLUSTERED ( answer_id, problem_id)
 );
 
 CREATE TABLE dbo.tag_value
 (
-problem_id nvarchar( 4000),
-tag_value int,
-tag_name nvarchar( 4000)
+problem_id  VARCHAR( 30)    NOT NULL,
+tag_value   INT,
+tag_name    NVARCHAR( 4000) NOT NULL
 );
 
 CREATE TABLE dbo.account
 (
-user_id int,
-account_name nvarchar( 4000),
-email nvarchar( 4000),
-passwor varchar( 200),
-auth int
+user_id         INT             NOT NULL,
+account_name    NVARCHAR( 4000) NOT NULL,
+email           NVARCHAR( 4000) NOT NULL,
+password        VARCHAR( 200)   NOT NULL,
+auth            INT             NOT NULL
 );
 
 CREATE TABLE dbo.auth
 (
-class_id int,
-class nvarchar( 4000),
-min_auth int
+class_id    INT             NOT NULL,
+class       NVARCHAR( 4000) NOT NULL,
+min_auth    INT             NOT NULL
 );
 
 CREATE TABLE dbo.auth_change_log
 (
-datetime datetime,
-admin_id int,
-user_id int,
-old_auth int,
-new_auth int,
-reason nvarchar( 4000)
+datetime    datetime        NOT NULL,
+admin_id    INT             NOT NULL,
+user_id     INT             NOT NULL,
+old_auth    INT             NOT NULL,
+new_auth    INT             NOT NULL,
+reason      NVARCHAR( 4000) NOT NULL
 );
 
 GO
