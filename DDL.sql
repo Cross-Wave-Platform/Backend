@@ -1,16 +1,16 @@
 --清空資料庫
 USE master;
 GO
-DROP DATABASE IF EXISTS big_DB;
+DROP DATABASE IF EXISTS KIT_DB;
 GO
 
 --資料庫
 -- with utf8 enabled( sql server 2019+)
-CREATE DATABASE big_DB COLLATE Latin1_General_100_CS_AS_SC_UTF8;
+CREATE DATABASE KIT_DB COLLATE Latin1_General_100_CS_AS_SC_UTF8;
 GO
 
 --切換使用中的資料庫
-USE big_DB;
+USE KIT_DB;
 GO
 
 --建立tables
@@ -81,8 +81,8 @@ CREATE TABLE dbo.account
 (
 user_id         INT             NOT NULL,
 account_name    VARCHAR( 4000) NOT NULL,
-email           VARCHAR( 4000) NOT NULL,
-password        VARCHAR( 200)   NOT NULL,
+email           VARCHAR( 320) NOT NULL,
+password        VARCHAR( 4000)   NOT NULL,
 auth            INT             NOT NULL,
 
 CONSTRAINT PK_account_user_id PRIMARY KEY CLUSTERED ( user_id)
