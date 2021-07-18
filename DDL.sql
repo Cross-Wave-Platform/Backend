@@ -99,7 +99,7 @@ reason      VARCHAR( 4000) NOT NULL,
 
 CONSTRAINT PK_auth_change_log PRIMARY KEY CLUSTERED ( datetime),
 CONSTRAINT FK_auth_change_log_admin_id FOREIGN KEY ( admin_id) REFERENCES dbo.account ( user_id),
-CONSTRAINT FK_auth_change_log_user_id FOREIGN KEY ( user_id) REFERENCES dbo.account ( user_id)
+CONSTRAINT FK_auth_change_log_admin_id FOREIGN KEY ( user_id) REFERENCES dbo.account ( user_id)
 );
 
 GO
