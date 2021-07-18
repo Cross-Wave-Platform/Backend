@@ -42,7 +42,7 @@ class_id        INT             NOT NULL,
 problem_type    VARCHAR( 4000) NOT NULL,
 
 CONSTRAINT PK_problems PRIMARY KEY CLUSTERED ( problem_id),
-CONSTRAINT FK_problems_class_id FOREIGN KEY ( class_id) REFERENCES dbo.auth ( class_id)
+CONSTRAINT FK_problems_auth FOREIGN KEY ( class_id) REFERENCES dbo.auth ( class_id)
 );
 
 CREATE TABLE dbo.survey_problem
@@ -51,8 +51,8 @@ survey_id   INT             NOT NULL,
 problem_id  VARCHAR( 30)    NOT NULL,
 
 CONSTRAINT PK_survey_problem PRIMARY KEY CLUSTERED ( survey_id, problem_id),
-CONSTRAINT FK_survey_problem_survey_id FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
-CONSTRAINT FK_survey_problem_problem_id FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
+CONSTRAINT FK_survey_problem_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
+CONSTRAINT FK_survey_problem_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
 );
 
 CREATE TABLE dbo.answer
@@ -63,8 +63,8 @@ survey_id   INT             NOT NULL,
 answer      VARCHAR( 4000),
 
 CONSTRAINT PK_answer PRIMARY KEY CLUSTERED ( answer_id, problem_id),
-CONSTRAINT FK_answer_survey_id FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
-CONSTRAINT FK_answer_problem_id FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
+CONSTRAINT FK_answer_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
+CONSTRAINT FK_answer_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
 );
 
 CREATE TABLE dbo.tag_value
@@ -74,7 +74,7 @@ tag_value   INT,
 tag_name    VARCHAR( 4000) NOT NULL,
 
 CONSTRAINT PK_tag_value PRIMARY KEY CLUSTERED ( problem_id),
-CONSTRAINT FK_tag_value_problem_id FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
+CONSTRAINT FK_tag_value_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
 );
 
 CREATE TABLE dbo.account
@@ -98,8 +98,8 @@ new_auth    INT             NOT NULL,
 reason      VARCHAR( 4000) NOT NULL,
 
 CONSTRAINT PK_auth_change_log PRIMARY KEY CLUSTERED ( datetime),
-CONSTRAINT FK_auth_change_log_admin_id FOREIGN KEY ( admin_id) REFERENCES dbo.account ( user_id),
-CONSTRAINT FK_auth_change_log_admin_id FOREIGN KEY ( user_id) REFERENCES dbo.account ( user_id)
+CONSTRAINT FK_auth_change_log_admin_account FOREIGN KEY ( admin_id) REFERENCES dbo.account ( user_id),
+CONSTRAINT FK_auth_change_log_user_account FOREIGN KEY ( user_id) REFERENCES dbo.account ( user_id)
 );
 
 GO
