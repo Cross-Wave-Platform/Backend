@@ -18,7 +18,9 @@ class Account():
         user = cls(username)
         user_id = hash_id(user.username, password)
         #email = email.lower().strip()
-        #sql save
+        '''
+        sql save
+        '''
         return user.reload()
 
     @classmethod
