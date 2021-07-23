@@ -21,6 +21,7 @@ age_type    INT     NOT NULL,
 survey_type INT     NOT NULL,
 year        INT     NOT NULL,
 wave        INT     NOT NULL,
+release     INT     NOT NULL,
 
 CONSTRAINT PK_survey PRIMARY KEY CLUSTERED ( survey_id)
 );
@@ -90,16 +91,28 @@ CONSTRAINT PK_account PRIMARY KEY CLUSTERED ( user_id)
 
 CREATE TABLE dbo.auth_change_log
 (
-datetime    datetime        NOT NULL,
+log_time    datetime        NOT NULL,
 admin_id    INT             NOT NULL,
 user_id     INT             NOT NULL,
 old_auth    INT             NOT NULL,
 new_auth    INT             NOT NULL,
 reason      VARCHAR( 4000) NOT NULL,
 
-CONSTRAINT PK_auth_change_log PRIMARY KEY CLUSTERED ( datetime),
+CONSTRAINT PK_auth_change_log PRIMARY KEY CLUSTERED ( log_time),
 CONSTRAINT FK_auth_change_log_admin_account FOREIGN KEY ( admin_id) REFERENCES dbo.account ( user_id),
 CONSTRAINT FK_auth_change_log_user_account FOREIGN KEY ( user_id) REFERENCES dbo.account ( user_id)
+);
+
+CREATE TABLE dbo.shop_cart
+(
+user_id     INT              NOT NULL,
+survey_id   INT              NOT NULL,
+problem_id  VARCHAR( 30)     NOT NULL,
+
+CONSTRAINT PK_shop_cart PRIMARY KEY CLUSTERED ( user_id, survey_id, problem_id),
+CONSTRAINT FK_shop_cart_account FOREIGN KEY ( user_id) REFERENCES dbo.account ( user_id),
+CONSTRAINT FK_shop_cart_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
+CONSTRAINT FK_shop_cart_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
 );
 
 GO
