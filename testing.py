@@ -8,6 +8,16 @@ teacher = pandas.read_excel( xlsx, sheet_name=1)
 
 friend = pandas.read_excel( xlsx, sheet_name=2)
 
+parent = parent[:-4]
+
+teacher = teacher[:-4]
+
+friend = friend[:-4]
+
+print(parent)
+print(teacher)
+print(friend)
+
 df = parent.append([ teacher, friend])
 
 columns_to_keep = ['構面', 'min_auth']
