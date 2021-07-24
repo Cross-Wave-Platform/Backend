@@ -28,22 +28,22 @@ CONSTRAINT PK_survey PRIMARY KEY CLUSTERED ( survey_id)
 
 CREATE TABLE dbo.auth
 (
-class_id    INT             NOT NULL,
+-- class_id    INT             NOT NULL,
 class       VARCHAR( 4000) NOT NULL,
 min_auth    INT             NOT NULL,
 
-CONSTRAINT PK_auth PRIMARY KEY CLUSTERED ( class_id)
+CONSTRAINT PK_auth PRIMARY KEY CLUSTERED ( class)
 );
 
 CREATE TABLE dbo.problems
 (
 problem_id      VARCHAR( 30)    NOT NULL,
-topic           VARCHAR( 4000) NOT NULL,
-class_id        INT             NOT NULL,
-problem_type    VARCHAR( 4000) NOT NULL,
+topic           VARCHAR( 4000)  NOT NULL,
+class           VARCHAR( 4000)  NOT NULL,
+problem_type    VARCHAR( 4000)  NOT NULL,
 
 CONSTRAINT PK_problems PRIMARY KEY CLUSTERED ( problem_id),
-CONSTRAINT FK_problems_auth FOREIGN KEY ( class_id) REFERENCES dbo.auth ( class_id)
+CONSTRAINT FK_problems_auth FOREIGN KEY ( class) REFERENCES dbo.auth ( class)
 );
 
 CREATE TABLE dbo.survey_problem
