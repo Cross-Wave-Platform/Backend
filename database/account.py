@@ -16,7 +16,7 @@ class Account():
         if re.match(r'^[a-zA-Z0-9_\-]+$', username) is None:
             raise ValueError
         user = cls(username)
-        user_id = hash_id(user.username, password)# hash password
+        user_id = hash_id(user.username, password)# hash password len:24
         #email = email.lower().strip()
         '''
         sql save
@@ -31,16 +31,22 @@ class Account():
             user = cls.get_by_email(username)
         user_id = hash_id(user.username, password)
         if compare_digest(user.user_id, user_id) or compare_digest(
-                user.user_id2, user_id):
+                user.user_id, user_id):
             return user
         raise
 
     @classmethod
     def get_by_username(cls, username):
-        obj = cls(username=username)#sql search by username
+        obj = "sql..."
+        '''
+        sql search by username
+        '''
         return obj
 
     @classmethod
     def get_by_email(cls, email):
-        obj = cls(email=email)#sql search by email
+        obj = "sql..."
+        '''
+        sql search by email
+        '''
         return obj
