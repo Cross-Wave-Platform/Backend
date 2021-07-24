@@ -6,6 +6,10 @@ __all__ = ['loginApp_api']
 
 loginApp_api = Blueprint('loginApp_api', __name__)
 
+@loginApp_api.route('/test', methods=['POST'])
+def test():
+    return {"ok":"ok"}, 200
+    
 @loginApp_api.route('/login', methods=['POST'])
 def login():
     username = request.json['username']
