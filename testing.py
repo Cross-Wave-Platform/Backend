@@ -1,6 +1,6 @@
 import pandas
 
-xlsx = pandas.ExcelFile( "跨波次變項對照表_加入構面.xlsx")
+xlsx = pandas.ExcelFile( "../跨波次變項對照表_加入構面.xlsx")
 
 parent = pandas.read_excel( xlsx, sheet_name=0)
 
@@ -29,8 +29,12 @@ df['min_auth'] = 4
 
 df = df.reset_index(drop=True)
 
+# print(df.columns)
+
+# df = df.set_index('min_auth')
+
 # print(df.drop_duplicates(subset=columns_to_keep))
 
-df.loc[:, columns_to_keep].to_csv( "test.csv")
+df.loc[:, columns_to_keep].to_csv( "../test.csv", index=False)
 
 xlsx.close()
