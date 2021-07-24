@@ -1,4 +1,6 @@
 import pandas
+from pandas.core.indexes.api import all_indexes_same
+
 
 xlsx = pandas.ExcelFile( "../跨波次變項對照表_加入構面.xlsx")
 
@@ -8,33 +10,76 @@ teacher = pandas.read_excel( xlsx, sheet_name=1)
 
 friend = pandas.read_excel( xlsx, sheet_name=2)
 
+xlsx.close()
+
 parent = parent[:-4]
 
 teacher = teacher[:-4]
 
 friend = friend[:-4]
 
-print(parent)
-print(teacher)
-print(friend)
+# print(parent)
+# print(teacher)
+# print(friend)
 
-df = parent.append([ teacher, friend])
+all_data = parent.append([ teacher, friend])
 
 columns_to_keep = ['構面', 'min_auth']
 
 # get the unique ones
-df = df.drop_duplicates(subset=['構面'])
+df = all_data.drop_duplicates(subset=['構面'])
 
 df['min_auth'] = 4
 
-df = df.reset_index(drop=True)
+# df = df.reset_index(drop=True)
+
+df = df.loc[:, columns_to_keep]
+
+# print(all_data)
+print(df)
+
+nothing = pandas.DataFrame([['no_group', 4]], columns=['構面', 'min_auth'])
+
+df = pandas.concat( [nothing, df])
 
 # print(df.columns)
 
-# df = df.set_index('min_auth')
+df.to_csv( "../all_auth.csv", index=False)
 
-# print(df.drop_duplicates(subset=columns_to_keep))
+# save the problems tables
 
-df.loc[:, columns_to_keep].to_csv( "../test.csv", index=False)
+columns_to_keep = ['變項名稱', '變項標籤', '構面']
 
-xlsx.close()
+all_data = all_data.drop_duplicates(subset=['變項名稱'])
+
+all_data = all_data.loc[:, columns_to_keep]
+
+print(all_data)
+
+all_data.to_csv( "../all_problems.csv", index=False)
+
+
+
+
+import pymssql
+
+server = "localhost"
+user = "SA"
+password = "SQLadmin1"
+
+conn = pymssql.connect(server, user, password, "KIT_DB")
+cursor = conn.cursor()
+
+BULK_INSERT_ALL_AUTH = r"BULK INSERT dbo.auth FROM '/home/linux/Desktop/MSSQL/all_auth.csv' WITH ( CODEPAGE='RAW', FIRSTROW=2, FORMAT='CSV');"
+
+BULK_INSERT_ALL_PROBLEMS = r"BULK INSERT dbo.problems FROM '/home/linux/Desktop/MSSQL/all_problems.csv' WITH ( CODEPAGE='RAW', FIRSTROW=2, FORMAT='CSV');"
+
+cursor.execute( BULK_INSERT_ALL_AUTH)
+
+conn.commit()
+
+cursor.execute( BULK_INSERT_ALL_PROBLEMS)
+
+conn.commit()
+
+conn.close()
