@@ -40,7 +40,7 @@ CREATE TABLE dbo.problems
 problem_id      VARCHAR( 30)    NOT NULL,
 topic           VARCHAR( 4000)  NOT NULL,
 class           VARCHAR( 4000)  NOT NULL,
-problem_type    VARCHAR( 4000)  NOT NULL,
+problem_type    VARCHAR( 4000),
 
 CONSTRAINT PK_problems PRIMARY KEY CLUSTERED ( problem_id),
 CONSTRAINT FK_problems_auth FOREIGN KEY ( class) REFERENCES dbo.auth ( class)
