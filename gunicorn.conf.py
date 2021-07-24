@@ -1,9 +1,5 @@
 bind = '0.0.0.0:5000'
-timeout = 60
-
+errorlog = 'gunicorn_error.log'
 loglevel = 'debug'
-errorlog = 'logs/error.log'
-accesslog = 'logs/access.log'
-
-workers = 1
-worker_class = 'eventlet'
+thread = 5
+worker_class = 'gthread'
