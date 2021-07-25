@@ -28,7 +28,6 @@ CONSTRAINT PK_survey PRIMARY KEY CLUSTERED ( survey_id)
 
 CREATE TABLE dbo.auth
 (
--- class_id    INT             NOT NULL,
 class       VARCHAR( 900) NOT NULL,
 min_auth    INT             NOT NULL,
 
@@ -40,7 +39,6 @@ CREATE TABLE dbo.problems
 problem_id      VARCHAR( 30)    NOT NULL,
 topic           VARCHAR( 4000)  NOT NULL,
 class           VARCHAR( 900)  NOT NULL,
--- problem_type    VARCHAR( 4000),
 
 CONSTRAINT PK_problems PRIMARY KEY CLUSTERED ( problem_id),
 CONSTRAINT FK_problems_auth FOREIGN KEY ( class) REFERENCES dbo.auth ( class)
