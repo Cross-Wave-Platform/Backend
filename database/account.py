@@ -1,6 +1,7 @@
 import flask
 from .utils import hash_id
 from hmac import compare_digest
+import pymssql
 import hashlib
 
 import re
@@ -29,11 +30,13 @@ class Account():
             user = cls.get_by_username(username)
         except:
             user = cls.get_by_email(username)
+        if user is None:
+            return 'user not found'
         user_id = hash_id(user.username, password)
-        if compare_digest(user.user_id, user_id) or compare_digest(
-                user.user_id, user_id):
+        if compare_digest(user.username, user_id):
             return user
-        raise
+        else:
+            return 'password incorrect'
 
     @classmethod
     def get_by_username(cls, username):
