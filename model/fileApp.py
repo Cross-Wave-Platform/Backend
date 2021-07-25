@@ -39,7 +39,6 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(file_dir, filename))
-            return render_template('upload.html' ,alert='Upload complete!')
     except:
         return HTTPStatus.FORBIDDEN
     '''
