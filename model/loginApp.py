@@ -2,12 +2,14 @@ import flask
 from flask import Blueprint, request
 from database.account import Account
 from http import HTTPStatus
+from .auth import login_required
 
 __all__ = ['loginApp_api']
 
 loginApp_api = Blueprint('loginApp_api', __name__)
 
 @loginApp_api.route('/test', methods=['POST'])
+@login_required
 def test():
     return {"test": True}, HTTPStatus.OK
     

@@ -1,13 +1,17 @@
-import flask
+from datetime import datetime, timedelta
 from .utils import hash_id
 from hmac import compare_digest
 import pymssql
-import hashlib
 
+import jwt
+import os
 import re
 
-__all__ = ['Account']
+__all__ = ['Account', 'jwt_decode']
 
+JWT_EXP = timedelta(days=int(os.environ.get('JWT_EXP', '30')))
+JWT_ISS = os.environ.get('JWT_ISS', 'test.test')
+JWT_SECRET = os.environ.get('JWT_SECRET', 'SuperSecretString')
 class Account():
     def __init__(self, username):
         self.username = username
@@ -53,3 +57,28 @@ class Account():
         sql search by email
         '''
         return obj
+
+    def jwt(self, *keys, secret=False, **kwargs):
+        if not self:
+            return ''
+        user = self.reload().to_mongo()
+        user['username'] = user.get('_id')
+        data = {k: user.get(k) for k in keys}
+        data.update(kwargs)
+        payload = {
+            'iss': JWT_ISS,
+            'exp': datetime.now() + JWT_EXP,
+            'secret': secret,
+            'data': data
+        }
+        return jwt.encode(payload, JWT_SECRET, algorithm='HS256')
+
+def jwt_decode(token):
+    try:
+        json = jwt.decode(token,
+                          JWT_SECRET,
+                          issuer=JWT_ISS,
+                          algorithms='HS256')
+    except jwt.exceptions.PyJWTError:
+        return None
+    return json
