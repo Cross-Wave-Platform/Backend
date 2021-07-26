@@ -18,10 +18,6 @@ teacher = teacher[:-4]
 
 friend = friend[:-4]
 
-# print(parent)
-# print(teacher)
-# print(friend)
-
 all_data = parent.append([ teacher, friend])
 
 columns_to_keep = ['構面', 'min_auth']
@@ -31,18 +27,11 @@ df = all_data.drop_duplicates(subset=['構面'])
 
 df['min_auth'] = 4
 
-# df = df.reset_index(drop=True)
-
 df = df.loc[:, columns_to_keep]
-
-# print(all_data)
-print(df)
 
 nothing = pandas.DataFrame([['no_group', 4]], columns=['構面', 'min_auth'])
 
 df = pandas.concat( [nothing, df])
-
-# print(df.columns)
 
 df.to_csv( "../all_auth.csv", index=False)
 
