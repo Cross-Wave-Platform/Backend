@@ -12,6 +12,14 @@ __all__ = ['Account', 'jwt_decode']
 JWT_EXP = timedelta(days=int(os.environ.get('JWT_EXP', '30')))
 JWT_ISS = os.environ.get('JWT_ISS', 'test.test')
 JWT_SECRET = os.environ.get('JWT_SECRET', 'SuperSecretString')
+
+""" 
+conn = pymssql.connect(server='',
+                        user='',
+                        password='',
+                        database='') 
+"""
+
 class Account():
     def __init__(self, username):
         self.username = username
@@ -21,7 +29,9 @@ class Account():
         if re.match(r'^[a-zA-Z0-9_\-]+$', username) is None:
             raise ValueError
         user = cls(username)
-        user_id = hash_id(user.username, password)# hash password len:24
+        print(user, user.username)
+        #user_id = hash_id(user.username, password)# hash password len:24
+        user_id = hash_id(username, password)
         #email = email.lower().strip()
         user = cls.get_by_email(email)
         if user is not None:
@@ -29,9 +39,12 @@ class Account():
         user = cls.get_by_username(username)
         if user is not None:
             return 'account exists'
-        '''
-        sql save
-        '''
+
+        cursor = conn.cursor()
+        sql = 'INSERT dbo.account (user_id, account_name, email, password) OUTPUT INSERT accountID VALUES (\''+ username + '\', \'' + username + '\', \'' + email + '\', \'' + user_id + '\')'
+        cursor.execute(sql)
+        #print(sql)
+        conn.commit()
         return user.reload()
 
     @classmethod
