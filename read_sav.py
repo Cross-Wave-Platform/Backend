@@ -39,7 +39,7 @@ answers['survey_id'] = survey_id
 
 answers['problem_id'] = meta.column_names*answer_count
 
-column_names = ['answer_id', 'survey_id', 'problem_id', 'answer']
+column_names = ['answer_id', 'problem_id', 'survey_id', 'answer']
 
 answers = answers.loc[:,column_names]
 
