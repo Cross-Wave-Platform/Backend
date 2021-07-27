@@ -33,7 +33,7 @@ class Export_Files():
         '''save file to user export folder'''
         merge_file = os.path.join(get_user_folder(), 'merge.sav')
         try:
-            pyreadstat.write_sav(df, , variable_format=formats, missing_ranges=missing_ranges, variable_value_labels=variable_value_labels)
+            pyreadstat.write_sav(df, merge_file, variable_format=formats, missing_ranges=missing_ranges, variable_value_labels=variable_value_labels)
         except:
             return "Could not create merge file"
         self.merge_file = merge_file
