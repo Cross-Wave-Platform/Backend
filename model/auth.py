@@ -1,5 +1,6 @@
 from functools import wraps
 from flask import Blueprint, request
+from database.account import jwt_decode
 from .utils import *
 
 __all__ = ['auth_api', 'login_required']

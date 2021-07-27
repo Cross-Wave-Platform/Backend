@@ -3,6 +3,7 @@ from flask import Blueprint, request
 from database.account import Account
 from http import HTTPStatus
 from .auth import login_required
+from .utils.response import HTTPResponse, HTTPError
 
 __all__ = ['loginApp_api']
 
@@ -11,7 +12,7 @@ loginApp_api = Blueprint('loginApp_api', __name__)
 @loginApp_api.route('/test', methods=['POST'])
 @login_required
 def test():
-    return {"test": True}, HTTPStatus.OK
+    return HTTPResponse('test', 200)
     
 @loginApp_api.route('/login', methods=['POST'])
 def login():
@@ -21,13 +22,15 @@ def login():
     try:
         user = Account.login(username, password)
         if user == 'user not found':
-            return {}, HTTPStatus.NOT_FOUND
+            return HTTPError('user not found', 404)
         elif user == 'password incorrect':
-            return {}, HTTPStatus.NOT_ACCEPTABLE
+            return HTTPError('password incorrect', 406)
     except:
-        return {}, HTTPStatus.FORBIDDEN
+        return HTTPError('unknown error', 403)
+    
+    cookies = {'piann_httponly': user.secret, 'jwt': user.cookie}
 
-    return {'user':user.username}, HTTPStatus.OK
+    return HTTPResponse('Login success', cookies=cookies)
 
 @loginApp_api.route('/register', methods=['POST'])
 def signup():
