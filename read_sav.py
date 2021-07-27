@@ -33,13 +33,13 @@ all_rows = []
 (answer_count, problem_count) = df.shape
 
 # this has the columns ['variable', 'value'] in position
-answers = df.T.melt().rename(columns={'variable':'answer_id'})
+answers = df.T.melt().rename(columns={'variable':'answer_id', 'value':'answer'})
 
 answers['survey_id'] = survey_id
 
 answers['problem_id'] = meta.column_names*answer_count
 
-column_names = ['answer_id', 'survey_id', 'problem_id', 'value']
+column_names = ['answer_id', 'survey_id', 'problem_id', 'answer']
 
 answers = answers.loc[:,column_names]
 
