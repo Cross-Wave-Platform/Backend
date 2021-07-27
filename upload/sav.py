@@ -1,33 +1,60 @@
-from ..manager import SQLManager
-import pyreadstat as prs
-import yaml
-from yaml import CLoader as Loader
-import pandas as pd
-import pkgutil
+from numpy import isnan
+from numpy.lib.function_base import copy
+from yaml import error
+from .operation import bulk_insert
+import pandas
 
-def bulk_insert(manager,df,table):
-    config_data = pkgutil.get_data('Database','config.yaml')
-    tmp_dir =  yaml.load(config_data,Loader)['tmp_dir']
-    file_name = table.split(".")[1]
-    file_path = f'{tmp_dir}/{file_name}.csv'
 
-    df.to_csv(file_path,index=False)
-    bulk_insert_op = fr'''BULK INSERT {table}
-                          FROM '{file_path}' 
-                          WITH ( CODEPAGE='RAW', FIRSTROW=2, FORMAT='CSV');'''
-    manager.cursor.execute(bulk_insert_op)
-    manager.conn.commit()
+def add_tag_values(manager, meta):
+    dict_list = []
 
-def add_tag_value(meta):
-    dict_list=[]
-
-    for problem_id, pairs in  meta.variable_value_labels.items():
+    for problem_id, pairs in meta.variable_value_labels.items():
         for tag_value, tag_name in pairs.items():
-            row_data = {'problem_id':problem_id,
-                        'tag_value':int(float(tag_value)),
-                        'tag_name':tag_name}
+            row_data = {'problem_id': problem_id,
+                        'tag_value': int(float(tag_value)),
+                        'tag_name': tag_name}
             dict_list.append(row_data)
-    df = pd.DataFrame.from_records(dict_list)
+    tag_values = pandas.DataFrame.from_records(dict_list)
 
-    manager = SQLManager()
-    bulk_insert(manager,df,'dbo.tag_value')
+    bulk_insert(manager, tag_values, 'dbo.tag_value')
+
+
+# todo: get survey_id
+def add_survey_problems(manager, meta):
+    survey_id = 1
+
+    survey_problems = pandas.DataFrame()
+
+    survey_problems['problems'] = meta.column_names
+    survey_problems['survey_id'] = survey_id
+    column_names = ['survey_id', 'problems']
+
+    survey_problems = survey_problems.loc[:, column_names]
+    bulk_insert(manager, survey_problems, 'dbo.survey_problem')
+
+
+# todo: get survey_id, start_answer_id
+def add_answers(manager, df, meta):
+    start_answer_id = 1
+    survey_id = 1
+    # generating answers table
+    answers = pandas.DataFrame()
+
+    (answer_count, problem_count) = df.shape
+
+    #force convert float dtype
+    df=df.convert_dtypes()
+    # this has the columns ['variable', 'value'] in position
+    answers = df.T.melt().rename(columns={'variable':'answer_id', 'value':'answer'})
+
+    answers['survey_id'] = survey_id
+
+    answers['problem_id'] = meta.column_names*answer_count
+
+    column_names = ['answer_id', 'problem_id', 'survey_id', 'answer']
+
+    answers = answers.loc[:, column_names]
+
+    answers['answer_id'] = answers['answer_id'] + start_answer_id
+
+    bulk_insert(manager,answers,'dbo.answer')
