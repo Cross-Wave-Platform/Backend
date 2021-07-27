@@ -16,12 +16,12 @@ GO
 --建立tables
 CREATE TABLE dbo.survey
 (
-survey_id   INT     NOT NULL,
+survey_id   INT     IDENTITY,
 age_type    INT     NOT NULL,
 survey_type INT     NOT NULL,
 year        INT     NOT NULL,
 wave        INT     NOT NULL,
-release     INT     NOT NULL,
+release     INT     NOT NULL DEFAULT 0,
 
 CONSTRAINT PK_survey PRIMARY KEY CLUSTERED ( survey_id)
 );
@@ -29,7 +29,7 @@ CONSTRAINT PK_survey PRIMARY KEY CLUSTERED ( survey_id)
 CREATE TABLE dbo.auth
 (
 class       VARCHAR( 900) NOT NULL,
-min_auth    INT             NOT NULL,
+min_auth    INT           NOT NULL DEFAULT 2,
 
 CONSTRAINT PK_auth PRIMARY KEY CLUSTERED ( class)
 );
@@ -38,7 +38,7 @@ CREATE TABLE dbo.problems
 (
 problem_id      VARCHAR( 30)    NOT NULL,
 topic           VARCHAR( 4000)  NOT NULL,
-class           VARCHAR( 900)  NOT NULL,
+class           VARCHAR( 900)  NOT NULL DEFAULT 'no_group',
 
 CONSTRAINT PK_problems PRIMARY KEY CLUSTERED ( problem_id),
 CONSTRAINT FK_problems_auth FOREIGN KEY ( class) REFERENCES dbo.auth ( class)
@@ -78,10 +78,10 @@ CONSTRAINT FK_tag_value_problems FOREIGN KEY ( problem_id) REFERENCES dbo.proble
 
 CREATE TABLE dbo.account
 (
-user_id         INT             NOT NULL,
-account_name    VARCHAR( 4000) NOT NULL,
-email           VARCHAR( 320) NOT NULL,
-password        VARCHAR( 4000)   NOT NULL,
+user_id         INT             IDENTITY,
+account_name    VARCHAR( 4000)  NOT NULL,
+email           VARCHAR( 320)   NOT NULL,
+password        VARCHAR( 4000)  NOT NULL,
 auth            INT             NOT NULL,
 
 CONSTRAINT PK_account PRIMARY KEY CLUSTERED ( user_id)
@@ -94,7 +94,7 @@ admin_id    INT             NOT NULL,
 user_id     INT             NOT NULL,
 old_auth    INT             NOT NULL,
 new_auth    INT             NOT NULL,
-reason      VARCHAR( 4000) NOT NULL,
+reason      VARCHAR( 4000)  NOT NULL,
 
 CONSTRAINT PK_auth_change_log PRIMARY KEY CLUSTERED ( log_time),
 CONSTRAINT FK_auth_change_log_admin_account FOREIGN KEY ( admin_id) REFERENCES dbo.account ( user_id),
