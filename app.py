@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 api2prefix = [
     (loginApp_api, '/loginApp'),
+    (fileApp_api, '/fileApp'),
 ]
 for api, prefix in api2prefix:
     app.register_blueprint(api, url_prefix=prefix)
