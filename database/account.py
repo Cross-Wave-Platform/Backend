@@ -23,6 +23,12 @@ class Account():
         user = cls(username)
         user_id = hash_id(user.username, password)# hash password len:24
         #email = email.lower().strip()
+        user = cls.get_by_email(email)
+        if user is not None:
+            return 'email used'
+        user = cls.get_by_username(username)
+        if user is not None:
+            return 'account exists'
         '''
         sql save
         '''

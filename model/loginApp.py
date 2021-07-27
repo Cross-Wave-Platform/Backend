@@ -42,6 +42,10 @@ def signup():
 
     try:
         user = Account.signup(username, password, email)
+        if user == 'email used':
+            return HTTPError('email userd', 403)
+        elif user == 'account exists':
+            return HTTPError('account exists', 404)
     except:
-        #return HTTPError
-        return 0
+        return HTTPError('unknown error', 406)
+    return HTTPResponse('sugnup success')

@@ -1,7 +1,8 @@
 from functools import wraps
 from flask import Blueprint, request
-from database.account import jwt_decode
-from .utils import *
+from database.account import Account, jwt_decode
+from .utils.response import HTTPError, HTTPResponse
+from .utils.request import Request
 
 __all__ = ['auth_api', 'login_required']
 
@@ -24,7 +25,7 @@ def login_required(func):
         json = jwt_decode(token)
         if json is None or not json.get('secret'):
             return HTTPError('Invalid Token', 403)
-        user = User(json['data']['username'])
+        user = Account(json['data']['username'])
         if json['data'].get('userId') != user.user_id:
             return HTTPError(f'Authorization Expired', 403)
         if not user.active:
