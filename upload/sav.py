@@ -1,9 +1,20 @@
 from numpy import isnan
-from numpy.lib.function_base import copy
+from numpy.lib.function_base import copy, insert
 from yaml import error
 from .operation import bulk_insert
 import pandas
 
+def add_problems(manager, meta):
+    old_problems = pandas.read_sql( 'SELECT problem_id FROM dbo.problems;', manager.conn)
+
+    given_problems = pandas.DataFrame()
+    given_problems['problem_id'] = meta.column_names
+    given_problems['topic'] = meta.column_labels
+    given_problems['class'] = ''
+
+    insert_problems = pandas.concat([given_problems,old_problems]).drop_duplicates(subset='problem_id',keep=False)
+
+    bulk_insert(manager, insert_problems, 'dbo.tag_value')
 
 def add_tag_values(manager, meta):
     dict_list = []
