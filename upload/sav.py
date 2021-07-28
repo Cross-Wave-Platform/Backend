@@ -14,7 +14,8 @@ def add_problems(manager, meta):
 
     insert_problems = pandas.concat([given_problems,old_problems]).drop_duplicates(subset='problem_id',keep=False)
 
-    bulk_insert(manager, insert_problems, 'dbo.tag_value')
+    if insert_problems.empty == False:
+        bulk_insert(manager, insert_problems, 'dbo.problems')
 
 def add_tag_values(manager, meta):
     dict_list = []
