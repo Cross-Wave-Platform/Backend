@@ -4,6 +4,18 @@ from yaml import error
 from .operation import bulk_insert
 import pandas
 
+def add_survey(manager, age_type, survey_type, year, wave):
+    command = "INSERT INTO survey ( age_type, survey_type, year, wave) VALUES({},{},{},{});".format(age_type,survey_type,year,wave)
+    manager.cursor.execute(command)
+    manager.conn.commit()
+
+    command = "SELECT max( survey_id) FROM survey;"
+    manager.cursor.execute(command)
+    row = manager.cursor.fetchone()
+
+    survey_id = row[0]
+    return survey_id
+
 def add_problems(manager, meta):
     old_problems = pandas.read_sql( 'SELECT problem_id FROM dbo.problems;', manager.conn)
 
