@@ -1,11 +1,10 @@
-from numpy import isnan
-from numpy.lib.function_base import copy, insert
-from yaml import error
 from .operation import bulk_insert
 import pandas
 
+# survey_id is auto_increment without give the value
+# return survey_id it gets
 def add_survey(manager, age_type, survey_type, year, wave):
-    command = "INSERT INTO survey ( age_type, survey_type, year, wave) VALUES({},{},{},{});".format(age_type,survey_type,year,wave)
+    command = f"INSERT INTO survey ( age_type, survey_type, year, wave) VALUES({age_type},{survey_type},{year},{wave});"
     manager.cursor.execute(command)
     manager.conn.commit()
 

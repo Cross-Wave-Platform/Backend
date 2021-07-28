@@ -29,7 +29,7 @@ CONSTRAINT PK_survey PRIMARY KEY CLUSTERED ( survey_id)
 CREATE TABLE dbo.auth
 (
 class       VARCHAR( 900) NOT NULL,
-min_auth    INT           NOT NULL DEFAULT 2,
+min_auth    INT           NOT NULL DEFAULT 2, --admin as default
 
 CONSTRAINT PK_auth PRIMARY KEY CLUSTERED ( class)
 );
