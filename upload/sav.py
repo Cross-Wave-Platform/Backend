@@ -64,14 +64,14 @@ def add_tag_values(manager, meta):
             dict_list.append(row_data)
     given_tag_values = pandas.DataFrame.from_records(dict_list)
 
-    old_tag_values = pandas.read_sql( 'SELECT DISTINCT problem_id,tag_value FROM dbo.tag_value;', manager.conn)
+    old_tag_values = pandas.read_sql( 'SELECT problem_id,tag_value FROM dbo.tag_values;', manager.conn)
     insert_tag_value = ( pandas.concat([given_tag_values,old_tag_values]) 
                                .drop_duplicates(subset=['problem_id','tag_value'],keep=False) )
 
-    insert_tag_value.convert_dtypes()
+    insert_tag_value=insert_tag_value.convert_dtypes()
 
     if not insert_tag_value.empty:
-        bulk_insert(manager, insert_tag_value, 'dbo.tag_value')
+        bulk_insert(manager, insert_tag_value, 'dbo.tag_values')
 
 
 def add_survey_problems(manager,survey_id, meta):
@@ -83,12 +83,12 @@ def add_survey_problems(manager,survey_id, meta):
     column_names = ['survey_id', 'problems']
 
     survey_problems = survey_problems.loc[:, column_names]
-    bulk_insert(manager, survey_problems, 'dbo.survey_problem')
+    bulk_insert(manager, survey_problems, 'dbo.survey_problems')
 
 
 def add_answers(manager,survey_id, df, meta):
     # compute new answer_id
-    command = "SELECT max( survey_id) FROM answer;"
+    command = "SELECT max( survey_id) FROM answers;"
     manager.cursor.execute(command)
     old_max = manager.cursor.fetchone()[0]
     old_max = old_max if old_max else 0
@@ -114,4 +114,4 @@ def add_answers(manager,survey_id, df, meta):
 
     answers['answer_id'] = answers['answer_id'] + start_answer_id
 
-    bulk_insert(manager,answers,'dbo.answer')
+    bulk_insert(manager,answers,'dbo.answers')
