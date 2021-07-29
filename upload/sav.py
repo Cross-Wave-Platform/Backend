@@ -90,12 +90,18 @@ def add_survey_problems(manager,survey_id, meta):
 
     survey_problems = pandas.DataFrame()
 
-    survey_problems['problems'] = meta.column_names
+    survey_problems['problem_id'] = meta.column_names
     survey_problems['survey_id'] = survey_id
-    column_names = ['survey_id', 'problems']
+    column_names = ['survey_id', 'problem_id']
+
+    command = f'SELECT problem_id FROM dbo.survey_problems WHERE survey_id={survey_id};'
+    df = pandas.read_sql(command,manager.conn)
+    survey_problems = pandas.concat([df,survey_problems]).drop_duplicates(subset=['problem_id'], keep=False)
+
 
     survey_problems = survey_problems.loc[:, column_names]
-    bulk_insert(manager, survey_problems, 'dbo.survey_problems')
+    if not survey_problems.empty:
+        bulk_insert(manager, survey_problems, 'dbo.survey_problems')
 
 
 def add_answers(manager,survey_id, df, meta):
@@ -109,12 +115,11 @@ def add_answers(manager,survey_id, df, meta):
     # generating answers table
     answers = pandas.DataFrame()
 
-    command = f'SELECT answer FROM dbo.answer WHERE problem_id = \'baby_id\';'
+    command = f'SELECT answer FROM dbo.answers WHERE survey_id={survey_id} AND problem_id = \'baby_id\';'
 
     old_baby_id = pandas.read_sql( command, manager.conn)
 
     df = pandas.concat([df,old_baby_id]).drop_duplicates(subset=['baby_id'], keep=False)
-
     (answer_count, problem_count) = df.shape
 
     #force convert float dtype
