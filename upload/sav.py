@@ -16,35 +16,26 @@ def upload_sav(sav_path,survey_info):
 
     survey_id = add_survey(manager,survey_info)
 
-    if survey_id:
-        add_problems(manager,meta)
-        add_tag_values(manager,meta)
-        add_survey_problems(manager,survey_id,meta)
-        add_answers(manager,survey_id,df,meta)
-        print('success')
-    else:
-        print('duplicate survey')
+    add_problems(manager,meta)
+    add_tag_values(manager,meta)
+    add_survey_problems(manager,survey_id,meta)
+    add_answers(manager,survey_id,df,meta)
+    print('success')
 
 
 
 # survey_id is auto_increment without give the value
 # return survey_id it gets
 def add_survey(manager, survey_info):
-    command = f'SELECT age_type, survey_type, year, wave FROM survey;'
+    command = (f'SELECT survey_id '
+               f'FROM survey '
+               f'WHERE age_type={survey_info.age_type} AND survey_type={survey_info.survey_type} AND '
+               f'year={survey_info.year} AND wave={survey_info.wave};')
 
-    old_surveys = pandas.read_sql(command,manager.conn)
-
-    new_surveys = pandas.DataFrame()
-
-    new_surveys['age_type'] = survey_info.age_type
-    new_surveys['survey_type'] = survey_info.survey_type
-    new_surveys['year'] = survey_info.year
-    new_surveys['wave'] = survey_info.wave
-
-    dup = pandas.merge(left=old_surveys,right=new_surveys)
-
-    if not dup.empty:
-        return None
+    manager.cursor.execute(command)
+    search_row = manager.cursor.fetchone()
+    if search_row:
+        return  search_row[0]
 
     command = (f'INSERT INTO survey ( age_type, survey_type, year, wave) '
                f'VALUES({survey_info.age_type},{survey_info.survey_type},'
@@ -99,15 +90,19 @@ def add_survey_problems(manager,survey_id, meta):
 
     survey_problems = pandas.DataFrame()
 
-    survey_problems['problems'] = meta.column_names
+    survey_problems['problem_id'] = meta.column_names
     survey_problems['survey_id'] = survey_id
-    column_names = ['survey_id', 'problems']
-
+    column_names = ['survey_id', 'problem_id']
     survey_problems = survey_problems.loc[:, column_names]
-
     survey_problems = survey_problems.convert_dtypes()
 
-    bulk_insert(manager, survey_problems, 'dbo.survey_problems')
+    command = f'SELECT problem_id FROM dbo.survey_problems WHERE survey_id={survey_id};'
+    df = pandas.read_sql(command,manager.conn)
+    survey_problems = pandas.concat([df,survey_problems]).drop_duplicates(subset=['problem_id'], keep=False)
+
+
+    if not survey_problems.empty:
+        bulk_insert(manager, survey_problems, 'dbo.survey_problems')
 
 
 def add_answers(manager,survey_id, df, meta):
@@ -121,14 +116,13 @@ def add_answers(manager,survey_id, df, meta):
     # generating answers table
     answers = pandas.DataFrame()
 
-    command = f'SELECT answer FROM dbo.answers WHERE problem_id = \'baby_id\';'
+    command = f'SELECT answer FROM dbo.answers WHERE survey_id={survey_id} AND problem_id = \'baby_id\';'
 
     old_baby_id = pandas.read_sql( command, manager.conn)
 
     old_baby_id = old_baby_id.rename(columns={'answer':'baby_id'})
 
     df = pandas.concat([df,old_baby_id]).drop_duplicates(subset=['baby_id'], keep=False)
-
     (answer_count, problem_count) = df.shape
 
     #force convert float dtype
