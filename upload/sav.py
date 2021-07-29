@@ -1,10 +1,54 @@
 from .operation import bulk_insert
+from ..manager import SQLManager
 import pandas
+import pyreadstat
+
+class SurveyInfo:
+    def __init__(self,age_type,survey_type,year,wave):
+        self.age_type= age_type
+        self.survey_type = survey_type
+        self.year =year
+        self.wave =wave
+
+def upload_sav(sav_path,survey_info):
+    df , meta = pyreadstat.read_sav(sav_path,formats_as_category=True)
+    manager= SQLManager()
+
+    survey_id = add_survey(manager,survey_info)
+
+    if survey_id:
+        add_problems(manager,meta)
+        add_tag_values(manager,meta)
+        add_survey_problems(manager,survey_id,meta)
+        add_answers(manager,survey_id,df,meta)
+        print('success')
+    else:
+        print('duplicate survey')
+
+
 
 # survey_id is auto_increment without give the value
 # return survey_id it gets
-def add_survey(manager, age_type, survey_type, year, wave):
-    command = f"INSERT INTO survey ( age_type, survey_type, year, wave) VALUES({age_type},{survey_type},{year},{wave});"
+def add_survey(manager, survey_info):
+    command = f'SELECT age_type, survey_type, year, wave FROM survey;'
+
+    old_surveys = pandas.read_sql(command,manager.conn)
+
+    new_surveys = pandas.DataFrame()
+
+    new_surveys['age_type'] = survey_info.age_type
+    new_surveys['survey_type'] = survey_info.survey_type
+    new_surveys['year'] = survey_info.year
+    new_surveys['wave'] = survey_info.wave
+
+    dup = pandas.merge(left=old_surveys,right=new_surveys)
+
+    if not dup.empty:
+        return None
+
+    command = (f'INSERT INTO survey ( age_type, survey_type, year, wave) '
+               f'VALUES({survey_info.age_type},{survey_info.survey_type},'
+                      f'{survey_info.year},{survey_info.wave});')
     manager.cursor.execute(command)
     manager.conn.commit()
 
@@ -25,26 +69,33 @@ def add_problems(manager, meta):
 
     insert_problems = pandas.concat([given_problems,old_problems]).drop_duplicates(subset='problem_id',keep=False)
 
-    if insert_problems.empty == False:
+    if not insert_problems.empty:
         bulk_insert(manager, insert_problems, 'dbo.problems')
 
+# create tag_value df from meta,
+# drop duplicate data and bulk insert
 def add_tag_values(manager, meta):
+    
     dict_list = []
-
     for problem_id, pairs in meta.variable_value_labels.items():
         for tag_value, tag_name in pairs.items():
             row_data = {'problem_id': problem_id,
-                        'tag_value': int(float(tag_value)),
+                        'tag_value': float(tag_value),
                         'tag_name': tag_name}
             dict_list.append(row_data)
-    tag_values = pandas.DataFrame.from_records(dict_list)
+    given_tag_values = pandas.DataFrame.from_records(dict_list)
 
-    bulk_insert(manager, tag_values, 'dbo.tag_value')
+    old_tag_values = pandas.read_sql( 'SELECT problem_id,tag_value FROM dbo.tag_values;', manager.conn)
+    insert_tag_value = ( pandas.concat([given_tag_values,old_tag_values]) 
+                               .drop_duplicates(subset=['problem_id','tag_value'],keep=False) )
+
+    insert_tag_value=insert_tag_value.convert_dtypes()
+
+    if not insert_tag_value.empty:
+        bulk_insert(manager, insert_tag_value, 'dbo.tag_values')
 
 
-# todo: get survey_id
-def add_survey_problems(manager, meta):
-    survey_id = 1
+def add_survey_problems(manager,survey_id, meta):
 
     survey_problems = pandas.DataFrame()
 
@@ -53,13 +104,17 @@ def add_survey_problems(manager, meta):
     column_names = ['survey_id', 'problems']
 
     survey_problems = survey_problems.loc[:, column_names]
-    bulk_insert(manager, survey_problems, 'dbo.survey_problem')
+    bulk_insert(manager, survey_problems, 'dbo.survey_problems')
 
 
-# todo: get survey_id, start_answer_id
-def add_answers(manager, df, meta):
-    start_answer_id = 1
-    survey_id = 1
+def add_answers(manager,survey_id, df, meta):
+    # compute new answer_id
+    command = "SELECT max( answer_id) FROM answers;"
+    manager.cursor.execute(command)
+    old_max = manager.cursor.fetchone()[0]
+    old_max = old_max if old_max else 0
+    start_answer_id = old_max +1
+
     # generating answers table
     answers = pandas.DataFrame()
 
@@ -80,4 +135,4 @@ def add_answers(manager, df, meta):
 
     answers['answer_id'] = answers['answer_id'] + start_answer_id
 
-    bulk_insert(manager,answers,'dbo.answer')
+    bulk_insert(manager,answers,'dbo.answers')

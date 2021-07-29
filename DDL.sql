@@ -44,36 +44,36 @@ CONSTRAINT PK_problems PRIMARY KEY CLUSTERED ( problem_id),
 CONSTRAINT FK_problems_auth FOREIGN KEY ( class) REFERENCES dbo.auth ( class)
 );
 
-CREATE TABLE dbo.survey_problem
+CREATE TABLE dbo.survey_problems
 (
 survey_id   INT             NOT NULL,
 problem_id  VARCHAR( 30)    NOT NULL,
 
-CONSTRAINT PK_survey_problem PRIMARY KEY CLUSTERED ( survey_id, problem_id),
-CONSTRAINT FK_survey_problem_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
-CONSTRAINT FK_survey_problem_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
+CONSTRAINT PK_survey_problems PRIMARY KEY CLUSTERED ( survey_id, problem_id),
+CONSTRAINT FK_survey_problems_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
+CONSTRAINT FK_survey_problems_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
 );
 
-CREATE TABLE dbo.answer
+CREATE TABLE dbo.answers
 (
 answer_id   BIGINT          NOT NULL,
 problem_id  VARCHAR( 30)    NOT NULL,
 survey_id   INT             NOT NULL,
 answer      VARCHAR( 4000),
 
-CONSTRAINT PK_answer PRIMARY KEY CLUSTERED ( answer_id, problem_id),
-CONSTRAINT FK_answer_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
-CONSTRAINT FK_answer_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
+CONSTRAINT PK_answers PRIMARY KEY CLUSTERED ( answer_id, problem_id),
+CONSTRAINT FK_answers_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
+CONSTRAINT FK_answers_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
 );
 
-CREATE TABLE dbo.tag_value
+CREATE TABLE dbo.tag_values
 (
 problem_id  VARCHAR( 30)    NOT NULL,
-tag_value   INT,
+tag_value   INT             NOT NULL,
 tag_name    VARCHAR( 4000) NOT NULL,
 
-CONSTRAINT PK_tag_value PRIMARY KEY CLUSTERED ( problem_id),
-CONSTRAINT FK_tag_value_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
+CONSTRAINT PK_tag_values PRIMARY KEY CLUSTERED ( problem_id, tag_value),
+CONSTRAINT FK_tag_values_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
 );
 
 CREATE TABLE dbo.account
@@ -82,7 +82,7 @@ user_id         INT             IDENTITY,
 account_name    VARCHAR( 4000)  NOT NULL,
 email           VARCHAR( 320)   NOT NULL,
 password        VARCHAR( 4000)  NOT NULL,
-auth            INT             NOT NULL,
+auth            INT             NOT NULL DEFAULT 4,
 
 CONSTRAINT PK_account PRIMARY KEY CLUSTERED ( user_id)
 );
