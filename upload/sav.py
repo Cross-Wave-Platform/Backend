@@ -93,13 +93,12 @@ def add_survey_problems(manager,survey_id, meta):
     survey_problems['problem_id'] = meta.column_names
     survey_problems['survey_id'] = survey_id
     column_names = ['survey_id', 'problem_id']
-    survey_problems = survey_problems.loc[:, column_names]
     survey_problems = survey_problems.convert_dtypes()
 
     command = f'SELECT problem_id FROM dbo.survey_problems WHERE survey_id={survey_id};'
-    df = pandas.read_sql(command,manager.conn)
-    survey_problems = pandas.concat([df,survey_problems]).drop_duplicates(subset=['problem_id'], keep=False)
-
+    old_survey_problems = pandas.read_sql(command,manager.conn)
+    survey_problems = pandas.concat([survey_problems,old_survey_problems]).drop_duplicates(subset=['problem_id'], keep=False)
+    survey_problems = survey_problems.loc[:, column_names]
 
     if not survey_problems.empty:
         bulk_insert(manager, survey_problems, 'dbo.survey_problems')
