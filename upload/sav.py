@@ -24,6 +24,21 @@ def upload_sav(sav_path,survey_info):
 # survey_id is auto_increment without give the value
 # return survey_id it gets
 def add_survey(manager, survey_info):
+    command = f'SELCET age_type, survey_type, year, wave FROM survey;'
+
+    old_surveys = pandas.read_sql(command,manager.conn)
+
+    new_surveys = pandas.DataFrame()
+
+    new_surveys['age_type'] = survey_info.age_type
+    new_surveys['survey_type'] = survey_info.survey_type
+    new_surveys['year'] = survey_info.year
+    new_surveys['wave'] = survey_info.wave
+
+    dup = pandas.merge(left=old_surveys,right=new_surveys)
+
+    if dup.empty:
+        return
 
     command = (f'INSERT INTO survey ( age_type, survey_type, year, wave) '
                f'VALUES({survey_info.age_type},{survey_info.survey_type},'
