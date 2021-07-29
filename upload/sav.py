@@ -104,6 +104,9 @@ def add_survey_problems(manager,survey_id, meta):
     column_names = ['survey_id', 'problems']
 
     survey_problems = survey_problems.loc[:, column_names]
+
+    survey_problems = survey_problems.convert_dtypes()
+
     bulk_insert(manager, survey_problems, 'dbo.survey_problems')
 
 
@@ -118,9 +121,11 @@ def add_answers(manager,survey_id, df, meta):
     # generating answers table
     answers = pandas.DataFrame()
 
-    command = f'SELECT answer FROM dbo.answer WHERE problem_id = \'baby_id\';'
+    command = f'SELECT answer FROM dbo.answers WHERE problem_id = \'baby_id\';'
 
     old_baby_id = pandas.read_sql( command, manager.conn)
+
+    old_baby_id = old_baby_id.rename(columns={'answer':'baby_id'})
 
     df = pandas.concat([df,old_baby_id]).drop_duplicates(subset=['baby_id'], keep=False)
 
