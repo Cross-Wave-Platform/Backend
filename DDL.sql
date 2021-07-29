@@ -44,7 +44,7 @@ CONSTRAINT PK_problems PRIMARY KEY CLUSTERED ( problem_id),
 CONSTRAINT FK_problems_auth FOREIGN KEY ( class) REFERENCES dbo.auth ( class)
 );
 
-CREATE TABLE dbo.survey_problem
+CREATE TABLE dbo.survey_problems
 (
 survey_id   INT             NOT NULL,
 problem_id  VARCHAR( 30)    NOT NULL,
