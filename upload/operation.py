@@ -10,8 +10,8 @@ def bulk_insert(manager, df, table):
     file_path = f'{tmp_dir}/{file_name}.csv'
 
     df.to_csv(file_path, index=False)
-    bulk_insert_op = fr'''BULK INSERT {table}
-                          FROM '{file_path}' 
-                          WITH ( CODEPAGE='RAW', FIRSTROW=2, FORMAT='CSV');'''
+    bulk_insert_op = (fr"BULK INSERT {table} "
+                      fr"FROM '{file_path}' " 
+                      fr"WITH ( CODEPAGE='RAW', FIRSTROW=2, FORMAT='CSV');")
     manager.cursor.execute(bulk_insert_op)
     manager.conn.commit()
