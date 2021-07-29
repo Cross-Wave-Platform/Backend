@@ -118,6 +118,12 @@ def add_answers(manager,survey_id, df, meta):
     # generating answers table
     answers = pandas.DataFrame()
 
+    command = f'SELECT answer FROM dbo.answer WHERE problem_id = \'baby_id\';'
+
+    old_baby_id = pandas.read_sql( command, manager.conn)
+
+    df = pandas.concat([df,old_baby_id]).drop_duplicates(subset=['baby_id'], keep=False)
+
     (answer_count, problem_count) = df.shape
 
     #force convert float dtype
