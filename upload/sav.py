@@ -16,35 +16,26 @@ def upload_sav(sav_path,survey_info):
 
     survey_id = add_survey(manager,survey_info)
 
-    if survey_id:
-        add_problems(manager,meta)
-        add_tag_values(manager,meta)
-        add_survey_problems(manager,survey_id,meta)
-        add_answers(manager,survey_id,df,meta)
-        print('success')
-    else:
-        print('duplicate survey')
+    add_problems(manager,meta)
+    add_tag_values(manager,meta)
+    add_survey_problems(manager,survey_id,meta)
+    add_answers(manager,survey_id,df,meta)
+    print('success')
 
 
 
 # survey_id is auto_increment without give the value
 # return survey_id it gets
 def add_survey(manager, survey_info):
-    command = f'SELECT age_type, survey_type, year, wave FROM survey;'
+    command = (f'SELECT survey_id '
+               f'FROM survey '
+               f'WHERE age_type={survey_info.age_type} AND survey_type={survey_info.survey_type} AND '
+               f'year={survey_info.year} AND wave={survey_info.wave};')
 
-    old_surveys = pandas.read_sql(command,manager.conn)
-
-    new_surveys = pandas.DataFrame()
-
-    new_surveys['age_type'] = survey_info.age_type
-    new_surveys['survey_type'] = survey_info.survey_type
-    new_surveys['year'] = survey_info.year
-    new_surveys['wave'] = survey_info.wave
-
-    dup = pandas.merge(left=old_surveys,right=new_surveys)
-
-    if not dup.empty:
-        return None
+    manager.cursor.execute(command)
+    search_row = manager.cursor.fetchone()
+    if search_row:
+        return  search_row[0]
 
     command = (f'INSERT INTO survey ( age_type, survey_type, year, wave) '
                f'VALUES({survey_info.age_type},{survey_info.survey_type},'
