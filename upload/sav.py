@@ -15,16 +15,22 @@ def upload_sav(sav_path,survey_info):
     manager= SQLManager()
 
     survey_id = add_survey(manager,survey_info)
-    add_problems(manager,meta)
-    add_tag_values(manager,meta)
-    add_survey_problems(manager,survey_id,meta)
-    add_answers(manager,survey_id,df,meta)
+
+    if survey_id:
+        add_problems(manager,meta)
+        add_tag_values(manager,meta)
+        add_survey_problems(manager,survey_id,meta)
+        add_answers(manager,survey_id,df,meta)
+        print('success')
+    else:
+        print('duplicate survey')
+
 
 
 # survey_id is auto_increment without give the value
 # return survey_id it gets
 def add_survey(manager, survey_info):
-    command = f'SELCET age_type, survey_type, year, wave FROM survey;'
+    command = f'SELECT age_type, survey_type, year, wave FROM survey;'
 
     old_surveys = pandas.read_sql(command,manager.conn)
 
@@ -37,8 +43,8 @@ def add_survey(manager, survey_info):
 
     dup = pandas.merge(left=old_surveys,right=new_surveys)
 
-    if dup.empty:
-        return
+    if not dup.empty:
+        return None
 
     command = (f'INSERT INTO survey ( age_type, survey_type, year, wave) '
                f'VALUES({survey_info.age_type},{survey_info.survey_type},'
@@ -103,7 +109,7 @@ def add_survey_problems(manager,survey_id, meta):
 
 def add_answers(manager,survey_id, df, meta):
     # compute new answer_id
-    command = "SELECT max( survey_id) FROM answers;"
+    command = "SELECT max( answer_id) FROM answers;"
     manager.cursor.execute(command)
     old_max = manager.cursor.fetchone()[0]
     old_max = old_max if old_max else 0
