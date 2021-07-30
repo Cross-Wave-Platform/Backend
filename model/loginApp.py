@@ -1,6 +1,6 @@
 import flask
 from flask import Blueprint, request
-from database.account import Account
+from db_module.account import Account
 from http import HTTPStatus
 from .auth import login_required
 from .utils.response import HTTPResponse, HTTPError
