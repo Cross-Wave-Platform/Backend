@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import pyreadstat as prs
+from .config import UPLOAD_FOLDER
 from werkzeug.utils import secure_filename
 
 __all__ = ['Upload_Files']
@@ -15,7 +16,7 @@ class Upload_Files():
 
     def get_user_folder(self):
         #get user folder path
-        file_dir = os.path.join(fileApp_api.config['UPLOAD_FOLDER'] , self.username)
+        file_dir = os.path.join( UPLOAD_FOLDER , self.username)
         #create user folder if not exist
         if not os.path.exists(file_dir):
                 os.makedirs(file_dir)

@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import pyreadstat as prs
+from .config import DOWNLOAD_FOLDER
 from flask import request, send_file
 
 __all__ = ['Export_Files']
@@ -14,7 +15,7 @@ class Export_Files():
 
     def get_user_folder(self):
         #get user folder path  
-        file_dir = os.path.join(fileApp_api.config['DOWNLOAD_FOLDER'] , self.username)
+        file_dir = os.path.join( DOWNLOAD_FOLDER , self.username)
         #create user folder if not exist
         if not os.path.exists(file_dir):
                 os.makedirs(file_dir)
@@ -31,7 +32,7 @@ class Export_Files():
         df = 'retrieved data' #tbd data from db, df in pandas dataframe structurre
 
         '''save file to user export folder'''
-        merge_file = os.path.join(get_user_folder(), 'merge.sav')
+        merge_file = os.path.join(self.get_user_folder(), 'merge.sav')
         try:
             pyreadstat.write_sav(df, merge_file, variable_format=formats, missing_ranges=missing_ranges, variable_value_labels=variable_value_labels)
         except:
