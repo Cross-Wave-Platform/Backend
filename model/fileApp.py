@@ -1,9 +1,9 @@
 import os
 from flask import request, send_file
 from http import HTTPStatus
-from database.account import Account
-from database.upload import Upload_Files
-from database.export import Export_Files
+from db-module.account import Account
+from db-module.upload import Upload_Files
+from db-module.export import Export_Files
 
 __all__ = ['fileApp_api']
 
