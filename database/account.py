@@ -13,12 +13,15 @@ JWT_EXP = timedelta(days=int(os.environ.get('JWT_EXP', '30')))
 JWT_ISS = os.environ.get('JWT_ISS', 'test.test')
 JWT_SECRET = os.environ.get('JWT_SECRET', 'SuperSecretString')
 
-
+'''
 conn = pymssql.connect(server='140.122.63.2',
                         user='',
                         password='',
                         database='',) 
-
+'''
+JWT_EXP = timedelta(days=int(os.environ.get('JWT_EXP', '30')))
+JWT_ISS = os.environ.get('JWT_ISS', 'test.test')
+JWT_SECRET = os.environ.get('JWT_SECRET', 'SuperSecretString')
 class Account():
     def __init__(self, username):
         self.username = username
@@ -38,11 +41,12 @@ class Account():
         user = cls.get_by_username(username)
         if user is not None:
             return 'account exists'
-
+        '''
         cursor = conn.cursor()
         sql = 'INSERT dbo.account (user_id, account_name, email, password) OUTPUT INSERT accountID VALUES (\''+ username + '\', \'' + username + '\', \'' + email + '\', \'' + user_id + '\')'
         cursor.execute(sql)
         conn.commit()
+        '''
         return user.reload()
 
     @classmethod

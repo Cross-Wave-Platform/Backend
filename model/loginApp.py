@@ -24,9 +24,9 @@ def login():
         if user == 'user not found':
             return HTTPError('user not found', 404)
         elif user == 'password incorrect':
-            return HTTPError('password incorrect', 406)
+            return HTTPError('password incorrect', 403)
     except:
-        return HTTPError('unknown error', 403)
+        return HTTPError('unknown error', 406)
     
     cookies = {'piann_httponly': user.secret, 'jwt': user.cookie}
 
