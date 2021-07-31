@@ -65,6 +65,8 @@ CONSTRAINT FK_answers_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( su
 CONSTRAINT FK_answers_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
 );
 
+-- CREATE NONCLUSTERED INDEX IX_answers_survey_id_problem_id ON dbo.answers (survey_id,problem_id);
+
 CREATE TABLE dbo.tag_values
 (
 problem_id  VARCHAR( 30)    NOT NULL,
