@@ -12,6 +12,6 @@ def bulk_insert(manager, df, table):
     df.to_csv(file_path, index=False)
     bulk_insert_op = (fr"BULK INSERT {table} "
                       fr"FROM '{file_path}' " 
-                      fr"WITH ( CODEPAGE='RAW', FIRSTROW=2, FORMAT='CSV');")
+                      fr"WITH ( CHECK_CONSTRAINTS, CODEPAGE='RAW', FIRSTROW=2, FORMAT='CSV');")
     manager.cursor.execute(bulk_insert_op)
     manager.conn.commit()

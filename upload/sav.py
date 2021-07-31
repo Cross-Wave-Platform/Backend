@@ -29,20 +29,13 @@ def upload_sav(sav_path,survey_info):
 # survey_id is auto_increment without give the value
 # return survey_id it gets
 def add_survey(manager, survey_info):
-    command = f'SELECT age_type, survey_type, wave FROM survey;'
+    command = (f'SELECT survey_id,age_type, survey_type, wave FROM survey '
+                f'WHERE age_type={survey_info.age_type} AND survey_type={survey_info.survey_type} AND wave={survey_info.wave};')
 
     old_surveys = pandas.read_sql(command,manager.conn)
 
-    new_surveys = pandas.DataFrame()
-
-    new_surveys['age_type'] = survey_info.age_type
-    new_surveys['survey_type'] = survey_info.survey_type
-    new_surveys['wave'] = survey_info.wave
-
-    dup = pandas.merge(left=old_surveys,right=new_surveys)
-
-    if not dup.empty:
-        return None
+    if not old_surveys.empty:
+        return old_surveys.at[0,'survey_id']
 
     command = (f'INSERT INTO survey ( age_type, survey_type, wave) '
                f'VALUES({survey_info.age_type},{survey_info.survey_type},'
@@ -95,11 +88,17 @@ def add_tag_values(manager, meta):
 
 def add_survey_problems(manager,survey_id, meta):
 
+    command = f'SELECT problem_id FROM survey_problems WHERE survey_id={survey_id};'
+
+    old_problems = pandas.read_sql(command,manager.conn)
+
     survey_problems = pandas.DataFrame()
 
-    survey_problems['problems'] = meta.column_names
+    survey_problems['problem_id'] = meta.column_names
     survey_problems['survey_id'] = survey_id
-    column_names = ['survey_id', 'problems']
+    column_names = ['survey_id', 'problem_id']
+
+    survey_problems = pandas.concat([old_problems,survey_problems]).drop_duplicates(subset=['problem_id'], keep=False)
 
     survey_problems = survey_problems.loc[:, column_names]
 
@@ -119,7 +118,7 @@ def add_answers(manager,survey_id, df, meta):
     # generating answers table
     answers = pandas.DataFrame()
 
-    command = f'SELECT answer FROM dbo.answers WHERE problem_id = \'baby_id\';'
+    command = f'SELECT answer FROM dbo.answers WHERE problem_id = \'baby_id\' AND survey_id={survey_id};'
 
     old_baby_id = pandas.read_sql( command, manager.conn)
 
