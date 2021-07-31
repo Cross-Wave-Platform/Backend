@@ -1,18 +1,16 @@
 import os
-from flask import request, send_file
+from flask import request, send_file, Blueprint 
 from http import HTTPStatus
+from .auth import login_required
 from db_module.account import Account
 from db_module.upload import Upload_Files
 from db_module.export import Export_Files
+from .utils.response import HTTPResponse, HTTPError
 
 __all__ = ['fileApp_api']
 
 fileApp_api = Blueprint('fileApp_api',__name__)
 
-fileApp_api.config["UPLOAD_FOLDER"] = '/upload' #tbd upload folder path
-fileApp_api.config["DOWNLOAD_FOLDER"] = '/download' #tbd download folder path
-
-ALLOWED_EXTENSIONS = {'csv', 'sav'}
 
 @fileApp_api.route('/upload', methods=['POST'])
 @login_required
@@ -20,20 +18,20 @@ def upload_file():
     ''' save file'''
     #check if user upload folder exist, or create one
     user = 'current user' #tbd user
-	user_file = Upload_Files(user)
+    user_file = Upload_Files(user)
     try:
         filename = user_file.get_user_file(request.file)
-        if  filename == "No files"
-            return {}, HTTPStatus.NOT_FOUND
+        if  filename == "No files":
+            return HTTPError('No files', 404)
     except:
-        return {}, HTTPStatus.FORBIDDEN
+        return HTTPError('unknown error', 403)
     '''
         save file to db
     '''
     '''
         delete file?
     '''
-    return {'file':filename}, HTTPStatus.OK
+    return HTTPResponse('ok', file = filename)
 
 @fileApp_api.route('/export', methods=['POST'])
 @login_required #tbc to be confirmed
