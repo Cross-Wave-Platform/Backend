@@ -4,10 +4,9 @@ import pandas
 import pyreadstat
 
 class SurveyInfo:
-    def __init__(self,age_type,survey_type,year,wave):
+    def __init__(self,age_type,survey_type,wave):
         self.age_type= age_type
         self.survey_type = survey_type
-        self.year =year
         self.wave =wave
 
 def upload_sav(sav_path,survey_info):
@@ -30,7 +29,7 @@ def upload_sav(sav_path,survey_info):
 # survey_id is auto_increment without give the value
 # return survey_id it gets
 def add_survey(manager, survey_info):
-    command = f'SELECT age_type, survey_type, year, wave FROM survey;'
+    command = f'SELECT age_type, survey_type, wave FROM survey;'
 
     old_surveys = pandas.read_sql(command,manager.conn)
 
@@ -38,7 +37,6 @@ def add_survey(manager, survey_info):
 
     new_surveys['age_type'] = survey_info.age_type
     new_surveys['survey_type'] = survey_info.survey_type
-    new_surveys['year'] = survey_info.year
     new_surveys['wave'] = survey_info.wave
 
     dup = pandas.merge(left=old_surveys,right=new_surveys)
@@ -46,9 +44,9 @@ def add_survey(manager, survey_info):
     if not dup.empty:
         return None
 
-    command = (f'INSERT INTO survey ( age_type, survey_type, year, wave) '
+    command = (f'INSERT INTO survey ( age_type, survey_type, wave) '
                f'VALUES({survey_info.age_type},{survey_info.survey_type},'
-                      f'{survey_info.year},{survey_info.wave});')
+                      f'{survey_info.wave});')
     manager.cursor.execute(command)
     manager.conn.commit()
 

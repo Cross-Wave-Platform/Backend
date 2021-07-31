@@ -19,7 +19,6 @@ CREATE TABLE dbo.survey
 survey_id   INT     IDENTITY,
 age_type    INT     NOT NULL,
 survey_type INT     NOT NULL,
-year        INT     NOT NULL,
 wave        INT     NOT NULL,
 release     INT     NOT NULL DEFAULT 0,
 
