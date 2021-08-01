@@ -1,7 +1,7 @@
 import flask
 from flask import Flask
-from db_module import *
 from model import *
+from controller import *
 
 app = Flask(__name__)
 
