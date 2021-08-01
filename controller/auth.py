@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import Blueprint, request
-from db_module.account import Account, jwt_decode
+from model.account import Account, jwt_decode
 from .utils.response import HTTPError, HTTPResponse
 from .utils.request import Request
 
