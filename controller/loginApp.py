@@ -1,7 +1,5 @@
-import flask
 from flask import Blueprint, request
 from model.account import Account
-from http import HTTPStatus
 from .auth import login_required
 from .utils.response import HTTPResponse, HTTPError
 
@@ -43,7 +41,7 @@ def signup():
     try:
         user = Account.signup(username, password, email)
         if user == 'email used':
-            return HTTPError('email userd', 403)
+            return HTTPError('email used', 403)
         elif user == 'account exists':
             return HTTPError('account exists', 404)
     except:

@@ -2,6 +2,7 @@ import flask
 from flask import Flask
 from model import *
 from controller import *
+from controller import loginApp_api, fileApp_api
 
 app = Flask(__name__)
 
