@@ -2,9 +2,9 @@ import os
 from flask import request, send_file, Blueprint 
 from http import HTTPStatus
 from .auth import login_required
-from model.account import Account
-from model.upload import Upload_Files
-from model.export import Export_Files
+from service.account import Account
+from service.upload import Upload_Files
+from service.export import Export_Files
 from .utils.response import HTTPResponse, HTTPError
 
 __all__ = ['fileApp_api']

@@ -28,13 +28,14 @@ class Export_Files():
         variable_value_labels = {'Var1':{'a':'a missing value'}
         missing_ranges = {'Var1':['a'], 'Var2': ['b']}
         formats = {'val1':'N4', 'val2':'F1.0'}
+        variable_format=formats, missing_ranges=missing_ranges, variable_value_labels=variable_value_labels
         '''
         df = 'retrieved data' #tbd data from db, df in pandas dataframe structurre
 
         '''save file to user export folder'''
         merge_file = os.path.join(self.get_user_folder(), 'merge.sav')
         try:
-            pyreadstat.write_sav(df, merge_file, variable_format=formats, missing_ranges=missing_ranges, variable_value_labels=variable_value_labels)
+            prs.write_sav(df, merge_file)
         except:
             return "Could not create merge file"
         self.merge_file = merge_file
