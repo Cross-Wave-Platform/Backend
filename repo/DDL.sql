@@ -19,7 +19,6 @@ CREATE TABLE dbo.survey
 survey_id   INT     IDENTITY,
 age_type    INT     NOT NULL,
 survey_type INT     NOT NULL,
-year        INT     NOT NULL,
 wave        INT     NOT NULL,
 release     INT     NOT NULL DEFAULT 0,
 
@@ -65,6 +64,8 @@ CONSTRAINT PK_answers PRIMARY KEY CLUSTERED ( answer_id, problem_id),
 CONSTRAINT FK_answers_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
 CONSTRAINT FK_answers_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
 );
+
+-- CREATE NONCLUSTERED INDEX IX_answers_survey_id_problem_id ON dbo.answers (survey_id,problem_id);
 
 CREATE TABLE dbo.tag_values
 (

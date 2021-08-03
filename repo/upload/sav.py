@@ -4,10 +4,9 @@ import pandas
 import pyreadstat
 
 class SurveyInfo:
-    def __init__(self,age_type,survey_type,year,wave):
+    def __init__(self,age_type,survey_type,wave):
         self.age_type= age_type
         self.survey_type = survey_type
-        self.year =year
         self.wave =wave
 
 def upload_sav(sav_path,survey_info):
@@ -27,19 +26,18 @@ def upload_sav(sav_path,survey_info):
 # survey_id is auto_increment without give the value
 # return survey_id it gets
 def add_survey(manager, survey_info):
-    command = (f'SELECT survey_id '
-               f'FROM survey '
-               f'WHERE age_type={survey_info.age_type} AND survey_type={survey_info.survey_type} AND '
-               f'year={survey_info.year} AND wave={survey_info.wave};')
+    command = (f'SELECT survey_id,age_type, survey_type, wave FROM survey '
+                f'WHERE age_type={survey_info.age_type} AND survey_type={survey_info.survey_type} AND wave={survey_info.wave};')
 
-    manager.cursor.execute(command)
-    search_row = manager.cursor.fetchone()
-    if search_row:
-        return  search_row[0]
+    old_surveys = pandas.read_sql(command,manager.conn)
 
-    command = (f'INSERT INTO survey ( age_type, survey_type, year, wave) '
+    if not old_surveys.empty:
+        return old_surveys.at[0,'survey_id']
+
+    command = (f'INSERT INTO survey ( age_type, survey_type, wave) '
+    
                f'VALUES({survey_info.age_type},{survey_info.survey_type},'
-                      f'{survey_info.year},{survey_info.wave});')
+                      f'{survey_info.wave});')
     manager.cursor.execute(command)
     manager.conn.commit()
 
@@ -88,11 +86,17 @@ def add_tag_values(manager, meta):
 
 def add_survey_problems(manager,survey_id, meta):
 
+    command = f'SELECT problem_id FROM survey_problems WHERE survey_id={survey_id};'
+
+    old_problems = pandas.read_sql(command,manager.conn)
+
     survey_problems = pandas.DataFrame()
 
     survey_problems['problem_id'] = meta.column_names
     survey_problems['survey_id'] = survey_id
     column_names = ['survey_id', 'problem_id']
+
+    survey_problems = pandas.concat([old_problems,survey_problems]).drop_duplicates(subset=['problem_id'], keep=False)
     survey_problems = survey_problems.convert_dtypes()
 
     command = f'SELECT problem_id FROM dbo.survey_problems WHERE survey_id={survey_id};'
@@ -115,6 +119,7 @@ def add_answers(manager,survey_id, df, meta):
     # generating answers table
     answers = pandas.DataFrame()
 
+    command = f'SELECT answer FROM dbo.answers WHERE problem_id = \'baby_id\' AND survey_id={survey_id};'
     command = f'SELECT answer FROM dbo.answers WHERE survey_id={survey_id} AND problem_id = \'baby_id\';'
 
     old_baby_id = pandas.read_sql( command, manager.conn)
