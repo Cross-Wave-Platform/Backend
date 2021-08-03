@@ -113,7 +113,9 @@ CONSTRAINT FK_shop_cart_account FOREIGN KEY ( user_id) REFERENCES dbo.account ( 
 CONSTRAINT FK_shop_cart_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
 CONSTRAINT FK_shop_cart_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
 );
+GO
 
+INSERT INTO dbo.auth VALUES('no_group', 2);
 GO
 
 USE master;
