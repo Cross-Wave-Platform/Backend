@@ -24,7 +24,7 @@ def upload_file():
         if  filename == "No files":
             return HTTPError('No files', 404)
     except:
-        return HTTPError('unknown error', 403)
+        return HTTPError('unknown error', 406)
     '''
         save file to db
     '''
@@ -46,9 +46,9 @@ def export_file():
     try:
         res = user_file.get_db_file()
         if res == "Could not create merge file":
-	        return {}, HTTPStatus.NOT_FOUND
+	        return HTTPError('File can\'t merge', 404)
         res = user_file.export_file_to_user()
         if res == "Fail":
-            return {}, HTTPStatus.Fail
+            return HTTPError('Fail to send file', 403)
     except:
-        return {}, HTTPStatus.FORBIDDEN
+        return HTTPError('unknown error', 406)
