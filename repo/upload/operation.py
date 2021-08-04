@@ -4,7 +4,7 @@ import pkgutil
 
 # dump dataframe to csv, and execute sql bulk insert
 def bulk_insert(manager, df, table):
-    config_data = pkgutil.get_data('Database', 'config.yaml')
+    config_data = pkgutil.get_data('Backend.repo', 'config.yaml')
     tmp_dir = yaml.load(config_data, Loader)['tmp_dir']
     file_name = table.split(".")[1]
     file_path = f'{tmp_dir}/{file_name}.csv'
