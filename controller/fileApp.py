@@ -52,3 +52,5 @@ def export_file():
             return HTTPError('Fail to send file', 403)
     except:
         return HTTPError('unknown error', 406)
+
+    return HTTPResponse('ok')
