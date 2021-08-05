@@ -25,11 +25,9 @@ def login_required(func):
         json = jwt_decode(token)
         if json is None or not json.get('secret'):
             return HTTPError('Invalid Token', 403)
-        user = Account(json['data']['username'])
-        if json['data'].get('userId') != user.user_id:
+        user = Account(json.get('username'))
+        if json.get('userId') != user.user_id:
             return HTTPError(f'Authorization Expired', 403)
-        if not user.active:
-            return HTTPError('Inactive User', 403)
         kwargs['user'] = user
         return func(*args, **kwargs)
 

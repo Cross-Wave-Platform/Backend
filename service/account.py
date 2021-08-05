@@ -19,9 +19,6 @@ conn = pymssql.connect(server='140.122.63.2',
                         password='',
                         database='',) 
 '''
-JWT_EXP = timedelta(days=int(os.environ.get('JWT_EXP', '30')))
-JWT_ISS = os.environ.get('JWT_ISS', 'test.test')
-JWT_SECRET = os.environ.get('JWT_SECRET', 'SuperSecretString')
 class Account():
     def __init__(self, username):
         self.username = username
