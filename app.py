@@ -1,7 +1,8 @@
 import flask
 from flask import Flask
-from controller import *
 from service import *
+from controller import *
+from controller import loginApp_api, fileApp_api
 
 app = Flask(__name__)
 
