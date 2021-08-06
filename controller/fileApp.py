@@ -1,7 +1,7 @@
 import os
 from flask import request, send_file, Blueprint 
 from http import HTTPStatus
-from .auth import login_required
+from flask_login import login_required
 from service.account import Account
 from service.upload import Upload_Files
 from service.export import Export_Files
