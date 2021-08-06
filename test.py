@@ -9,9 +9,25 @@ from service.account import Account, jwt_decode
 from datetime import datetime, timedelta
 import os
 
+from functools import wraps
+
 JWT_EXP = timedelta(days=int(os.environ.get('JWT_EXP', '30')))
 JWT_ISS = os.environ.get('JWT_ISS', 'test.test')
 JWT_SECRET = os.environ.get('JWT_SECRET', 'SuperSecretString')
+
+def wrapper(token, *args, **kwargs):
+    if token is None:
+        return HTTPError('Not Logged In', 403)
+    json = jwt_decode(token)
+    if json is None or not json.get('secret'):
+        return HTTPError('Invalid Token', 403)
+    #user = Account(json.get('username'))
+    print(json.get('username'))
+    if json.get('userId') != 'testuser':
+        return HTTPError(f'Authorization Expired', 403)
+    kwargs['user'] = user
+    return 'ok'
+
 
 if __name__ == "__main__":
     username = 'testuser'
@@ -42,6 +58,8 @@ if __name__ == "__main__":
     print(cookie_para)
     de = jwt_decode(encoded_jwt)
     print(de)
+    a = wrapper(encoded_jwt)
+    print(a)
 '''
     response = requests.get(url=url, cookies=cookie_para, headers=headers)
     print(response.content.decode())
