@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from .utils import hash_id
 from hmac import compare_digest
 import pymssql
+from flask_login import UserMixin
 
 import jwt
 import os
@@ -19,7 +20,7 @@ conn = pymssql.connect(server='140.122.63.2',
                         password='',
                         database='',) 
 '''
-class Account():
+class Account(UserMixin):
     def __init__(self, username):
         self.username = username
 
@@ -60,6 +61,12 @@ class Account():
         else:
             return 'password incorrect'
 
+    def change_password(self, old_password, new_password):
+        user_id = hash_id(self.id, old_password)
+        #save new password in db
+
+        return self
+
     @classmethod
     def get_by_username(cls, username):
         obj = "sql..."
@@ -79,7 +86,7 @@ class Account():
     def jwt(self, *keys, secret=False, **kwargs):
         if not self:
             return ''
-        user = self.reload().to_mongo()
+        user = self.reload()
         user['username'] = user.get('_id')
         data = {k: user.get(k) for k in keys}
         data.update(kwargs)
