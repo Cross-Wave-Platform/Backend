@@ -23,8 +23,24 @@ class SQLManager:
         self.cursor = self.conn.cursor()
 
     def close(self):
-        self.cursor.close()
-        self.conn.close()
+        if self.conn:
+            self.conn.close()
+            self.conn=None
+            self.cursor=None
 
     def __del__(self):
         self.close()
+
+    # dump dataframe to csv, and execute sql bulk insert
+    def bulk_insert(self, df, table:str):
+        config_data = pkgutil.get_data(__package__, 'config.yaml')
+        tmp_dir = yaml.load(config_data, Loader)['tmp_dir']
+        file_name = table.split(".")[1]
+        file_path = f'{tmp_dir}/{file_name}.csv'
+
+        df.to_csv(file_path, index=False)
+        insert_op = (fr"BULK INSERT {table} "
+                        fr"FROM '{file_path}' " 
+                        fr"WITH ( CHECK_CONSTRAINTS, CODEPAGE='RAW', FIRSTROW=2, FORMAT='CSV');")
+        self.cursor.execute(insert_op)
+        self.conn.commit()
