@@ -4,4 +4,4 @@ mssql:
   password: 'Kit2021db'
   database: 'KIT_DB'
 
-tmp_dir: '/home/lil0w1/KIT/tmp_dir'
+tmp_dir: '/home/lil0w1/KIT/Backend/tmp_dir'
