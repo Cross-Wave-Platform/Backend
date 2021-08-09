@@ -26,20 +26,19 @@ class Upload_Files():
                 os.makedirs(file_dir)
         return file_dir
 
-    def get_user_file(self, request_files):
+    def get_user_file(self, request_file):
         # check if the post request has the file part
-        if 'file' not in request_files:
+        if not request_file:
             return "No files"
-        file = request_files['file']
 
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
-        if file.filename == '':
+        if request_file.filename == '':
             return "No files"
         
         #there is file
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+        if request_file and allowed_file(request_file.filename):
+            filename = secure_filename(request_file.filename)
             file_path = os.path.join(self.get_user_folder(), filename)
-            file.save(file_path)
+            request_file.save(file_path)
         return file_path

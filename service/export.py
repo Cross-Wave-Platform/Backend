@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import pyreadstat as prs
 from .config import DOWNLOAD_FOLDER
-from flask import request, send_file
+from flask import send_file
 
 __all__ = ['Export_Files']
 

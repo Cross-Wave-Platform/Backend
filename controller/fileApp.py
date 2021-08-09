@@ -1,11 +1,12 @@
 import os
-from flask import request, send_file, Blueprint 
+from flask import send_file, Blueprint 
 from http import HTTPStatus
 from flask_login import login_required
 from service.account import Account
 from service.upload import Upload_Files
 from service.export import Export_Files
 from .utils.response import HTTPResponse, HTTPError
+from .utils.request import Request
 
 __all__ = ['fileApp_api']
 
@@ -14,13 +15,14 @@ fileApp_api = Blueprint('fileApp_api',__name__)
 
 @fileApp_api.route('/upload', methods=['POST'])
 @login_required
-def upload_file():
+@Request.json('username: str', 'request_file: file')
+def upload_file(username, request_file):
     ''' save file'''
     #check if user upload folder exist, or create one
-    user = 'current user' #tbd user
-    user_file = Upload_Files(user)
+    #user = 'current user' tbd user
+    user_file = Upload_Files(username)
     try:
-        filename = user_file.get_user_file(request.file)
+        filename = user_file.get_user_file(request_file)
         if  filename == "No files":
             return HTTPError('No files', 404)
     except:
@@ -35,14 +37,15 @@ def upload_file():
 
 @fileApp_api.route('/export', methods=['POST'])
 @login_required #tbc to be confirmed
-def export_file():
+@Request.json('merge_method: str', 'file_format: file')
+def export_file(merge_method, file_format):
     ''' get user request info'''
 
     ''' write info to file'''
 
     ''' send file to user'''
     user = 'current user' #tbd get current user
-    user_file = Export_Files(user, request.json['merge_method'], request.json['file_format'])
+    user_file = Export_Files(user, merge_method, file_format)
     try:
         res = user_file.get_db_file()
         if res == "Could not create merge file":
