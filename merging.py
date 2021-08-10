@@ -35,12 +35,9 @@ def merger(file_names: List[str], used_columns: List[List[str]], merge_type: str
             else:
                 result = pandas.merge( left=result, right=dataframes[i+1], how=merge_type, on=['baby_id'], suffixes=['_M3','_M6'])
 
-
-        # result = pandas.merge( left=dataframes[0], right=dataframes[1], how=merge_type, on=['baby_id'], suffixes=['_M3','_M6'])
-
-    for i in dataframes:
-        print(i)
-    print(result)
+    # for i in dataframes:
+    #     print(i)
+    # print(result)
     # result.to_csv('testing.csv', index=False)
 
     return True
@@ -48,7 +45,7 @@ def merger(file_names: List[str], used_columns: List[List[str]], merge_type: str
 
 if __name__ == "__main__":
     # example
-    file_names = ['../KIT3月齡組第1波3月齡家長_final.sav', '../KIT3月齡組第2波6月齡家長_final.sav']# , './KIT3月齡組第1波3月齡親友_final.sav'
+    file_names = ['../KIT3月齡組第1波3月齡家長_final.sav', '../KIT3月齡組第2波6月齡家長_final.sav']
     # file_names = [ item for item in file_names for repet in range(10)]
     # print(file_names)
     used_columns = [['baby_id', 'pfa0101', 'pfa0102'], ['baby_id','pfa0201']]
