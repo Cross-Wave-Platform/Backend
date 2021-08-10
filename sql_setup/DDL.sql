@@ -54,9 +54,9 @@ CREATE TABLE dbo.shop_cart
 account_id  INT     NOT NULL,
 problem_id  INT     NOT NULL,
 
-CONSTRAINT PK_shop_cart PRIMARY KEY CLUSTERED ( account_id, problem_id),
-CONSTRAINT FK_shop_cart_account FOREIGN KEY ( account_id) REFERENCES dbo.account ( account_id),
-CONSTRAINT FK_shop_cart_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
+-- CONSTRAINT PK_shop_cart PRIMARY KEY CLUSTERED ( account_id, problem_id),
+-- CONSTRAINT FK_shop_cart_account FOREIGN KEY ( account_id) REFERENCES dbo.account ( account_id),
+-- CONSTRAINT FK_shop_cart_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
 );
 
 GO
