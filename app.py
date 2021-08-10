@@ -19,10 +19,8 @@ for api, prefix in api2prefix:
 
 
 def get_user(user_id):
-    u = 'tmp'#get all user in db
-    for i in u:
-        if i['user_id'] == user_id:
-            return i
+    u = 'tmp'#get user in db
+    return u
 
 @login_manager.user_loader
 def user_loader(user_id):
@@ -32,6 +30,7 @@ def user_loader(user_id):
         current_user = aa
 
         return current_user
+    return None
 
 if __name__ == '__main__':
     app.run(host='localhost', port = 5000 )

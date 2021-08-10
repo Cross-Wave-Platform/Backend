@@ -4,15 +4,10 @@ from hmac import compare_digest
 import pymssql
 from flask_login import UserMixin
 
-import jwt
 import os
 import re
 
-__all__ = ['Account', 'jwt_decode']
-
-JWT_EXP = timedelta(days=int(os.environ.get('JWT_EXP', '30')))
-JWT_ISS = os.environ.get('JWT_ISS', 'test.test')
-JWT_SECRET = os.environ.get('JWT_SECRET', 'SuperSecretString')
+__all__ = ['Account']
 
 '''
 conn = pymssql.connect(server='140.122.63.2',
@@ -23,6 +18,9 @@ conn = pymssql.connect(server='140.122.63.2',
 class Account(UserMixin):
     def __init__(self, username):
         self.username = username
+
+    def get_id(self):
+        return self.id
 
     @classmethod
     def signup(cls, username, password, email):
@@ -56,7 +54,7 @@ class Account(UserMixin):
         if user is None:
             return 'user not found'
         user_id = hash_id(user.username, password)
-        if compare_digest(user.username, user_id):
+        if compare_digest(user.password, user_id):
             return user
         else:
             return 'password incorrect'
@@ -82,28 +80,3 @@ class Account(UserMixin):
         sql search by email
         '''
         return obj
-
-    def jwt(self, *keys, secret=False, **kwargs):
-        if not self:
-            return ''
-        user = self.reload()
-        user['username'] = user.get('_id')
-        data = {k: user.get(k) for k in keys}
-        data.update(kwargs)
-        payload = {
-            'iss': JWT_ISS,
-            'exp': datetime.now() + JWT_EXP,
-            'secret': secret,
-            'data': data
-        }
-        return jwt.encode(payload, JWT_SECRET, algorithm='HS256')
-
-def jwt_decode(token):
-    try:
-        json = jwt.decode(token,
-                          JWT_SECRET,
-                          issuer=JWT_ISS,
-                          algorithms='HS256')
-    except jwt.exceptions.PyJWTError:
-        return None
-    return json
