@@ -17,6 +17,7 @@ class SCManager(SQLManager):
         right_df=merge_df[merge_df['_merge']=='right_only']
         
         # remove unncessary collection
+        # this part can use pandas.Dataframe.to_sql() maybe this will help with the speed?
         del_op = "DELETE FROM dbo.shop_cart WHERE account_id=%(account_id)d AND problem_id=%(problem_id)d"
         for r in right_df['problem_id'].tolist():
             self.cursor.execute(del_op,{'account_id':account_id,'problem_id':r})
@@ -29,6 +30,11 @@ class SCManager(SQLManager):
         left_df=left_df[['account_id','problem_id']]
         self.bulk_insert(left_df,'dbo.shop_cart')
         
+    
+    def clear_cart(self,account_id):
+        remove_op = "DELETE FROM dbo.shop_cart WHERE account_id=%(account_id)d"
+        self.cursor.execute(remove_op,{'account_id':account_id})
+        self.conn.commit()
     
     def add_problem(self,account_id,problem_id):
         add_op = f'INSERT INTO dbo.shop_cart VALUES ({account_id},{problem_id})'
