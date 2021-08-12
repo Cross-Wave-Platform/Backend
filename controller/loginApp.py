@@ -16,10 +16,6 @@ def test():
 @loginApp_api.route('/login', methods=['POST'])
 @Request.json('username: str', 'password: str')
 def login(username, password):
-    #username = request.json['username']
-    #password = request.json['password']
-    #print('ok')
-   
     try:
         user = Account.login(username, password)
         if user == 'user not found':
