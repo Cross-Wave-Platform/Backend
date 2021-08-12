@@ -36,6 +36,11 @@ class SCManager(SQLManager):
         self.cursor.execute(remove_op,{'account_id':account_id})
         self.conn.commit()
     
+    def unbind(self,account_id):
+        unbind_op = "UPDATE dbo.account SET last_combo='' WHERE account_id=%(account_id)d"
+        self.cursor.execute(unbind_op,{'account_id':account_id})
+        self.conn.commit()
+    
     def add_problem(self,account_id,problem_id):
         add_op = f'INSERT INTO dbo.shop_cart VALUES ({account_id},{problem_id})'
         self.cursor.execute(add_op)
