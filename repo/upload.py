@@ -3,41 +3,44 @@ import pandas
 import pyreadstat
 
 class SurveyInfo:
-    def __init__(self,age_type:int,survey_type:int,wave:int):
-        self.age_type= age_type
+    def __init__(self, age_type: int, survey_type: int, wave: int):
+        self.age_type = age_type
         self.survey_type = survey_type
-        self.wave =wave
+        self.wave = wave
+
 
 class UploadManager(SQLManager):
-    def upload_sav(self,sav_path:str,survey_info:SurveyInfo):
-        _,meta = pyreadstat.read_sav(sav_path,metadataonly=True)
+    def upload_sav(self, sav_path: str, survey_info: SurveyInfo):
+        _, meta = pyreadstat.read_sav(sav_path, metadataonly=True)
+        # force lowercase
+        meta.column_names = list(map(lambda p: p.lower(), meta.column_names))
 
         new_id = self.add_survey(survey_info)
 
         if not new_id:
-            print ('already exists')
+            print('already exists')
         else:
-            self.add_problems(meta,new_id)
-            print ('success')
-
+            self.add_problems(meta)
+            self.add_survey_problems(new_id,meta)
+            print('success')
 
     # survey_id is auto_increment without give the value
     # check duplicate, if not, return survey_id it gets
-    def add_survey(self,survey_info:SurveyInfo):
+    def add_survey(self, survey_info: SurveyInfo):
         check_dupl_op = ('SELECT survey_id,age_type, survey_type, wave FROM survey '
                          'WHERE age_type=%(age_type)d AND survey_type=%(survey_type)d AND wave=%(wave)d;')
-        params = {'age_type':survey_info.age_type,
-                  'survey_type':survey_info.survey_type,
-                  'wave':survey_info.wave}
+        params = {'age_type': survey_info.age_type,
+                  'survey_type': survey_info.survey_type,
+                  'wave': survey_info.wave}
 
-        old_survey = pandas.read_sql(check_dupl_op,self.conn,params=params)
+        old_survey = pandas.read_sql(check_dupl_op, self.conn, params=params)
 
         if not old_survey.empty:
             return
 
         command = ('INSERT INTO survey ( age_type, survey_type, wave) '
                    'VALUES(%(age_type)d,%(survey_type)d,''%(wave)d);')
-        self.cursor.execute(command,params)
+        self.cursor.execute(command, params)
         self.conn.commit()
 
         command = "SELECT max( survey_id) FROM survey;"
@@ -47,14 +50,29 @@ class UploadManager(SQLManager):
         survey_id = row[0]
         return survey_id
 
-    def add_problems(self,meta,survey_id):
+    def add_problems(self, meta):
+        old_problems = pandas.read_sql( 'SELECT problem_name FROM dbo.problem;', self.conn)
 
         given_problems = pandas.DataFrame()
         given_problems['problem_id'] = ''
         given_problems['problem_name'] = meta.column_names
         given_problems['topic'] = meta.column_labels
-        given_problems['survey_id'] =survey_id
-        given_problems['class'] =''
-        given_problems['subclass'] =''
+        given_problems['class'] = ''
 
-        self.bulk_insert( given_problems, 'dbo.problems')
+        insert_problems = pandas.concat([given_problems,old_problems]).drop_duplicates(subset='problem_name',keep=False)
+
+        if not insert_problems.empty:
+            self.bulk_insert(insert_problems, 'dbo.problem')
+
+    def add_survey_problems(self,survey_id:int, meta):
+        
+        survey_problems = pandas.DataFrame()
+        survey_problems['problem_name'] =meta.column_names
+        survey_problems['survey_id'] = survey_id
+        survey_problems['release']= ''
+
+        problems = pandas.read_sql('SELECT problem_name,problem_id,class FROM dbo.problem;',self.conn)
+        survey_problems=survey_problems.merge(problems,how='left',on='problem_name')
+        survey_problems = survey_problems[['survey_id','problem_id','class','release']]
+        
+        self.bulk_insert( survey_problems, 'dbo.survey_problem')
