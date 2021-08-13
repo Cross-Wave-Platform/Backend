@@ -17,13 +17,13 @@ def search_info(age_type, survey_type, wave):
     '''
     return info
 
-def store_info(problem_id):
+def store_info(username, problem_id):
     '''
     sql store to shopping cart
     '''
     return "Success"
 
-def get_info():
+def get_info(username):
     problem_id = []
     '''
     sql get shopping cart info
