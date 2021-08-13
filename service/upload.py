@@ -42,7 +42,7 @@ class Upload_Files():
         
         #there is file
         if request_file and allowed_file(request_file.filename):
-            filename = secure_filename(self.wave+self.year)
+            filename = secure_filename(self.wave+'_'+self.year+".sav")
             file_path = os.path.join(self.get_file_folder(), filename)
             request_file.save(file_path)
         return file_path
