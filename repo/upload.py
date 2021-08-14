@@ -20,8 +20,8 @@ class UploadManager(SQLManager):
         if not new_id:
             print('already exists')
         else:
-            self.add_problems(meta)
-            self.add_survey_problems(new_id,meta)
+            self.add_problem(meta)
+            self.add_survey_problem(new_id,meta)
             print('success')
 
     # survey_id is auto_increment without give the value
@@ -50,7 +50,7 @@ class UploadManager(SQLManager):
         survey_id = row[0]
         return survey_id
 
-    def add_problems(self, meta):
+    def add_problem(self, meta):
         old_problems = pandas.read_sql( 'SELECT problem_name FROM dbo.problem;', self.conn)
 
         given_problems = pandas.DataFrame()
@@ -64,15 +64,16 @@ class UploadManager(SQLManager):
         if not insert_problems.empty:
             self.bulk_insert(insert_problems, 'dbo.problem')
 
-    def add_survey_problems(self,survey_id:int, meta):
+    def add_survey_problem(self,survey_id:int, meta):
         
         survey_problems = pandas.DataFrame()
-        survey_problems['problem_name'] =meta.column_names
-        survey_problems['survey_id'] = survey_id
-        survey_problems['release']= ''
+        survey_problems['problem_name'] = meta.column_names
 
-        problems = pandas.read_sql('SELECT problem_name,problem_id,class FROM dbo.problem;',self.conn)
-        survey_problems=survey_problems.merge(problems,how='left',on='problem_name')
-        survey_problems = survey_problems[['survey_id','problem_id','class','release']]
+        problems = pandas.read_sql('SELECT problem_name,problem_id FROM dbo.problem;',self.conn)
+        survey_problems = survey_problems.merge(problems,how='inner',on='problem_name')
+
+        survey_problems['survey_id'] = survey_id
+        survey_problems['release'] = ''
+        survey_problems = survey_problems[['survey_id','problem_id','release']]
         
         self.bulk_insert( survey_problems, 'dbo.survey_problem')
