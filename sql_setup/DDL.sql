@@ -16,12 +16,13 @@ GO
 --建立tables
 CREATE TABLE dbo.class
 (
-class   VARCHAR( 800),
+class_id    INT IDENTITY,
+class       VARCHAR( 800),
 
-CONSTRAINT  PK_class PRIMARY KEY CLUSTERED ( class)
+CONSTRAINT  PK_class PRIMARY KEY CLUSTERED ( class_id)
 );
 
-INSERT INTO dbo.class VALUES ('no_group');
+INSERT INTO dbo.class ( class) VALUES ('no_group');
 
 CREATE TABLE dbo.survey
 (
@@ -39,10 +40,10 @@ CREATE TABLE dbo.problem
 problem_id      INT     IDENTITY,
 problem_name    VARCHAR( 30)    NOT NULL,
 topic           VARCHAR( 1000)  NOT NULL,
-class           VARCHAR( 800)  NOT NULL DEFAULT 'no_group',
+class_id        INT             NOT NULL DEFAULT 1,
 
 CONSTRAINT PK_problem PRIMARY KEY CLUSTERED ( problem_id),
-CONSTRAINT FK_problem_class FOREIGN KEY ( class) REFERENCES dbo.class ( class)
+CONSTRAINT FK_problem_class FOREIGN KEY ( class_id) REFERENCES dbo.class ( class_id)
 );
 
 CREATE TABLE dbo.account
@@ -72,26 +73,23 @@ CREATE TABLE dbo.survey_class_auth
 (
 account_id  INT     NOT NULL,
 survey_id   INT     NOT NULL,
-class       VARCHAR( 800)     NOT NULL,
+class_id    INT     NOT NULL,
 
-CONSTRAINT PK_survey_class_auth PRIMARY KEY CLUSTERED ( account_id, survey_id, class),
+CONSTRAINT PK_survey_class_auth PRIMARY KEY CLUSTERED ( account_id, survey_id, class_id),
 CONSTRAINT FK_survey_class_auth_account FOREIGN KEY ( account_id) REFERENCES dbo.account ( account_id),
 CONSTRAINT FK_survey_class_auth_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
--- CONSTRAINT FK_survey_class_auth_problem FOREIGN KEY ( class) REFERENCES dbo.problem ( class)
-CONSTRAINT FK_survey_class_auth_class FOREIGN KEY ( class) REFERENCES dbo.class ( class)
+CONSTRAINT FK_survey_class_auth_class FOREIGN KEY ( class_id) REFERENCES dbo.class ( class_id)
 );
 
 CREATE TABLE dbo.survey_problem
 (
 survey_id   INT     NOT NULL,
 problem_id  INT     NOT NULL,
-class       VARCHAR( 800)     NOT NULL,
 release     INT     DEFAULT 0,
 
 CONSTRAINT PK_survey_problem PRIMARY KEY CLUSTERED ( survey_id, problem_id),
 CONSTRAINT FK_survey_problem_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
-CONSTRAINT FK_survey_problem_problem FOREIGN KEY ( problem_id) REFERENCES dbo.problem ( problem_id),
-CONSTRAINT FK_survey_problem_class FOREIGN KEY ( class) REFERENCES dbo.class ( class)
+CONSTRAINT FK_survey_problem_problem FOREIGN KEY ( problem_id) REFERENCES dbo.problem ( problem_id)
 );
 
 GO
