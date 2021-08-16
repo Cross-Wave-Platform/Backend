@@ -1,6 +1,6 @@
 
 
-__all__ = ['search_wave', 'search_info', 'store_info', 'get_info', 'del_info']
+__all__ = ['search_wave', 'search_info', 'get_search_info','store_info', 'get_info', 'del_info']
 
 #get waves from selected age and survey type
 def search_wave(age_type, survey_type):

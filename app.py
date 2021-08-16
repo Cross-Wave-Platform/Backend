@@ -1,9 +1,10 @@
+from Backend.controller import SearchApp
 from flask import Flask
 from flask_login import LoginManager, current_user, login_required
 from service import *
 from service import Account
 from controller import *
-from controller import loginApp_api, fileApp_api
+from controller import loginApp_api, fileApp_api, SearchApp_api
 
 app = Flask(__name__)
 
@@ -13,6 +14,7 @@ login_manager.init_app(app)
 api2prefix = [
     (loginApp_api, '/loginApp'),
     (fileApp_api, '/fileApp'),
+    (SearchApp_api, '/SearchApp'),
 ]
 for api, prefix in api2prefix:
     app.register_blueprint(api, url_prefix=prefix)
