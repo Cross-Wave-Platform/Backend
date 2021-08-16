@@ -23,16 +23,13 @@ def upload_file(age_type, wave, survey_type, year):
     #user = 'current user' tbd user
     user_file = Upload_Files(current_user.username, age_type, wave, survey_type, year)
     try:
-        filename = user_file.get_user_file(request['file'])
+        filename = user_file.get_user_file(request.files['file'])
         if  filename == "No files":
             return HTTPError('No files', 404)
     except:
         return HTTPError('unknown error', 406)
     '''
         save file to db
-    '''
-    '''
-        delete file?
     '''
     return HTTPResponse('ok', file = filename)
 

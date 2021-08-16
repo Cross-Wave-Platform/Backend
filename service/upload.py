@@ -6,8 +6,8 @@ from werkzeug.utils import secure_filename
 
 __all__ = ['Upload_Files']
 
-UPLOAD_FOLDER = '/upload'
-DOWNLOAD_FOLDER = '/download' 
+UPLOAD_FOLDER = os.path.join( os.getcwd(), '/upload')
+DOWNLOAD_FOLDER = os.path.join( os.getcwd(),'/download') 
 ALLOWED_EXTENSIONS = {'csv', 'sav'}
 
 def allowed_file(filename):
