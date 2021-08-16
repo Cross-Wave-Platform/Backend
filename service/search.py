@@ -2,6 +2,7 @@
 
 __all__ = ['search_wave', 'search_info', 'store_info', 'get_info', 'del_info']
 
+#get waves from selected age and survey type
 def search_wave(age_type, survey_type):
     wave = []
     '''
@@ -10,6 +11,7 @@ def search_wave(age_type, survey_type):
     '''
     return wave
 
+#get problems from selected age, survey, wave 
 def search_info(age_type, survey_type, wave):
     info = [{'problem_id':'str', 'topic':'str', 'tag':[{'tag_value':'int', 'tag_name':'str'},], 'class':'str', 'exist':[{'type':'int', 'wave':{'young':[{'int':'int'}],'old':[{'int':'int'}]}}]}]
     '''
@@ -20,6 +22,7 @@ def search_info(age_type, survey_type, wave):
     '''
     return info
 
+#get user's last search info: age, survey type
 def get_search_info(username):
     info = [{'age_type':'int','survey_type':'int','wave':['int','int']}]
     '''
@@ -27,6 +30,7 @@ def get_search_info(username):
     '''
     return info
 
+#store user's selected probelm to shop_cart
 def store_info(username, problem_id):
     res = "Success"
     '''
@@ -37,6 +41,7 @@ def store_info(username, problem_id):
     '''
     return res
 
+#get user's shop_cart
 def get_info(username):
     problem_id = []
     '''
@@ -44,6 +49,7 @@ def get_info(username):
     '''
     return problem_id
 
+#delete user's shop_cart
 def del_info(username, problem_id):
     res = "Success"
     '''
