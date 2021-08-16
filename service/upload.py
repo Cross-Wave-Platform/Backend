@@ -6,8 +6,8 @@ from werkzeug.utils import secure_filename
 
 __all__ = ['Upload_Files']
 
-UPLOAD_FOLDER = '/upload'
-DOWNLOAD_FOLDER = '/download' 
+UPLOAD_FOLDER = os.path.join( os.getcwd(), '/upload')
+DOWNLOAD_FOLDER = os.path.join( os.getcwd(),'/download') 
 ALLOWED_EXTENSIONS = {'csv', 'sav'}
 
 def allowed_file(filename):
@@ -42,7 +42,7 @@ class Upload_Files():
         
         #there is file
         if request_file and allowed_file(request_file.filename):
-            filename = secure_filename(self.wave+'_'+self.year+".sav")
+            filename = secure_filename(self.wave+".sav")
             file_path = os.path.join(self.get_file_folder(), filename)
             request_file.save(file_path)
         return file_path

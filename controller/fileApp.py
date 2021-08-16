@@ -8,6 +8,7 @@ from service.upload import Upload_Files
 from service.export import Export_Files
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
+from repo.upload import UploadManager,SurveyInfo
 
 __all__ = ['fileApp_api']
 
@@ -23,18 +24,20 @@ def upload_file(age_type, wave, survey_type, year):
     #user = 'current user' tbd user
     user_file = Upload_Files(current_user.username, age_type, wave, survey_type, year)
     try:
-        filename = user_file.get_user_file(request['file'])
+        filename = user_file.get_user_file(request.files['file'])
         if  filename == "No files":
             return HTTPError('No files', 404)
     except:
         return HTTPError('unknown error', 406)
-    '''
-        save file to db
-    '''
-    '''
-        delete file?
-    '''
-    return HTTPResponse('ok', file = filename)
+    
+    try:
+        '''save info to db'''
+        survey_info = SurveyInfo(age_type, survey_type, wave)
+        manager = UploadManager()
+        manager.upload_sav(filename,survey_info)
+    except:
+        return HTTPError('unknown error db', 406)
+    return HTTPResponse('ok')
 
 @fileApp_api.route('/export', methods=['POST'])
 @login_required #tbc to be confirmed
