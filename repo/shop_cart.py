@@ -52,6 +52,9 @@ class SCManager(SQLManager):
         self.cursor.execute(select_op,{'account_id':account_id})
         combo = self.cursor.fetchone()[0]
 
+        if combo == '':
+            return Combo([],[],[])
+
         c_list=combo.split('_')
         age_types=c_list[0].split(',')
         survey_types=c_list[1].split(',')
