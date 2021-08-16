@@ -40,6 +40,16 @@ def merger(file_names: List[str], used_columns: List[List[str]], merge_type: str
     # print(result)
     # result.to_csv('testing.csv', index=False)
 
+    if file_type == 'sav':
+        pyreadstat.write_sav( result)
+    elif file_type == 'csv':
+        # time convertion needed
+        for item in metas:
+            if item.column_names
+    else:
+        # not possible
+        return False
+
     return True
 
 
@@ -54,7 +64,7 @@ if __name__ == "__main__":
 
     print(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, 'KB')
 
-# file name wll be <big/small>_<type>_<wave>.sav
+# file name will be <big/small>/<type>/<wave>.sav
 
 # time conversion
 # bais = 141428 * 86400
