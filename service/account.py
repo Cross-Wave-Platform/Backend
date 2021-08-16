@@ -58,7 +58,10 @@ class Account(UserMixin):
         user_id = hash_id(self.account_name, old_password)
         if compare_digest(self.password, user_id):
             user_id = hash_id(self.account_name, new_password)
-            sql = "UPDATE dbo.account SET password = \'" + user_id + "\' WHERE account_name = \'" + self.account_name + "\'"
+            with conn.cursor() as cursor:
+                sql = "UPDATE dbo.account SET password = \'" + user_id + "\' WHERE account_name = \'" + self.account_name + "\'"
+                cursor.execute(sql)
+                conn.commit()
         else:
             return 'change password incorrect'
 
