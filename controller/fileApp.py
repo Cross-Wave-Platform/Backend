@@ -1,5 +1,7 @@
 import os
-from flask import send_file, Blueprint 
+from flask import send_file, Blueprint, request
+from flask_login import current_user
+from http import HTTPStatus
 from flask_login import login_required
 from service.account import Account
 from service.upload import Upload_Files
@@ -14,14 +16,14 @@ fileApp_api = Blueprint('fileApp_api',__name__)
 
 @fileApp_api.route('/upload', methods=['POST'])
 @login_required
-@Request.json('username: str', 'request_file: file')
-def upload_file(username, request_file):
+@Request.json('age_type: int', 'wave: int', 'survey_type: int', 'year: int')
+def upload_file(age_type, wave, survey_type, year):
     ''' save file'''
     #check if user upload folder exist, or create one
     #user = 'current user' tbd user
-    user_file = Upload_Files(username)
+    user_file = Upload_Files(current_user.username, age_type, wave, survey_type, year)
     try:
-        filename = user_file.get_user_file(request_file)
+        filename = user_file.get_user_file(request['file'])
         if  filename == "No files":
             return HTTPError('No files', 404)
     except:
@@ -36,7 +38,7 @@ def upload_file(username, request_file):
 
 @fileApp_api.route('/export', methods=['POST'])
 @login_required #tbc to be confirmed
-@Request.json('merge_method: str', 'file_format: file')
+@Request.json('merge_method: str', 'file_format: str')
 def export_file(merge_method, file_format):
     ''' get user request info'''
 
