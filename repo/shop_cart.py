@@ -52,9 +52,6 @@ class SCManager(SQLManager):
         self.cursor.execute(select_op,{'account_id':account_id})
         combo = self.cursor.fetchone()[0]
 
-        if combo == '':
-            return Combo([],[],[])
-
         c_list=combo.split('_')
         age_types=c_list[0].split(',')
         survey_types=c_list[1].split(',')
@@ -64,9 +61,10 @@ class SCManager(SQLManager):
         
 
     def unbind_combo(self,account_id):
-        unbind_op = "UPDATE dbo.account SET last_combo='' WHERE account_id=%(account_id)d"
-        self.cursor.execute(unbind_op,{'account_id':account_id})
-        self.conn.commit()
+        self.bind_combo( account_id, Combo([],[],[]))
+        # unbind_op = "UPDATE dbo.account SET last_combo='' WHERE account_id=%(account_id)d"
+        # self.cursor.execute(unbind_op,{'account_id':account_id})
+        # self.conn.commit()
     
     def clear_cart(self,account_id):
         remove_op = "DELETE FROM dbo.shop_cart WHERE account_id=%(account_id)d"
