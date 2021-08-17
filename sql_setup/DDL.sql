@@ -14,6 +14,16 @@ USE KIT_DB;
 GO
 
 --建立tables
+CREATE TABLE dbo.class
+(
+class_id    INT IDENTITY,
+class       VARCHAR( 800),
+
+CONSTRAINT  PK_class PRIMARY KEY CLUSTERED ( class_id)
+);
+
+INSERT INTO dbo.class ( class) VALUES ('no_group');
+
 CREATE TABLE dbo.survey
 (
 survey_id   INT     IDENTITY,
@@ -25,26 +35,24 @@ release     INT     NOT NULL DEFAULT 0,
 CONSTRAINT PK_survey PRIMARY KEY CLUSTERED ( survey_id)
 );
 
-CREATE TABLE dbo.problems
+CREATE TABLE dbo.problem
 (
 problem_id      INT     IDENTITY,
-problem_name    VARCHAR( 4000)  NOT NULL,
-topic           VARCHAR( 4000)  NOT NULL,
-survey_id       INT     NOT NULL,
-class           VARCHAR( 900)  NOT NULL DEFAULT 'no_group',
-subclass        VARCHAR( 900)  NOT NULL DEFAULT 'no_group',
+problem_name    VARCHAR( 30)    NOT NULL,
+topic           VARCHAR( 1000)  NOT NULL,
+class_id        INT             NOT NULL DEFAULT 1,
 
-CONSTRAINT PK_problems PRIMARY KEY CLUSTERED ( problem_id),
-CONSTRAINT FK_survey FOREIGN KEY (survey_id) REFERENCES dbo.survey ( survey_id)
+CONSTRAINT PK_problem PRIMARY KEY CLUSTERED ( problem_id),
+CONSTRAINT FK_problem_class FOREIGN KEY ( class_id) REFERENCES dbo.class ( class_id)
 );
 
 CREATE TABLE dbo.account
 (
 account_id      INT             IDENTITY,
-account_name    VARCHAR( 4000)  NOT NULL,
-email           VARCHAR( 320)   NOT NULL,
-password        VARCHAR( 4000)  NOT NULL,
+email           VARCHAR( 320)   UNIQUE    NOT NULL,
+password        VARCHAR( 2000)  NOT NULL,
 auth            INT             NOT NULL DEFAULT 2,
+last_combo      VARCHAR( 2000)
 
 CONSTRAINT PK_account PRIMARY KEY CLUSTERED ( account_id)
 );
@@ -52,11 +60,36 @@ CONSTRAINT PK_account PRIMARY KEY CLUSTERED ( account_id)
 CREATE TABLE dbo.shop_cart
 (
 account_id  INT     NOT NULL,
+survey_id   INT     NOT NULL,
 problem_id  INT     NOT NULL,
 
-CONSTRAINT PK_shop_cart PRIMARY KEY CLUSTERED ( account_id, problem_id),
+CONSTRAINT PK_shop_cart PRIMARY KEY CLUSTERED ( account_id, survey_id, problem_id),
 CONSTRAINT FK_shop_cart_account FOREIGN KEY ( account_id) REFERENCES dbo.account ( account_id),
-CONSTRAINT FK_shop_cart_problems FOREIGN KEY ( problem_id) REFERENCES dbo.problems ( problem_id)
+CONSTRAINT FK_shop_cart_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
+CONSTRAINT FK_shop_cart_problem FOREIGN KEY ( problem_id) REFERENCES dbo.problem ( problem_id)
+);
+
+CREATE TABLE dbo.survey_class_auth
+(
+account_id  INT     NOT NULL,
+survey_id   INT     NOT NULL,
+class_id    INT     NOT NULL,
+
+CONSTRAINT PK_survey_class_auth PRIMARY KEY CLUSTERED ( account_id, survey_id, class_id),
+CONSTRAINT FK_survey_class_auth_account FOREIGN KEY ( account_id) REFERENCES dbo.account ( account_id),
+CONSTRAINT FK_survey_class_auth_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
+CONSTRAINT FK_survey_class_auth_class FOREIGN KEY ( class_id) REFERENCES dbo.class ( class_id)
+);
+
+CREATE TABLE dbo.survey_problem
+(
+survey_id   INT     NOT NULL,
+problem_id  INT     NOT NULL,
+release     INT     DEFAULT 0,
+
+CONSTRAINT PK_survey_problem PRIMARY KEY CLUSTERED ( survey_id, problem_id),
+CONSTRAINT FK_survey_problem_survey FOREIGN KEY ( survey_id) REFERENCES dbo.survey ( survey_id),
+CONSTRAINT FK_survey_problem_problem FOREIGN KEY ( problem_id) REFERENCES dbo.problem ( problem_id)
 );
 
 GO
