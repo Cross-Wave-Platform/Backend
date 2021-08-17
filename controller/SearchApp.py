@@ -10,7 +10,7 @@ SearchApp_api = Blueprint('SearchApp_api',__name__)
 
 #get waves from selected age and survey type
 @SearchApp_api.route('/SearchWave', methods=['GET'])
-@Request.json('age_type: int','survey_type: int')
+@Request.json('age_type: list','survey_type: list')
 def searchWave(age_type, survey_type):
     try:
         wave = Search.search_wave(age_type, survey_type)
@@ -23,7 +23,7 @@ def searchWave(age_type, survey_type):
 
 #get problems from selected age, survey, wave 
 @SearchApp_api.route('/SearchInfo', methods=['GET'])
-@Request.json('age_type: int', 'survey_type: int', 'wave: int')
+@Request.json('age_type: list', 'survey_type: list', 'wave: list')
 def searchInfo(age_type, survey_type, wave):
     try:
         Info = Search.search_info(age_type,survey_type, wave)
