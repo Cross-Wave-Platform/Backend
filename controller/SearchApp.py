@@ -1,4 +1,3 @@
-from typing_extensions import Required
 from flask import Blueprint
 from flask_login import login_required, current_user
 from service.search import Search
@@ -51,7 +50,7 @@ def getSearchInfo():
 #store user's last search info: age, survey type
 @SearchApp_api.route('/StoreSearchInfo', methods=['POST'])
 @login_required
-@Required.json('info: dict')
+@Request.json('info: dict')
 def storeSearchInfo(info):
     try:
         res = Search.store_search_info(current_user.username, info)
