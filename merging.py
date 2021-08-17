@@ -7,7 +7,21 @@ import os
 # for memory usage
 import resource
 
-def merger(file_names: List[str], used_columns: List[List[str]], merge_type: str, file_type: str) -> bool:
+def merger(account_id: int, upload_path: str, merge_method: str, file_format: str) -> bool:
+    # get the needed files and columns
+    # [(age_type,survey_type,wave)]
+    file_names = []
+    used_columns = []
+
+    # connection to db
+    command = f"SELECT age_type, survey_type, wave, problem.problem_id "
+                f"FROM ( "
+                    f"( SELECT survey_id, problem_id FROM dbo.shop_cart WHERE account_id = {account_id}) AS alpha "
+                    f"INNER JOIN dbo.survey ON alpha.survey_id = survey.survey_id) "
+                f"INNER JOIN dbo.problem ON alpha.problem_id = problem.problem_id;"
+
+    shop_cart_survey_problems = pandas.DataFrame()
+    shop_cart_survey_problems = pandas.read_sql(command)
 
     # check file exists
     for item in file_names:
@@ -40,15 +54,23 @@ def merger(file_names: List[str], used_columns: List[List[str]], merge_type: str
     # print(result)
     # result.to_csv('testing.csv', index=False)
 
-    # if file_type == 'sav':
-    #     pyreadstat.write_sav( result)
-    # elif file_type == 'csv':
-    #     # time convertion needed
-    #     for item in metas:
-    #         if item.column_names
-    # else:
-    #     # not possible
-    #     return False
+    if file_type == 'sav':
+        # important metas
+        # column_name == problem_name
+        # column_labels == topic
+        # variable_value_labels == {problem_name:{num:'characters'}}
+
+        # if variable_measure has a collision => set to 'unknown'
+        # if variable_value_labels does not match => union them
+        # not in use file_label, compress, note, missing_ranges,variable_display_width( not important), variable_formats( automatic resolve since there is only string and double in the original file)
+        pyreadstat.write_sav( result, destination, column_labels=,variable_value_labels=,variable_measure=)
+    elif file_type == 'csv':
+        # time convertion needed for formats in SDATE10
+        for item in metas:
+            if item.column_names
+    else:
+        # not possible
+        return False
 
     return True
 
@@ -65,14 +87,14 @@ if __name__ == "__main__":
     print(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, 'KB')
 
 # file name will be <big/small>/<type>/<wave>.sav
+# all metadata consists of the following
+# 20 -> ['notes'empty,'column_names','column_labels','column_names_to_labels','file_encoding'BIG-5,
+#       'number_columns','number_rows','variable_value_labels','value_labels','variable_to_label',
+#       'original_variable_types','readstat_variable_types','table_name','file_label','missing_ranges',
+#       'missing_user_values','variable_alignement','variable_store_width','variable_display_width','variable_measure']
 
 # time conversion
 # bais = 141428 * 86400
 # df['baby_dob'] = pandas.to_timedelta( (df['baby_dob'] - bais), unit='s') + pandas.Timestamp('1970-1-1')
 # df['int_date'] = pandas.to_timedelta( (df['int_date'] - bais), unit='s') + pandas.Timestamp('1970-1-1')
 # print(df)
-
-# print(meta.original_variable_types) # this is for the data type reffered by sav files
-# there are other metadata pieces extracted. See the documentation for more details.
-# '''
-# these values should be given
