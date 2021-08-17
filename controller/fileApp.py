@@ -38,7 +38,7 @@ def upload_file(file, age_type, wave, survey_type, year):
         return HTTPError('unknown error db', 406)
     return HTTPResponse('ok')
 
-@fileApp_api.route('/export', methods=['POST'])
+@fileApp_api.route('/export', methods=['GET'])
 @login_required #tbc to be confirmed
 @Request.json('merge_method: str', 'file_format: str')
 def export_file(merge_method, file_format):
