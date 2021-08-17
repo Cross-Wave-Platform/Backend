@@ -7,7 +7,7 @@ class Search():
     #get waves from selected age and survey type
     @classmethod
     def search_wave(age_type, survey_type):
-        wave = []
+        wave = ['int','int']
         '''
         sql search for wave
         wave = str['wave', ...]
@@ -29,7 +29,7 @@ class Search():
     #get user's last search info: age, survey type
     @classmethod
     def get_search_info(username):
-        info = [{'age_type':'int','survey_type':'int','wave':['int','int']}]
+        info = {'age_type':['int'],'survey_type':['int'],'wave':['int','int']}
         '''
         sql get username search data
         '''
@@ -69,7 +69,7 @@ class Search():
     #get user's shop_cart
     @classmethod
     def get_info(username):
-        problem_id = []
+        problem_id = ['str','str']
         '''
         sql get shopping cart info
         '''
