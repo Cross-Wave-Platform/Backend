@@ -16,16 +16,18 @@ fileApp_api = Blueprint('fileApp_api',__name__)
 
 @fileApp_api.route('/upload', methods=['POST'])
 @login_required
-@Request.json('age_type: int', 'wave: int', 'survey_type: int', 'year: int')
-def upload_file(age_type, wave, survey_type, year):
+@Request.json('file: str','age_type: int', 'wave: int', 'survey_type: int', 'year: int')
+def upload_file(file, age_type, wave, survey_type, year):
     ''' save file'''
     #check if user upload folder exist, or create one
     #user = 'current user' tbd user
     user_file = Upload_Files(current_user.username, age_type, wave, survey_type, year)
     try:
-        filename = user_file.get_user_file(request.files['file'])
+        filename = user_file.get_user_file(file)
         if  filename == "No files":
             return HTTPError('No files', 404)
+        if filename == "Fail":
+            return HTTPError('Failed to save file', 405)
     except:
         return HTTPError('unknown error', 406)
     
