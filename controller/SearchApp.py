@@ -1,3 +1,4 @@
+from typing_extensions import Required
 from flask import Blueprint
 from flask_login import login_required, current_user
 from service.search import Search
@@ -24,7 +25,7 @@ def searchWave(age_type, survey_type):
 #get problems from selected age, survey, wave 
 @SearchApp_api.route('/SearchInfo', methods=['GET'])
 @Request.json('age_type: int', 'survey_type: int', 'wave: int')
-def searchWave(age_type, survey_type, wave):
+def searchInfo(age_type, survey_type, wave):
     try:
         Info = Search.search_info(age_type,survey_type, wave)
         if Info == 'not found':
@@ -46,6 +47,20 @@ def getSearchInfo():
         return HTTPError('unknown error', 406)
     
     return HTTPResponse('ok', info=Info)
+
+#store user's last search info: age, survey type
+@SearchApp_api.route('/StoreSearchInfo', methods=['GET'])
+@login_required
+@Required.json('info: dict')
+def storeSearchInfo(info):
+    try:
+        res = Search.store_search_info(current_user.username, info)
+        if res == 'Fail':
+            return HTTPError('Failed to store search info', 405)
+    except:
+        return HTTPError('unknown error', 406)
+    
+    return HTTPResponse('ok')
 
 #delete user's search info: age, survey type
 @SearchApp_api.route('/DelSearchInfo', methods=['GET'])

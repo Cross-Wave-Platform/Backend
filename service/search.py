@@ -35,6 +35,15 @@ class Search():
         '''
         return info
 
+    #store user's search info
+    @classmethod
+    def store_search_info(username, info):
+        #info = [{'age_type':'int','survey_type':'int','wave':['int','int']}]
+        '''
+        sql save username search data
+        '''
+        return "Success"
+
     #delete user's search info: age, survey type
     @classmethod
     def del_search_info(username):
