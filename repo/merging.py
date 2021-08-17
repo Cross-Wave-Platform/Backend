@@ -1,9 +1,10 @@
-from _typeshed import Self
+
 from typing import List
 from pandas.core.reshape.merge import merge
 import pyreadstat
 import pandas
 import os
+from functools import reduce
 
 from .manager import SQLManager
 
@@ -11,13 +12,9 @@ from .manager import SQLManager
 import resource
 
 class MergeManeger( SQLManager):
-
     def merger(self, account_id: int, upload_path: str, merge_method: str, file_format: str) -> bool:
-        # get the needed files and columns
-        # [(age_type,survey_type,wave)]
-
-        # connection to db
-        command = ("SELECT age_type, survey_type, wave, problem.problem_id "
+        # get shop_cart info
+        command = ("SELECT age_type, survey_type, wave, problem.problem_name "
                     "FROM ( "
                         "( SELECT survey_id, problem_id FROM dbo.shop_cart WHERE account_id = %(account_id)s) AS alpha "
                         "INNER JOIN dbo.survey ON alpha.survey_id = survey.survey_id) "
@@ -25,10 +22,29 @@ class MergeManeger( SQLManager):
         
         shop_cart_survey_problems = pandas.read_sql(command, self.conn, params={'account_id':account_id})
 
-        file_names = shop_cart_survey_problems['age_type','survey_type','wave']
-        
-
+        file_names = []
         used_columns = []
+        suffix = []
+
+        for index, row in shop_cart_survey_problems.iterrows():
+            temp_path = upload_path +'/'+ str(row['age_type'])+'/'+str(row['survey_type'])+'/'+str(row['wave']) +'.sav'
+            if temp_path not in file_names:
+                file_names.append(temp_path)
+                temp_survey = ''
+                if row['survey_type'] == 1:
+                    temp_survey = 'teacher'
+                elif row['survey_type'] == 2:
+                    temp_survey = 'parent'
+                elif row['survey_type'] == 3:
+                    temp_survey = 'friend'
+                suffix.append('_'+('small' if str(row['age_type']) == 1 else 'big')+'_'+temp_survey+'_M'+str(row['wave']))
+                used_columns.append([])
+            
+            used_columns[ file_names.index(temp_path)].append(row['problem_name'])
+
+        # print(file_names)
+        # print(used_columns)
+        # print(suffix)
 
         # check file exists
         for item in file_names:
@@ -40,7 +56,7 @@ class MergeManeger( SQLManager):
         metas = []
 
         for i in range(len(file_names)):
-            temp_df, temp_meta = pyreadstat.read_sav(file_names[i], usecols=used_columns[i])# 
+            temp_df, temp_meta = pyreadstat.read_sav(file_names[i], usecols=used_columns[i])
             dataframes.append(temp_df)
             metas.append(temp_meta)
 
@@ -49,12 +65,19 @@ class MergeManeger( SQLManager):
         if merge_method == 'union':
             result = pandas.concat(dataframes)
         else:
+            # add the suffixes to the dataframes
+            # this needs more fixing
+            for i in range(len(dataframes)):
+                dataframes[ i] = dataframes[i].add_suffix(suffix[ i])
+
             # how can be ['left','right','outer','inner','cross']
-            for i in range(len(dataframes) - 1):
-                if i == 0:
-                    result = pandas.merge( left=dataframes[0], right=dataframes[1], how=merge_method, on=['baby_id'], suffixes=['_M3','_M6'])
-                else:
-                    result = pandas.merge( left=result, right=dataframes[i+1], how=merge_method, on=['baby_id'], suffixes=['_M3','_M6'])
+            result = reduce( lambda left, right: pandas.merge( left, right, how=merge_method, on=['baby_id']))
+
+            # for i in range(len(dataframes) - 1):
+            #     if i == 0:
+            #         result = pandas.merge( left=dataframes[0], right=dataframes[1], how=merge_method, on=['baby_id'])
+            #     else:
+            #         result = pandas.merge( left=result, right=dataframes[i+1], how=merge_method, on=['baby_id'])
 
         # for i in dataframes:
         #     print(i)
@@ -70,11 +93,12 @@ class MergeManeger( SQLManager):
             # if variable_measure has a collision => set to 'unknown'
             # if variable_value_labels does not match => union them
             # not in use file_label, compress, note, missing_ranges,variable_display_width( not important), variable_formats( automatic resolve since there is only string and double in the original file)
-            pyreadstat.write_sav( result, destination, column_labels=,variable_value_labels=,variable_measure=)
+            pyreadstat.write_sav( result, destination)#, column_labels=,variable_value_labels=,variable_measure=)
         elif file_format == 'csv':
             # time convertion needed for formats in SDATE10
             for item in metas:
-                if item.column_names
+                if item.column_names:
+                    return False
         else:
             # not possible
             return False
