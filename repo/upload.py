@@ -3,10 +3,11 @@ import pandas
 import pyreadstat
 
 class SurveyInfo:
-    def __init__(self, age_type: int, survey_type: int, wave: int):
+    def __init__(self, age_type: int, survey_type: int, wave: int,release:int):
         self.age_type = age_type
         self.survey_type = survey_type
         self.wave = wave
+        self.release = release
 
 
 class UploadManager(SQLManager):
@@ -21,7 +22,7 @@ class UploadManager(SQLManager):
             print('already exists')
         else:
             self.add_problem(meta)
-            self.add_survey_problem(new_id,meta)
+            self.add_survey_problem(meta,new_id,survey_info.release)
             print('success')
 
     # survey_id is auto_increment without give the value
@@ -38,8 +39,9 @@ class UploadManager(SQLManager):
         if not old_survey.empty:
             return
 
-        command = ('INSERT INTO survey ( age_type, survey_type, wave) '
-                   'VALUES(%(age_type)d,%(survey_type)d,''%(wave)d);')
+        command = ('INSERT INTO survey ( age_type, survey_type, wave,release) '
+                   'VALUES(%(age_type)d,%(survey_type)d,%(wave)d,%(release)d);')
+        params['release'] = survey_info.release
         self.cursor.execute(command, params)
         self.conn.commit()
 
@@ -64,7 +66,7 @@ class UploadManager(SQLManager):
         if not insert_problems.empty:
             self.bulk_insert(insert_problems, 'dbo.problem')
 
-    def add_survey_problem(self,survey_id:int, meta):
+    def add_survey_problem(self, meta,survey_id:int,release:int):
         
         survey_problems = pandas.DataFrame()
         survey_problems['problem_name'] = meta.column_names
@@ -73,7 +75,7 @@ class UploadManager(SQLManager):
         survey_problems = survey_problems.merge(problems,how='inner',on='problem_name')
 
         survey_problems['survey_id'] = survey_id
-        survey_problems['release'] = ''
+        survey_problems['release'] = release
         survey_problems = survey_problems[['survey_id','problem_id','release']]
         
         self.bulk_insert( survey_problems, 'dbo.survey_problem')
