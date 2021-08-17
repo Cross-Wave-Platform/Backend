@@ -9,7 +9,7 @@ from repo.upload import UploadManager,SurveyInfo
 __all__ = ['Upload_Files']
 
 UPLOAD_FOLDER = os.path.join( os.getcwd(), '/upload')
-DOWNLOAD_FOLDER = os.path.join( os.getcwd(),'/download') 
+
 ALLOWED_EXTENSIONS = {'csv', 'sav'}
 
 def allowed_file(filename):

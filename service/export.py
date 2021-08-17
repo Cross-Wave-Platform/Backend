@@ -7,6 +7,8 @@ from flask import send_file
 
 __all__ = ['Export_Files']
 
+DOWNLOAD_FOLDER = os.path.join( os.getcwd(),'/download') 
+
 class Export_Files():
     def __init__(self, username, merge_method, file_format):
         self.username = username
