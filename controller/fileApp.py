@@ -8,7 +8,6 @@ from service.upload import Upload_Files
 from service.export import Export_Files
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
-from repo.upload import UploadManager,SurveyInfo
 
 __all__ = ['fileApp_api']
 
@@ -17,24 +16,24 @@ fileApp_api = Blueprint('fileApp_api',__name__)
 
 @fileApp_api.route('/upload', methods=['POST'])
 @login_required
-@Request.json('age_type: int', 'wave: int', 'survey_type: int', 'year: int')
-def upload_file(age_type, wave, survey_type, year):
+@Request.json('file: str','age_type: int', 'wave: int', 'survey_type: int', 'year: int')
+def upload_file(file, age_type, wave, survey_type, year):
     ''' save file'''
     #check if user upload folder exist, or create one
     #user = 'current user' tbd user
     user_file = Upload_Files(current_user.username, age_type, wave, survey_type, year)
     try:
-        filename = user_file.get_user_file(request.files['file'])
+        filename = user_file.get_user_file(file)
         if  filename == "No files":
             return HTTPError('No files', 404)
+        if filename == "Fail":
+            return HTTPError('Failed to save file', 405)
     except:
         return HTTPError('unknown error', 406)
     
     try:
         '''save info to db'''
-        survey_info = SurveyInfo(age_type, survey_type, wave)
-        manager = UploadManager()
-        manager.upload_sav(filename,survey_info)
+        user_file.save_file_info(filename)
     except:
         return HTTPError('unknown error db', 406)
     return HTTPResponse('ok')
@@ -43,13 +42,8 @@ def upload_file(age_type, wave, survey_type, year):
 @login_required #tbc to be confirmed
 @Request.json('merge_method: str', 'file_format: str')
 def export_file(merge_method, file_format):
-    ''' get user request info'''
-
-    ''' write info to file'''
-
+    user_file = Export_Files(current_user.username, merge_method, file_format)
     ''' send file to user'''
-    user = 'current user' #tbd get current user
-    user_file = Export_Files(user, merge_method, file_format)
     try:
         res = user_file.get_db_file()
         if res == "Could not create merge file":
