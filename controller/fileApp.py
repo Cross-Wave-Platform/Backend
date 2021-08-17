@@ -8,7 +8,6 @@ from service.upload import Upload_Files
 from service.export import Export_Files
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
-from repo.upload import UploadManager,SurveyInfo
 
 __all__ = ['fileApp_api']
 
@@ -32,9 +31,7 @@ def upload_file(age_type, wave, survey_type, year):
     
     try:
         '''save info to db'''
-        survey_info = SurveyInfo(age_type, survey_type, wave)
-        manager = UploadManager()
-        manager.upload_sav(filename,survey_info)
+        user_file.save_file_info(filename)
     except:
         return HTTPError('unknown error db', 406)
     return HTTPResponse('ok')

@@ -3,6 +3,7 @@ import pandas as pd
 import pyreadstat as prs
 from .config import UPLOAD_FOLDER
 from werkzeug.utils import secure_filename
+from repo.upload import UploadManager,SurveyInfo
 
 __all__ = ['Upload_Files']
 
@@ -46,3 +47,8 @@ class Upload_Files():
             file_path = os.path.join(self.get_file_folder(), filename)
             request_file.save(file_path)
         return file_path
+
+    def save_file_info(self, filename):
+        survey_info = SurveyInfo(self.age_type, self.survey_type, self.wave)
+        manager = UploadManager()
+        manager.upload_sav(filename,survey_info)
