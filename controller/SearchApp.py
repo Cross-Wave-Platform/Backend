@@ -1,6 +1,5 @@
 from flask import Blueprint
 from flask_login import login_required, current_user
-from service.account import Account
 from service.search import Search
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
