@@ -21,3 +21,9 @@ add account and combo
 
 # sc_manager.bind_combo(1,Combo(['1'],['2'],['3']))
 
+'''
+search problem
+'''
+# from repo.search import SearchManager
+# s_manager = SearchManager()
+# s_manager.search_problem(1)
