@@ -39,18 +39,20 @@ class Search():
     @classmethod
     def store_search_info(username, info):
         #info = [{'age_type':'int','survey_type':'int','wave':['int','int']}]
+        res = "Success"
         '''
         sql save username search data
         '''
-        return "Success"
+        return res
 
     #delete user's search info: age, survey type
     @classmethod
     def del_search_info(username):
+        res = "Success"
         '''
         sql delete username search data
         '''
-        return "Success"
+        return res
 
     #store user's selected probelm to shop_cart
     @classmethod
