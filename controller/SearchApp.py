@@ -49,7 +49,7 @@ def getSearchInfo():
     return HTTPResponse('ok', info=Info)
 
 #store user's last search info: age, survey type
-@SearchApp_api.route('/StoreSearchInfo', methods=['GET'])
+@SearchApp_api.route('/StoreSearchInfo', methods=['POST'])
 @login_required
 @Required.json('info: dict')
 def storeSearchInfo(info):
@@ -63,7 +63,7 @@ def storeSearchInfo(info):
     return HTTPResponse('ok')
 
 #delete user's search info: age, survey type
-@SearchApp_api.route('/DelSearchInfo', methods=['GET'])
+@SearchApp_api.route('/DelSearchInfo', methods=['DELETE'])
 @login_required
 def delSearchInfo():
     try:
@@ -99,7 +99,7 @@ def getInfo():
     return HTTPResponse('ok', problem_id=problem_id)
 
 #delete user's shop_cart
-@SearchApp_api.route('/DelInfo', methods=['GET'])
+@SearchApp_api.route('/DelInfo', methods=['DELETE'])
 @login_required
 @Request.json('problem_id: list')
 def delInfo(problem_id):
