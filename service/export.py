@@ -60,7 +60,7 @@ class Export_Files():
     def export_file_to_user(self):
         '''send file to user'''
         try:
-            send_file(self.merge_file, as_attachment=True,attachment_filename='merge_file')
+            send_file(self.merge_file, as_attachment=True)
         except:
             return "Fail to send file"
         return "Success"
