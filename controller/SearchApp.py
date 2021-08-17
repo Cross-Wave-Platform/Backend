@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_login import login_required, current_user
 from service.account import Account
-from service.search import *
+from service.search import Search
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 
@@ -14,7 +14,7 @@ SearchApp_api = Blueprint('SearchApp_api',__name__)
 @Request.json('age_type: int','survey_type: int')
 def searchWave(age_type, survey_type):
     try:
-        wave = search_wave(age_type, survey_type)
+        wave = Search.search_wave(age_type, survey_type)
         if wave == 'not found':
             return HTTPError('Wave not found', 404)
     except:
@@ -27,7 +27,7 @@ def searchWave(age_type, survey_type):
 @Request.json('age_type: int', 'survey_type: int', 'wave: int')
 def searchWave(age_type, survey_type, wave):
     try:
-        Info = search_info(age_type,survey_type, wave)
+        Info = Search.search_info(age_type,survey_type, wave)
         if Info == 'not found':
             return HTTPError('Info not found', 404)
     except:
@@ -40,7 +40,7 @@ def searchWave(age_type, survey_type, wave):
 @login_required
 def getSearchInfo():
     try:
-        Info = search_info(current_user.username)
+        Info = Search.search_info(current_user.username)
         if Info == 'not found':
             return HTTPError('Info not found', 404)
     except:
@@ -48,15 +48,26 @@ def getSearchInfo():
     
     return HTTPResponse('ok', info=Info)
 
+#delete user's search info: age, survey type
+@SearchApp_api.route('/DelSearchInfo', methods=['GET'])
+@login_required
+def delSearchInfo():
+    try:
+        Info = Search.del_search_info(current_user.username)
+    except:
+        return HTTPError('unknown error', 406)
+    
+    return HTTPResponse('ok')
+
 #store user's selected probelm to shop_cart
 @SearchApp_api.route('/StoreInfo', methods=['POST'])
 @login_required
 @Request.json('problem_id: list')
 def storeInfo(problem_id):
     try:
-        res = store_info(current_user.username, problem_id)
-        # if res == 'failed':
-        #     return HTTPError('Failed to store info', 403)
+        res = Search.store_info(current_user.username, problem_id)
+        if res == 'failed':
+            return HTTPError('Failed to store info', 403)
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok')
@@ -66,7 +77,7 @@ def storeInfo(problem_id):
 @login_required
 def getInfo():
     try:
-        problem_id = get_info(current_user.username)
+        problem_id = Search.get_info(current_user.username)
         if problem_id == 'failed':
             return HTTPError('Failed to fetch info', 403)
     except:
@@ -81,9 +92,9 @@ def delInfo(problem_id):
     try:
         '''delete user info'''
         user = current_user.username
-        res = del_info(user, problem_id)
+        res = Search.del_info(user, problem_id)
         if  res == 'failed':
-            return HTTPError('Failed to fetch info', 403)
+            return HTTPError('Failed to delete info', 403)
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok')
