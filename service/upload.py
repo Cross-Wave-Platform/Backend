@@ -28,7 +28,7 @@ class Upload_Files():
         file_dir = os.path.join( UPLOAD_FOLDER , self.age_type, self.survey_type)
         #create user folder if not exist
         if not os.path.exists(file_dir):
-                os.makedirs(file_dir)
+            os.makedirs(file_dir)
         return file_dir
 
     def get_user_file(self, request_file):

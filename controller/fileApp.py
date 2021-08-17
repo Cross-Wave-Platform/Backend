@@ -40,13 +40,8 @@ def upload_file(age_type, wave, survey_type, year):
 @login_required #tbc to be confirmed
 @Request.json('merge_method: str', 'file_format: str')
 def export_file(merge_method, file_format):
-    ''' get user request info'''
-
-    ''' write info to file'''
-
+    user_file = Export_Files(current_user.username, merge_method, file_format)
     ''' send file to user'''
-    user = 'current user' #tbd get current user
-    user_file = Export_Files(user, merge_method, file_format)
     try:
         res = user_file.get_db_file()
         if res == "Could not create merge file":
