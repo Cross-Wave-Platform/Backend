@@ -12,7 +12,7 @@ from .manager import SQLManager
 import resource
 
 class MergeManeger( SQLManager):
-    def merger(self, account_id: int, upload_path: str, merge_method: str, file_format: str) -> bool:
+    def merger(self, account_id: int, upload_path: str, destination: str, merge_method: str, file_format: str) -> bool:
         # get shop_cart info
         command = ("SELECT age_type, survey_type, wave, problem.problem_name "
                     "FROM ( "
@@ -66,7 +66,7 @@ class MergeManeger( SQLManager):
             result = pandas.concat(dataframes)
         else:
             # add the suffixes to the dataframes
-            # this needs more fixing
+            # this needs more fixing AKA some columns do not need the suffix maybe rstrip the suffix?
             for i in range(len(dataframes)):
                 dataframes[ i] = dataframes[i].add_suffix(suffix[ i])
 
@@ -79,11 +79,6 @@ class MergeManeger( SQLManager):
             #     else:
             #         result = pandas.merge( left=result, right=dataframes[i+1], how=merge_method, on=['baby_id'])
 
-        # for i in dataframes:
-        #     print(i)
-        # print(result)
-        # result.to_csv('testing.csv', index=False)
-
         if file_format == 'sav':
             # important metas
             # column_name == problem_name
@@ -91,9 +86,37 @@ class MergeManeger( SQLManager):
             # variable_value_labels == {problem_name:{num:'characters'}}
 
             # if variable_measure has a collision => set to 'unknown'
+            # this will maybe be implemented later
+            # get the union of all the variable_measure
+            # variable_measure_union = set()
+            # for i in metas:
+            #     variable_measure_union = variable_measure_union | metas[i].variable_measure
+
             # if variable_value_labels does not match => union them
+            # need dict union
+            full_dict = metas[0].variable_value_labels
+
+            for i in range(1, len(metas)):
+                full_dict = full_dict | metas[i].variable_value_labels
+
+
+            # get column_labels AKA topic
+            # get union of the problems
+            problem_union = []
+            for i in metas:
+                problem_union.append(i.column_names)
+            # flatten list
+            problem_union = [ item for sublist in problem_union for item in sublist]
+            # drop duplicates
+            problem_union = list(set(problem_union))
+            problem_union = pandas.DataFrame( problem_union, columns=['problem_name'])
+
+            command = "SELECT problem_name, topic FROM problem;"
+            problem_topics = pandas.read_sql( command,self.conn)
+            problem_topics = pandas.merge( left=problem_topics, right=problem_union, how='inner', on=['problem_name'])
+
             # not in use file_label, compress, note, missing_ranges,variable_display_width( not important), variable_formats( automatic resolve since there is only string and double in the original file)
-            pyreadstat.write_sav( result, destination)#, column_labels=,variable_value_labels=,variable_measure=)
+            pyreadstat.write_sav( result, destination, column_labels=problem_topics['topic'],variable_value_labels=full_dict)#,variable_measure=)
         elif file_format == 'csv':
             # time convertion needed for formats in SDATE10
             for item in metas:
