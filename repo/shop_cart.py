@@ -61,10 +61,8 @@ class SCManager(SQLManager):
         
 
     def unbind_combo(self,account_id):
+        # bind empty combo
         self.bind_combo( account_id, Combo([],[],[]))
-        # unbind_op = "UPDATE dbo.account SET last_combo='' WHERE account_id=%(account_id)d"
-        # self.cursor.execute(unbind_op,{'account_id':account_id})
-        # self.conn.commit()
     
     def clear_cart(self,account_id):
         remove_op = "DELETE FROM dbo.shop_cart WHERE account_id=%(account_id)d"

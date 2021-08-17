@@ -52,7 +52,7 @@ account_id      INT             IDENTITY,
 email           VARCHAR( 320)   UNIQUE    NOT NULL,
 password        VARCHAR( 2000)  NOT NULL,
 auth            INT             NOT NULL DEFAULT 2,
-last_combo      VARCHAR( 2000)
+last_combo      VARCHAR( 2000)  DEFAULT '__',
 
 CONSTRAINT PK_account PRIMARY KEY CLUSTERED ( account_id)
 );
