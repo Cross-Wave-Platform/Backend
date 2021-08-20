@@ -76,8 +76,13 @@ class MergeManeger( SQLManager):
         for i in range(len(file_names)):
             # need to read the whole file to get the metadata
             temp_df, temp_meta = pyreadstat.read_sav(file_names[i])
-            dataframes.append(temp_df)
+            dataframes.append(temp_df.loc[:,used_columns[i]])
             metas.append(temp_meta)
+
+        # add suffix to columns other than 'baby_id'
+        for i in range(len(dataframes)):
+            dataframes[ i] = dataframes[ i].add_suffix(suffix[i])
+            dataframes[ i] = dataframes[ i].rename( columns={ dataframes[ i].columns[ 0] : 'baby_id'})
 
         # print(dataframes)
 
@@ -86,18 +91,11 @@ class MergeManeger( SQLManager):
         if merge_method == 'union':
             result = pandas.concat(dataframes)
         else:
-            # add the suffixes to the dataframes
-            # this needs more fixing AKA some columns do not need the suffix maybe rstrip the suffix?
-            # for i in range(len(dataframes)):
-            #     dataframes[ i] = dataframes[i].add_suffix(suffix[ i])
-            
-            # print(dataframes[0].get('baby_id'))
-
             # how can be ['left','right','outer','inner','cross']
             result = reduce( lambda left, right: pandas.merge( left, right, on=['baby_id'], how=merge_method), dataframes)
+        
+        # print(result)
 
-            print(result.columns)
-        # return True
         if file_format == 'sav':
             # important metas
             # column_name == problem_name
