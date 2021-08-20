@@ -115,7 +115,7 @@ class MergeManeger( SQLManager):
                     if column_name == 'baby_id':
                         full_dict.update({'baby_id':metas[columns].variable_value_labels.get('baby_id')})
                     elif column_name not in full_dict:
-                        full_dict.update({column_name:metas[columns].variable_value_labels.get(column_name)})
+                        full_dict.update({column_name+suffix[columns]:metas[columns].variable_value_labels.get(column_name)})
                     else:
                         # need to union
                         inside = full_dict.get( column_name)
