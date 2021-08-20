@@ -38,13 +38,31 @@ class MergeManeger( SQLManager):
                 elif row['survey_type'] == 3:
                     temp_survey = 'friend'
                 suffix.append('_'+('small' if str(row['age_type']) == 1 else 'big')+'_'+temp_survey+'_M'+str(row['wave']))
-                used_columns.append([])
+                used_columns.append(['baby_id'])
             
             used_columns[ file_names.index(temp_path)].append(row['problem_name'])
 
         # print(file_names)
         # print(used_columns)
         # print(suffix)
+
+        temp_columns = []
+
+        for i in used_columns:
+            for item in i:
+                if item != 'baby_id':
+                    temp_columns.append(item)
+        
+        dup_columns = []
+
+        for i in temp_columns:
+            if temp_columns.count(i) > 1:
+                dup_columns.append(i)
+        
+        dup_columns = list(set(dup_columns))
+
+        # print(temp_columns)
+        # print(dup_columns)
 
         # check file exists
         for item in file_names:
@@ -56,9 +74,12 @@ class MergeManeger( SQLManager):
         metas = []
 
         for i in range(len(file_names)):
-            temp_df, temp_meta = pyreadstat.read_sav(file_names[i], usecols=used_columns[i])
+            # need to read the whole file to get the metadata
+            temp_df, temp_meta = pyreadstat.read_sav(file_names[i])
             dataframes.append(temp_df)
             metas.append(temp_meta)
+
+        # print(dataframes)
 
         result = pandas.DataFrame()
 
@@ -67,18 +88,16 @@ class MergeManeger( SQLManager):
         else:
             # add the suffixes to the dataframes
             # this needs more fixing AKA some columns do not need the suffix maybe rstrip the suffix?
-            for i in range(len(dataframes)):
-                dataframes[ i] = dataframes[i].add_suffix(suffix[ i])
+            # for i in range(len(dataframes)):
+            #     dataframes[ i] = dataframes[i].add_suffix(suffix[ i])
+            
+            # print(dataframes[0].get('baby_id'))
 
             # how can be ['left','right','outer','inner','cross']
-            result = reduce( lambda left, right: pandas.merge( left, right, how=merge_method, on=['baby_id']))
+            result = reduce( lambda left, right: pandas.merge( left, right, on=['baby_id'], how=merge_method), dataframes)
 
-            # for i in range(len(dataframes) - 1):
-            #     if i == 0:
-            #         result = pandas.merge( left=dataframes[0], right=dataframes[1], how=merge_method, on=['baby_id'])
-            #     else:
-            #         result = pandas.merge( left=result, right=dataframes[i+1], how=merge_method, on=['baby_id'])
-
+            print(result.columns)
+        # return True
         if file_format == 'sav':
             # important metas
             # column_name == problem_name
@@ -94,10 +113,13 @@ class MergeManeger( SQLManager):
 
             # if variable_value_labels does not match => union them
             # need dict union
-            full_dict = metas[0].variable_value_labels
+            full_dict = dict()
 
-            for i in range(1, len(metas)):
-                full_dict = full_dict | metas[i].variable_value_labels
+            for i in range( len(metas)):
+                # print(metas[i].variable_value_labels)
+                full_dict.update(metas[i].variable_value_labels)
+
+            # print(full_dict)
 
 
             # get column_labels AKA topic
