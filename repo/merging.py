@@ -109,9 +109,23 @@ class MergeManeger( SQLManager):
             # need dict union
             full_dict = dict()
 
-            for i in range( len(metas)):
-                # print(metas[i].variable_value_labels)
-                full_dict.update(metas[i].variable_value_labels)
+            for columns in range(len( used_columns)):
+                for item in range(len( used_columns[columns])):
+                    column_name = used_columns[columns][ item]
+                    if column_name == 'baby_id':
+                        full_dict.update({'baby_id':metas[columns].variable_value_labels.get('baby_id')})
+                    elif column_name not in full_dict:
+                        full_dict.update({column_name:metas[columns].variable_value_labels.get(column_name)})
+                    else:
+                        # need to union
+                        inside = full_dict.get( column_name)
+                        inside.update( metas[columns].variable_value_labels.get(column_name))
+                        full_dict.update({column_name:inside})
+
+            # filter the values that are 'None'
+            filtered = { k : v for k, v in full_dict.items() if v is not None}
+            full_dict.clear()
+            full_dict.update( filtered)
 
             # print(full_dict)
 
@@ -130,9 +144,9 @@ class MergeManeger( SQLManager):
             problem_topics = pandas.merge( left=problem_topics, right=problem_union, how='inner', on=['problem_name'])
 
             # print( problem_topics)
-
+            destination += '/output.sav'
             # not in use file_label, compress, note, missing_ranges,variable_display_width( not important), variable_formats( automatic resolve since there is only string and double in the original file)
-            pyreadstat.write_sav( result, destination, column_labels=problem_topics['topic'],variable_value_labels=full_dict)#,variable_measure=)
+            pyreadstat.write_sav( result, destination, column_labels=problem_topics['topic'].tolist(),variable_value_labels=full_dict)#,variable_measure=)
         elif file_format == 'csv':
             destination += '/output.csv'
             # time convertion needed for formats in SDATE10
