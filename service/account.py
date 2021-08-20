@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from .utils import hash_id
 from hmac import compare_digest
 import pymssql
-from engine_config import conn
+#from engine_config import conn
 from flask_login import UserMixin
 
 import os
@@ -33,10 +33,10 @@ class Account(UserMixin):
         
         user_id = hash_id(username, password)
 
-        with conn.cursor() as cursor:
-            sql = "INSERT INTO dbo.account (account_name, email, password) OUTPUT INSERT accountID VALUES ( \'" + username + "\', \'" + email + "\', \'" + user_id + "\')"
-            cursor.execute(sql)
-            conn.commit()
+        # with conn.cursor() as cursor:
+        #     sql = "INSERT INTO dbo.account (account_name, email, password) OUTPUT INSERT accountID VALUES ( \'" + username + "\', \'" + email + "\', \'" + user_id + "\')"
+        #     cursor.execute(sql)
+        #     conn.commit()
         
         return user.reload()
 
@@ -58,10 +58,10 @@ class Account(UserMixin):
         user_id = hash_id(self.account_name, old_password)
         if compare_digest(self.password, user_id):
             user_id = hash_id(self.account_name, new_password)
-            with conn.cursor() as cursor:
-                sql = "UPDATE dbo.account SET password = \'" + user_id + "\' WHERE account_name = \'" + self.account_name + "\'"
-                cursor.execute(sql)
-                conn.commit()
+            # with conn.cursor() as cursor:
+            #     sql = "UPDATE dbo.account SET password = \'" + user_id + "\' WHERE account_name = \'" + self.account_name + "\'"
+            #     cursor.execute(sql)
+            #     conn.commit()
         else:
             return 'change password incorrect'
 
@@ -69,16 +69,16 @@ class Account(UserMixin):
 
     @classmethod
     def get_by_username(cls, username):
-        with conn.cursor(as_dict=True) as cursor:
-            sql = "SELECT * FROM dbo.account WHERE account_name = \'" + username + "\'"
-            cursor.execute(sql)
-            data = cursor.fetchone()
-        return data
+        # with conn.cursor(as_dict=True) as cursor:
+        #     sql = "SELECT * FROM dbo.account WHERE account_name = \'" + username + "\'"
+        #     cursor.execute(sql)
+        #     data = cursor.fetchone()
+        return #data
 
     @classmethod
     def get_by_email(cls, email):
-        with conn.cursor(as_dict=True) as cursor:
-            sql = "SELECT * FROM dbo.account WHERE email = \'" + email + "\'"
-            cursor.execute(sql)
-            data = cursor.fetchone()
-        return data
+        # with conn.cursor(as_dict=True) as cursor:
+        #     sql = "SELECT * FROM dbo.account WHERE email = \'" + email + "\'"
+        #     cursor.execute(sql)
+        #     data = cursor.fetchone()
+        return #data
