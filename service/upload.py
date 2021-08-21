@@ -2,13 +2,11 @@ import os
 import base64
 import pandas as pd
 import pyreadstat as prs
-from .config import UPLOAD_FOLDER
 from werkzeug.utils import secure_filename
 from repo.upload import UploadManager,SurveyInfo
+from .utils import get_yaml_config
 
 __all__ = ['Upload_Files']
-
-UPLOAD_FOLDER = os.path.join( os.getcwd(), '/upload')
 
 ALLOWED_EXTENSIONS = {'csv', 'sav'}
 
@@ -40,6 +38,7 @@ class Upload_Files():
 
     def get_file_folder(self):
         #get user folder path
+        UPLOAD_FOLDER = get_yaml_config()['upload_dir']
         file_dir = os.path.join( UPLOAD_FOLDER , self.age_type, self.survey_type)
         #create user folder if not exist
         if not os.path.exists(file_dir):

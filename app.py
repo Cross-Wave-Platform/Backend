@@ -33,4 +33,4 @@ def user_loader(user_id):
     return None
 
 if __name__ == '__main__':
-    app.run(host='localhost', port = 5000 )
+    app.run(host='localhost', port = 5000,debug=True )

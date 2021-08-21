@@ -2,12 +2,10 @@ import os
 import zipfile
 import pandas as pd
 import pyreadstat as prs
-from .config import DOWNLOAD_FOLDER
 from flask import send_file
+from .utils import get_yaml_config
 
 __all__ = ['Export_Files']
-
-DOWNLOAD_FOLDER = os.path.join( os.getcwd(),'/download') 
 
 class Export_Files():
     def __init__(self, username, merge_method, file_format):
@@ -19,6 +17,7 @@ class Export_Files():
 
     def get_user_folder(self):
         #get user folder path  
+        DOWNLOAD_FOLDER = get_yaml_config()['download_dir']
         file_dir = os.path.join( DOWNLOAD_FOLDER , self.username)
         #create user folder if not exist
         if not os.path.exists(file_dir):
