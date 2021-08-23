@@ -43,6 +43,7 @@ class SCManager(SQLManager):
         
 
     def unbind_combo(self,account_id):
+        # bind empty combo
         self.bind_combo( account_id, Combo([],[],[]))
 
     def update_cart(self,account_id:int,cart_df):

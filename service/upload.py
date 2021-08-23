@@ -26,7 +26,7 @@ def decode_file(file, filename):
             fh.write(base64.b64decode(file))
     except:
         return "Fail"
-    return "Success"
+    return filename
 
 class Upload_Files():
     def __init__(self, username, age_type, wave, survey_type, year):
@@ -39,7 +39,7 @@ class Upload_Files():
     def get_file_folder(self):
         #get user folder path
         UPLOAD_FOLDER = get_yaml_config()['upload_dir']
-        file_dir = os.path.join( UPLOAD_FOLDER , self.age_type, self.survey_type)
+        file_dir = os.path.join( UPLOAD_FOLDER , str(self.age_type), str(self.survey_type))
         #create user folder if not exist
         if not os.path.exists(file_dir):
             os.makedirs(file_dir)
@@ -56,14 +56,16 @@ class Upload_Files():
             return "No files"
         
         #there is file
+        res = False
+        request_file = request_file.encode("ascii")
         if request_file and isBase64(request_file):
-            filename = secure_filename(self.wave+".sav")
+            filename = secure_filename(str(self.wave)+".sav")
             file_path = os.path.join(self.get_file_folder(), filename)
             # request_file.save(file_path)
             res = decode_file(request_file, file_path)
         return res
 
     def save_file_info(self, filename):
-        survey_info = SurveyInfo(self.age_type, self.survey_type, self.wave)
+        survey_info = SurveyInfo(self.age_type, self.survey_type, self.wave,1)
         manager = UploadManager()
         manager.upload_sav(filename,survey_info)

@@ -49,6 +49,7 @@ CONSTRAINT FK_problem_class FOREIGN KEY ( class_id) REFERENCES dbo.class ( class
 CREATE TABLE dbo.account
 (
 account_id      INT             IDENTITY,
+account_name    VARCHAR( 320)   UNIQUE    NOT NULL,
 email           VARCHAR( 320)   UNIQUE    NOT NULL,
 password        VARCHAR( 2000)  NOT NULL,
 auth            INT             NOT NULL DEFAULT 2,

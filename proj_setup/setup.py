@@ -16,7 +16,7 @@ def create_dir(dir_path):
 TMP_DIR_PATH = os.path.join(CWD,'tmp_dir')
 
 repo_config = {
-    "mymssql": {
+    "mssql": {
         "host": "localhost",
         "user": "SA",
         "password": "Kit2021db",

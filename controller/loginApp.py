@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from service.account import Account
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 
@@ -24,7 +24,6 @@ def login(username, password):
             return HTTPError('password incorrect', 403)
     except:
         return HTTPError('unknown error', 406)
-    user.id = username
     login_user(user)
     return HTTPResponse('Login success')
 
