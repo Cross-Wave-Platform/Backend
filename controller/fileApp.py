@@ -16,12 +16,12 @@ fileApp_api = Blueprint('fileApp_api',__name__)
 
 @fileApp_api.route('/upload', methods=['POST'])
 @login_required
-@Request.json('file: str','age_type: int', 'wave: int', 'survey_type: int', 'year: int')
-def upload_file(file, age_type, wave, survey_type, year):
+@Request.json('file: str','ageType: int', 'wave: int', 'surveyType: int')
+def upload_file(file, ageType, wave, surveyType):
     ''' save file'''
     #check if user upload folder exist, or create one
     #user = 'current user' tbd user
-    user_file = Upload_Files(current_user.username, age_type, wave, survey_type, year)
+    user_file = Upload_Files(current_user.username, ageType, wave, surveyType)
     try:
         filename = user_file.get_user_file(file)
         if  filename == "No files":
@@ -38,11 +38,11 @@ def upload_file(file, age_type, wave, survey_type, year):
         return HTTPError('unknown error db', 406)
     return HTTPResponse('ok')
 
-@fileApp_api.route('/export', methods=['POST'])
+@fileApp_api.route('/export', methods=['GET'])
 @login_required #tbc to be confirmed
-@Request.json('merge_method: str', 'file_format: str')
-def export_file(merge_method, file_format):
-    user_file = Export_Files(current_user.username, merge_method, file_format)
+@Request.json('mergeMethod: str', 'fileFormat: str')
+def export_file(mergeMethod, fileFormat):
+    user_file = Export_Files(current_user.id, current_user.username, mergeMethod, fileFormat)
     ''' send file to user'''
     try:
         res = user_file.get_db_file()
@@ -54,4 +54,4 @@ def export_file(merge_method, file_format):
     except:
         return HTTPError('unknown error', 406)
 
-    return HTTPResponse('ok')
+    return res

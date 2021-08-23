@@ -2,15 +2,15 @@ import os
 import zipfile
 import pandas as pd
 import pyreadstat as prs
-from .config import DOWNLOAD_FOLDER
 from flask import send_file
+from .utils import get_yaml_config
+from repo.merging import MergeManager
 
 __all__ = ['Export_Files']
 
-DOWNLOAD_FOLDER = os.path.join( os.getcwd(),'/download') 
-
 class Export_Files():
-    def __init__(self, username, merge_method, file_format):
+    def __init__(self, id, username, merge_method, file_format):
+        self.id = id
         self.username = username
         self.merge_method = merge_method
         self.file_format = file_format
@@ -19,6 +19,7 @@ class Export_Files():
 
     def get_user_folder(self):
         #get user folder path  
+        DOWNLOAD_FOLDER = get_yaml_config()['download_dir']
         file_dir = os.path.join( DOWNLOAD_FOLDER , self.username)
         #create user folder if not exist
         if not os.path.exists(file_dir):
@@ -28,22 +29,15 @@ class Export_Files():
     def get_db_file(self):
         ''' get user request info'''
         ''' write info to file'''
-        '''
-        get request info from db
-        df = pd.DataFrame([["a", 1],[2.2, 2],[3.3, "b"]], columns=['Var1', 'Var2'])
-        variable_value_labels = {'Var1':{'a':'a missing value'}
-        missing_ranges = {'Var1':['a'], 'Var2': ['b']}
-        formats = {'val1':'N4', 'val2':'F1.0'}
-        variable_format=formats, missing_ranges=missing_ranges, variable_value_labels=variable_value_labels
-        '''
-        df = 'retrieved data' #tbd data from db, df in pandas dataframe structurre
-
+        UPLOAD_FOLDER = get_yaml_config()['upload_dir']
         '''save file to user export folder'''
-        merge_file_path = os.path.join(self.get_user_folder(), 'merge.sav')
+        merge_file_path = self.get_user_folder()
         try:
-            prs.write_sav(df, merge_file_path)
+            manager = MergeManager()
+            manager.merger(self.id, UPLOAD_FOLDER, merge_file_path, self.merge_method, self.file_format)
         except:
             return "Could not create merge file"
+        merge_file_path = os.path.join(merge_file_path, 'output.sav')
         self.merge_file = merge_file_path
         return "Success"
 
@@ -60,7 +54,7 @@ class Export_Files():
     def export_file_to_user(self):
         '''send file to user'''
         try:
-            send_file(self.merge_file, as_attachment=True,attachment_filename='merge_file')
+            send_file(self.merge_file, as_attachment=True)
         except:
             return "Fail to send file"
-        return "Success"
+        return send_file(self.merge_file, as_attachment=True)

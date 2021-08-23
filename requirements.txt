@@ -1,0 +1,7 @@
+Flask
+Flask-Login
+openpyxl
+pandas
+pymssql
+pyreadstat
+paste
