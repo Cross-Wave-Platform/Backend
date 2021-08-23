@@ -37,7 +37,7 @@ class MergeManeger( SQLManager):
                     temp_survey = 'parent'
                 elif row['survey_type'] == 3:
                     temp_survey = 'friend'
-                suffix.append('_'+('small' if str(row['age_type']) == 1 else 'big')+'_'+temp_survey+'_M'+str(row['wave']))
+                suffix.append(('small' if str(row['age_type']) == 1 else 'big')+'_'+temp_survey+'_M'+str(row['wave']))
                 used_columns.append(['baby_id'])
             
             used_columns[ file_names.index(temp_path)].append(row['problem_name'])
@@ -74,18 +74,24 @@ class MergeManeger( SQLManager):
             dataframes.append(temp_df.loc[:,used_columns[i]])
             metas.append(temp_meta)
 
-        # add suffix to columns other than 'baby_id'
-        for i in range(len(dataframes)):
-            dataframes[ i] = dataframes[ i].add_suffix(suffix[i])
-            dataframes[ i] = dataframes[ i].rename( columns={ dataframes[ i].columns[ 0] : 'baby_id'})
-
         # print(dataframes)
 
         result = pandas.DataFrame()
 
         if merge_method == 'union':
+            # don't change the suffix
+            # add wave column
+            for i in range(len(dataframes)):
+                dataframes[ i].insert(1,'wave', suffix[ i])
+                # kill suffixes for the variable_value_label
+                suffix[i] = ''
+
             result = pandas.concat(dataframes)
         else:
+            # add suffix to columns other than 'baby_id'
+            for i in range(len(dataframes)):
+                dataframes[ i] = dataframes[ i].add_suffix('_'+suffix[i])
+                dataframes[ i] = dataframes[ i].rename( columns={ dataframes[ i].columns[ 0] : 'baby_id'})
             # how can be ['left','right','outer','inner','cross']
             result = reduce( lambda left, right: pandas.merge( left, right, on=['baby_id'], how=merge_method), dataframes)
         
@@ -142,11 +148,14 @@ class MergeManeger( SQLManager):
             command = "SELECT problem_name, topic FROM problem;"
             problem_topics = pandas.read_sql( command,self.conn)
             problem_topics = pandas.merge( left=problem_topics, right=problem_union, how='inner', on=['problem_name'])
-
-            # print( problem_topics)
+            column_labels = problem_topics['topic'].tolist()
+            if merge_method == 'union':
+                column_labels.insert(1,'wave_in_chinese')
+            # print( column_labels)
+            # print(result)
             destination += '/output.sav'
             # not in use file_label, compress, note, missing_ranges,variable_display_width( not important), variable_formats( automatic resolve since there is only string and double in the original file)
-            pyreadstat.write_sav( result, destination, column_labels=problem_topics['topic'].tolist(),variable_value_labels=full_dict)#,variable_measure=)
+            pyreadstat.write_sav( result, destination, column_labels= column_labels,variable_value_labels=full_dict)#,variable_measure=)
         elif file_format == 'csv':
             destination += '/output.csv'
             # time convertion needed for formats in SDATE10
@@ -154,6 +163,7 @@ class MergeManeger( SQLManager):
             #     if item.column_names:
             #         return False
             result.to_csv( destination, index=False)
+
         else:
             # not possible
             return False
