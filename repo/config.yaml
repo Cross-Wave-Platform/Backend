@@ -1,0 +1,6 @@
+mssql:
+  database: KIT_DB
+  host: localhost
+  password: Kit2021db
+  user: SA
+tmp_dir: /home/lil0w1/KIT/kit-be/tmp_dir

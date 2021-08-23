@@ -75,4 +75,3 @@ class SearchManager(SQLManager):
         self.conn.commit()
 
         return select_prob_df,prob_info_df
-        

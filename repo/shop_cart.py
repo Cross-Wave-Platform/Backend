@@ -43,6 +43,7 @@ class SCManager(SQLManager):
         
 
     def unbind_combo(self,account_id):
+        # bind empty combo
         self.bind_combo( account_id, Combo([],[],[]))
 
     def update_cart(self,account_id:int,cart_df):
@@ -59,4 +60,3 @@ class SCManager(SQLManager):
         remove_op = "DELETE FROM dbo.shop_cart WHERE account_id=%(account_id)d"
         self.cursor.execute(remove_op,{'account_id':account_id})
         self.conn.commit()
-    
