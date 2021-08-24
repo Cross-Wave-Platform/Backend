@@ -4,6 +4,7 @@ from service import *
 from service import Account
 from controller import *
 from controller import loginApp_api, fileApp_api
+from repo.manager import SQLManager
 
 app = Flask(__name__)
 
@@ -21,10 +22,10 @@ for api, prefix in api2prefix:
 
 
 def get_user(user_id):
-    with conn.cursor() as cursor:
-        sql = "SELECT * FROM dbo.account WHERE account_name = \'" + user_id + "\'"
-        cursor.execute(sql)
-        data = cursor.fetchone()
+    a = SQLManager()
+    sql = "SELECT * FROM dbo.account WHERE account_name = \'" + user_id + "\'"
+    a.cursor.execute(sql)
+    data = a.cursor.fetchone()
     return data
 
 @login_manager.user_loader

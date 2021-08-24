@@ -29,12 +29,11 @@ def decode_file(file, filename):
     return filename
 
 class Upload_Files():
-    def __init__(self, username, age_type, wave, survey_type, year):
+    def __init__(self, username, age_type, wave, survey_type):
         self.username = username
         self.age_type = age_type
         self.wave = wave
         self.survey_type = survey_type
-        self.year = year
 
     def get_file_folder(self):
         #get user folder path
@@ -56,8 +55,8 @@ class Upload_Files():
             return "No files"
         
         #there is file
-        res = False
-        request_file = request_file.encode("ascii")
+        res = "Fail"
+        request_file = request_file.encode('ascii')
         if request_file and isBase64(request_file):
             filename = secure_filename(str(self.wave)+".sav")
             file_path = os.path.join(self.get_file_folder(), filename)
@@ -66,6 +65,6 @@ class Upload_Files():
         return res
 
     def save_file_info(self, filename):
-        survey_info = SurveyInfo(self.age_type, self.survey_type, self.wave,1)
+        survey_info = SurveyInfo(self.age_type, self.survey_type, self.wave, 1)
         manager = UploadManager()
         manager.upload_sav(filename,survey_info)

@@ -4,7 +4,7 @@ import pandas as pd
 import pyreadstat as prs
 from flask import send_file
 from .utils import get_yaml_config
-from repo.merging import MergeManeger
+from repo.merging import MergeManager
 
 __all__ = ['Export_Files']
 
@@ -31,15 +31,15 @@ class Export_Files():
         ''' get user request info'''
         ''' write info to file'''
         UPLOAD_FOLDER = get_yaml_config()['upload_dir']
-        merge_file_path = os.path.join(self.get_user_folder(), 'output.sav')
-        self.merge_file = merge_file_path
+        '''save file to user export folder'''
+        merge_file_path = self.get_user_folder()
         try:
-            # save export file
-            print("START??????")
-            manager = MergeManeger()
-            manager.merger(self.id, UPLOAD_FOLDER, self.get_user_folder(), self.merge_method, self.file_format)
+            manager = MergeManager()
+            manager.merger(self.id, UPLOAD_FOLDER, merge_file_path, self.merge_method, self.file_format)
         except:
             return "Could not create merge file"
+        merge_file_path = os.path.join(merge_file_path, 'output.sav')
+        self.merge_file = merge_file_path
         return "Success"
 
     def compress_file(self):
@@ -59,4 +59,4 @@ class Export_Files():
             print(self.merge_file)
         except:
             return "Fail to send file"
-        return send_file(self.merge_file, as_attachment=True, attachment_filename="output.sav")
+        return send_file(self.merge_file, as_attachment=True)

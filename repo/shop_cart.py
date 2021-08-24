@@ -60,4 +60,3 @@ class SCManager(SQLManager):
         remove_op = "DELETE FROM dbo.shop_cart WHERE account_id=%(account_id)d"
         self.cursor.execute(remove_op,{'account_id':account_id})
         self.conn.commit()
-    

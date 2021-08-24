@@ -1,4 +1,3 @@
-
 from typing import List
 from pandas.core.reshape.merge import merge
 import pyreadstat
@@ -11,7 +10,7 @@ from .manager import SQLManager
 # for memory usage
 import resource
 
-class MergeManeger( SQLManager):
+class MergeManager( SQLManager):
     def merger(self, account_id: int, upload_path: str, destination: str, merge_method: str, file_format: str) -> bool:
         # get shop_cart info
         command = ("SELECT age_type, survey_type, wave, problem.problem_name "
