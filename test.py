@@ -1,12 +1,20 @@
-import base64
+import pandas
 
-with open('/home/lil0w1/KIT/kit-be/KIT3月齡組第1波3月齡親友_final.sav','rb') as f:
-    s = f.read()
-    with open('out2.txt','w') as out:
-        out.write(base64.b64encode(s).decode("ascii"))
-        
-    with open('out2.txt','r') as testing:
-        a = testing.read().encode("ascii")
-        # a = a[:-1] + a[(-1+1):]
+problem_list = [
+            {"problem_id":"111","survey_id":[1,2]},
+            {"problem_id":"222","survey_id":[2,3]}
+        ]
+res = []
+for row in problem_list:
+    for id in row['survey_id']:
+        tmp = {"problem_id":row['problem_id'],"survey_id":id}
+        res.append(tmp)
 
-        print(base64.b64encode(base64.b64decode(a)) == a)
+df = pandas.DataFrame(res)
+
+problem_list = []
+df = df.groupby('problem_id')
+for key, item in df:
+    problem_list.append({"problem_id":key,"survey_id":item['survey_id'].tolist()})
+
+print(problem_list)

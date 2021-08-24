@@ -10,7 +10,7 @@ class Combo():
         self.waves=waves
 
 class SCManager(SQLManager):
-    def bind_combo(self,account_id:str,combo:Combo):
+    def bind_combo(self,account_id:int,combo:Combo):
         str_age_list = map(str,combo.age_types)
         str_survey_list = map(str,combo.survey_types)
         str_wave_list = map(str,combo.waves)
@@ -25,7 +25,7 @@ class SCManager(SQLManager):
         self.cursor.execute(bind_op,{'combo':combo,'account_id':account_id})
         self.conn.commit()
 
-    def decode_combo(self,account_id:str):
+    def decode_combo(self,account_id:int):
         select_op = "SELECT last_combo FROM dbo.account WHERE account_id=%(account_id)d"
         self.cursor.execute(select_op,{'account_id':account_id})
         combo = self.cursor.fetchone()[0]
@@ -54,7 +54,7 @@ class SCManager(SQLManager):
 
     def get_cart(self,account_id):
         get_op = "SELECT survey_id,problem_id FROM dbo.shop_cart WHERE account_id = %(account_id)d"
-        return pandas.read_sql(get_op,params={'account_id':account_id})
+        return pandas.read_sql(get_op,self.conn,params={'account_id':account_id})
     
     def clear_cart(self,account_id):
         remove_op = "DELETE FROM dbo.shop_cart WHERE account_id=%(account_id)d"

@@ -3,6 +3,7 @@ from .manager import SQLManager
 from .shop_cart import SCManager
 
 class SearchManager(SQLManager):
+    # todo: list age_type,survey_type
     def search_waves(self, age_type, survey_type):
         search_op = ("SELECT wave "
                      "FROM dbo.survey "
@@ -10,7 +11,6 @@ class SearchManager(SQLManager):
                      "AND survey_type = %(survey_type)s "
                      "AND release = 1")
         params = {'age_type': age_type, 'survey_type': survey_type}
-
         return pandas.read_sql(search_op,self.conn,params=params)
 
     # use user's last_combo to select surveys

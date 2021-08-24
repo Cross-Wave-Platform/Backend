@@ -3,8 +3,8 @@ from flask_login import LoginManager, current_user, login_required
 from service import *
 from service import Account
 from controller import *
-from controller import loginApp_api, fileApp_api
 from repo.manager import SQLManager
+from controller import loginApp_api, fileApp_api, searchApp_api
 
 app = Flask(__name__)
 
@@ -16,6 +16,7 @@ login_manager.init_app(app)
 api2prefix = [
     (loginApp_api, '/loginApp'),
     (fileApp_api, '/fileApp'),
+    (searchApp_api, '/searchApp'),
 ]
 for api, prefix in api2prefix:
     app.register_blueprint(api, url_prefix=prefix)
@@ -33,7 +34,7 @@ def user_loader(user_id):
     aa = get_user(user_id)
     if aa is not None:
         current_user = Account(aa[1], aa[3], aa[2])
-        current_user.id = aa[1]
+        current_user.id = aa[0]
         return current_user
     return None
 

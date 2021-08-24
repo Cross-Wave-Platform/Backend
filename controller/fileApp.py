@@ -41,7 +41,6 @@ def upload_file(file, ageType, wave, surveyType):
 @login_required #tbc to be confirmed
 @Request.args('mergeMethod', 'fileFormat')
 def export_file(mergeMethod, fileFormat):
-    print(current_user.account_name)
     user_file = Export_Files(current_user.id, current_user.account_name, mergeMethod, fileFormat)
     ''' send file to user'''
     try:
