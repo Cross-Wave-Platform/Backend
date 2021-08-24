@@ -40,7 +40,7 @@ def upload_file(file, ageType, wave, surveyType):
 
 @fileApp_api.route('/export', methods=['GET'])
 @login_required #tbc to be confirmed
-@Request.json('mergeMethod: str', 'fileFormat: str')
+@Request.args('mergeMethod', 'fileFormat')
 def export_file(mergeMethod, fileFormat):
     user_file = Export_Files(current_user.id, current_user.username, mergeMethod, fileFormat)
     ''' send file to user'''
