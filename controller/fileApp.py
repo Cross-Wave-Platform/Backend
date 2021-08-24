@@ -21,7 +21,7 @@ def upload_file(file, ageType, wave, surveyType):
     ''' save file'''
     #check if user upload folder exist, or create one
     #user = 'current user' tbd user
-    user_file = Upload_Files(current_user.username, ageType, wave, surveyType)
+    user_file = Upload_Files(current_user.account_name, ageType, wave, surveyType)
     try:
         filename = user_file.get_user_file(file)
         if  filename == "No files":
@@ -40,9 +40,9 @@ def upload_file(file, ageType, wave, surveyType):
 
 @fileApp_api.route('/export', methods=['GET'])
 @login_required #tbc to be confirmed
-@Request.json('mergeMethod: str', 'fileFormat: str')
+@Request.args('mergeMethod', 'fileFormat')
 def export_file(mergeMethod, fileFormat):
-    user_file = Export_Files(current_user.id, current_user.username, mergeMethod, fileFormat)
+    user_file = Export_Files(current_user.id, current_user.account_name, mergeMethod, fileFormat)
     ''' send file to user'''
     try:
         res = user_file.get_db_file()
