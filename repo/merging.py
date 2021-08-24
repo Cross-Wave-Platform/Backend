@@ -1,5 +1,5 @@
 
-from typing import List
+# from typing import List
 from numpy.core.numeric import full
 from pandas.core.reshape.merge import merge
 import pyreadstat
@@ -43,10 +43,6 @@ class MergeManeger( SQLManager):
             
             used_columns[ file_names.index(temp_path)].append(row['problem_name'])
 
-        # print(file_names)
-        # print(used_columns)
-        # print(suffix)
-
         # remove dup_columns if not used
         dup_columns = []
 
@@ -56,9 +52,6 @@ class MergeManeger( SQLManager):
                     dup_columns.append(item)
 
         dup_columns = list(set(dup_columns))
-
-        # print(temp_columns)
-        # print(dup_columns)
 
         # check file exists
         for item in file_names:
@@ -74,8 +67,6 @@ class MergeManeger( SQLManager):
             temp_df, temp_meta = pyreadstat.read_sav(file_names[i])
             dataframes.append(temp_df.loc[:,used_columns[i]])
             metas.append(temp_meta)
-
-        # print(dataframes)
 
         result = pandas.DataFrame()
 
@@ -95,9 +86,6 @@ class MergeManeger( SQLManager):
                 dataframes[ i] = dataframes[ i].rename( columns={ dataframes[ i].columns[ 0] : 'baby_id'})
             # how can be ['left','right','outer','inner','cross']
             result = reduce( lambda left, right: pandas.merge( left, right, on=['baby_id'], how=merge_method), dataframes)
-        
-        # print(result)
-        # print(metas[0].column_labels)
 
         # if variable_value_labels does not match => union them
         # need dict union
@@ -124,9 +112,6 @@ class MergeManeger( SQLManager):
         full_dict.clear()
         full_dict.update( filtered)
 
-        # print(full_dict)
-
-
         # get column_labels AKA topic
         # get union of the problems
         problem_union = used_columns.copy()
@@ -142,8 +127,6 @@ class MergeManeger( SQLManager):
         column_labels = problem_topics['topic'].tolist()
         if merge_method == 'union':
             column_labels.insert(1,'wave_in_chinese')
-        # print( column_labels)
-        # print(result)
 
         if file_format == 'sav':
             destination += '/output.sav'
@@ -175,14 +158,10 @@ class MergeManeger( SQLManager):
                             current_column = current_column+'_'+suffix[file]
                         result[current_column] = pandas.to_timedelta( (result[current_column] - bais), unit='s') + pandas.Timestamp('1970-1-1')
                         result[current_column] = result[current_column].dt.date
-                        # print(original_type,used_columns[ file][column])
             
             # get the ( problem_id,  problem_name, variable_value_labels)
-            # problem_value_labels = problem_topics.copy().rename(columns={'problem_name':'problem_id'})
             problem_value_labels = pandas.DataFrame()
             problem_value_labels['problem_id'] = result.columns
-            # print(problem_topics)
-            # print(problem_value_labels)
 
             # add the topic
             if merge_method != 'union':
@@ -194,13 +173,11 @@ class MergeManeger( SQLManager):
                             current_column  = current_column+'_'+suffix[file]
                         problem_value_labels.loc[ problem_value_labels['problem_id'] == current_column,'topic'] = problem_topics.loc[ problem_topics['problem_name'] == before,'topic']
             else:
-                # problem_topics.loc[ 1, 'topic'] = 'wave_in_chinese'
-                problem_value_labels['topic'] = column_labels#.copy()
+                problem_value_labels['topic'] = column_labels
 
             # add the value_label
             for item in result.columns:
                 problem_value_labels.loc[problem_value_labels['problem_id'] == item,'variable_value_label'] = str(full_dict.get(item))
-            # print(problem_value_labels)
 
             with pandas.ExcelWriter(destination, datetime_format="YYYY-MM-DD") as writer:
                 result.to_excel( writer, index= False, sheet_name='Data')
@@ -211,17 +188,6 @@ class MergeManeger( SQLManager):
 
         return True
 
-
-# if __name__ == "__main__":
-#     # example
-#     file_names = ['../KIT3月齡組第1波3月齡家長_final.sav', '../KIT3月齡組第2波6月齡家長_final.sav']
-#     # file_names = [ item for item in file_names for repet in range(10)]
-#     # print(file_names)
-#     used_columns = [['baby_id', 'pfa0101', 'pfa0102'], ['baby_id','pfa0201']]
-
-#     print( merger(file_names,used_columns,'inner','csv'))
-
-#     print(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, 'KB')
 
 # file name will be <big/small>/<type>/<wave>.sav
 # all metadata consists of the following
