@@ -1,5 +1,6 @@
 
 from typing import List
+from numpy.core.numeric import full
 from pandas.core.reshape.merge import merge
 import pyreadstat
 import pandas
@@ -98,7 +99,54 @@ class MergeManeger( SQLManager):
         # print(result)
         # print(metas[0].column_labels)
 
+        # if variable_value_labels does not match => union them
+        # need dict union
+        full_dict = dict()
+
+        for columns in range(len( used_columns)):
+            for item in range(len( used_columns[columns])):
+                column_name = used_columns[columns][ item]
+                if column_name == 'baby_id':
+                    full_dict.update({'baby_id':metas[columns].variable_value_labels.get('baby_id')})
+                elif column_name not in full_dict:
+                    if merge_method == 'union':
+                        full_dict.update({column_name:metas[columns].variable_value_labels.get(column_name)})
+                    else:
+                        full_dict.update({column_name+'_'+suffix[columns]:metas[columns].variable_value_labels.get(column_name)})
+                else:
+                    # need to union
+                    inside = full_dict.get( column_name)
+                    inside.update( metas[columns].variable_value_labels.get(column_name))
+                    full_dict.update({column_name:inside})
+
+        # filter the values that are 'None'
+        filtered = { k : v for k, v in full_dict.items() if v is not None}
+        full_dict.clear()
+        full_dict.update( filtered)
+
+        # print(full_dict)
+
+
+        # get column_labels AKA topic
+        # get union of the problems
+        problem_union = used_columns.copy()
+        # flatten list
+        problem_union = [ item for sublist in problem_union for item in sublist]
+        # drop duplicates
+        problem_union = list(set(problem_union))
+        problem_union = pandas.DataFrame( problem_union, columns=['problem_name'])
+
+        command = "SELECT problem_name, topic FROM problem;"
+        problem_topics = pandas.read_sql( command,self.conn)
+        problem_topics = pandas.merge( left=problem_topics, right=problem_union, how='inner', on=['problem_name'])
+        column_labels = problem_topics['topic'].tolist()
+        if merge_method == 'union':
+            column_labels.insert(1,'wave_in_chinese')
+        # print( column_labels)
+        # print(result)
+
         if file_format == 'sav':
+            destination += '/output.sav'
             # important metas
             # column_names == problem_name
             # column_labels == topic
@@ -111,49 +159,6 @@ class MergeManeger( SQLManager):
             # for i in metas:
             #     variable_measure_union = variable_measure_union | metas[i].variable_measure
 
-            # if variable_value_labels does not match => union them
-            # need dict union
-            full_dict = dict()
-
-            for columns in range(len( used_columns)):
-                for item in range(len( used_columns[columns])):
-                    column_name = used_columns[columns][ item]
-                    if column_name == 'baby_id':
-                        full_dict.update({'baby_id':metas[columns].variable_value_labels.get('baby_id')})
-                    elif column_name not in full_dict:
-                        full_dict.update({column_name+'_'+suffix[columns]:metas[columns].variable_value_labels.get(column_name)})
-                    else:
-                        # need to union
-                        inside = full_dict.get( column_name)
-                        inside.update( metas[columns].variable_value_labels.get(column_name))
-                        full_dict.update({column_name:inside})
-
-            # filter the values that are 'None'
-            filtered = { k : v for k, v in full_dict.items() if v is not None}
-            full_dict.clear()
-            full_dict.update( filtered)
-
-            # print(full_dict)
-
-
-            # get column_labels AKA topic
-            # get union of the problems
-            problem_union = used_columns.copy()
-            # flatten list
-            problem_union = [ item for sublist in problem_union for item in sublist]
-            # drop duplicates
-            problem_union = list(set(problem_union))
-            problem_union = pandas.DataFrame( problem_union, columns=['problem_name'])
-
-            command = "SELECT problem_name, topic FROM problem;"
-            problem_topics = pandas.read_sql( command,self.conn)
-            problem_topics = pandas.merge( left=problem_topics, right=problem_union, how='inner', on=['problem_name'])
-            column_labels = problem_topics['topic'].tolist()
-            if merge_method == 'union':
-                column_labels.insert(1,'wave_in_chinese')
-            # print( column_labels)
-            # print(result)
-            destination += '/output.sav'
             # not in use file_label, compress, note, missing_ranges,variable_display_width( not important), variable_formats( automatic resolve since there is only string and double in the original file)
             pyreadstat.write_sav( result, destination, column_labels= column_labels,variable_value_labels=full_dict)#,variable_measure=)
         elif file_format == 'xlsx':
@@ -165,15 +170,41 @@ class MergeManeger( SQLManager):
                     original_type = metas[ file].original_variable_types.get(used_columns[ file][column])
                     if "DATE" in original_type:
                         # time conversion and get the date only
-                        if merge_method == 'union':
-                            result[used_columns[ file][column]] = pandas.to_timedelta( (result[used_columns[ file][column]] - bais), unit='s') + pandas.Timestamp('1970-1-1')
-                            result[used_columns[ file][column]] = result[used_columns[ file][column]].dt.date
-                        else:
-                            result[used_columns[ file][column]+'_'+suffix[file]] = pandas.to_timedelta( (result[used_columns[ file][column]+'_'+suffix[file]] - bais), unit='s') + pandas.Timestamp('1970-1-1')
-                            result[used_columns[ file][column]+'_'+suffix[file]] = result[used_columns[ file][column]+'_'+suffix[file]].dt.date
+                        current_column = used_columns[ file][column]
+                        if merge_method != 'union':
+                            current_column = current_column+'_'+suffix[file]
+                        result[current_column] = pandas.to_timedelta( (result[current_column] - bais), unit='s') + pandas.Timestamp('1970-1-1')
+                        result[current_column] = result[current_column].dt.date
                         # print(original_type,used_columns[ file][column])
+            
+            # get the ( problem_id,  problem_name, variable_value_labels)
+            # problem_value_labels = problem_topics.copy().rename(columns={'problem_name':'problem_id'})
+            problem_value_labels = pandas.DataFrame()
+            problem_value_labels['problem_id'] = result.columns
+            # print(problem_topics)
+            # print(problem_value_labels)
+
+            # add the topic
+            if merge_method != 'union':
+                for file in range(len(used_columns)):
+                    for col in range(len(used_columns[file])):
+                        before = used_columns[file][col]
+                        current_column = used_columns[file][col]
+                        if current_column != 'baby_id':
+                            current_column  = current_column+'_'+suffix[file]
+                        problem_value_labels.loc[ problem_value_labels['problem_id'] == current_column,'topic'] = problem_topics.loc[ problem_topics['problem_name'] == before,'topic']
+            else:
+                # problem_topics.loc[ 1, 'topic'] = 'wave_in_chinese'
+                problem_value_labels['topic'] = column_labels#.copy()
+
+            # add the value_label
+            for item in result.columns:
+                problem_value_labels.loc[problem_value_labels['problem_id'] == item,'variable_value_label'] = str(full_dict.get(item))
+            # print(problem_value_labels)
+
             with pandas.ExcelWriter(destination, datetime_format="YYYY-MM-DD") as writer:
                 result.to_excel( writer, index= False, sheet_name='Data')
+                problem_value_labels.to_excel( writer, index= False, sheet_name='Value_Labels')
         else:
             # not possible
             return False
