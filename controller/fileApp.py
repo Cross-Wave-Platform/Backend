@@ -47,6 +47,8 @@ def export_file(mergeMethod, fileFormat):
         res = user_file.get_db_file()
         if res == "Could not create merge file":
 	        return HTTPError('File can\'t merge', 404)
+        if res == False:
+            return HTTPError('DB fail', 405)
         res = user_file.export_file_to_user()
         if res == "Fail":
             return HTTPError('Fail to send file', 403)

@@ -42,6 +42,11 @@ class MergeManager( SQLManager):
             
             used_columns[ file_names.index(temp_path)].append(row['problem_name'])
 
+        # drop duplicate 'baby_id'
+        for i in range(len(used_columns)):
+            if used_columns[ i][ 1] == 'baby_id':
+                used_columns[ i].pop(1)
+
         # remove dup_columns if not used
         dup_columns = []
 
@@ -126,7 +131,7 @@ class MergeManager( SQLManager):
         column_labels = problem_topics['topic'].tolist()
         if merge_method == 'union':
             column_labels.insert(1,'wave_in_chinese')
-
+        
         if file_format == 'sav':
             destination += '/output.sav'
             # important metas
@@ -157,11 +162,10 @@ class MergeManager( SQLManager):
                             current_column = current_column+'_'+suffix[file]
                         result[current_column] = pandas.to_timedelta( (result[current_column] - bais), unit='s') + pandas.Timestamp('1970-1-1')
                         result[current_column] = result[current_column].dt.date
-            
+
             # get the ( problem_id,  problem_name, variable_value_labels)
             problem_value_labels = pandas.DataFrame()
             problem_value_labels['problem_id'] = result.columns
-
             # add the topic
             if merge_method != 'union':
                 for file in range(len(used_columns)):
@@ -173,11 +177,11 @@ class MergeManager( SQLManager):
                         problem_value_labels.loc[ problem_value_labels['problem_id'] == current_column,'topic'] = problem_topics.loc[ problem_topics['problem_name'] == before,'topic']
             else:
                 problem_value_labels['topic'] = column_labels
-
+            
             # add the value_label
             for item in result.columns:
                 problem_value_labels.loc[problem_value_labels['problem_id'] == item,'variable_value_label'] = str(full_dict.get(item))
-
+            
             with pandas.ExcelWriter(destination, datetime_format="YYYY-MM-DD") as writer:
                 result.to_excel( writer, index= False, sheet_name='Data')
                 problem_value_labels.to_excel( writer, index= False, sheet_name='Value_Labels')

@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint,request
 from flask_login import login_required, current_user
 from service.search import Search
 from .utils.response import HTTPResponse, HTTPError
@@ -8,11 +8,17 @@ __all__ = ['searchApp_api']
 
 searchApp_api = Blueprint('searchApp_api',__name__)
 
+def conv_req_list(params_str):
+    str_list=request.args.getlist(params_str)
+    return list(map(int,str_list))
+
 #get waves from selected age and survey type
 @searchApp_api.route('/SearchWave', methods=['GET'])
-@Request.args('ageType','surveyType')
-def searchWave(ageType, surveyType):
+# @Request.args('ageType[]','surveyType[]')
+def searchWave():
     try:
+        ageType = conv_req_list("ageType")
+        surveyType = conv_req_list('surveyType')
         wave = Search.search_wave(ageType, surveyType)
         if wave == 'not found':
             return HTTPError('Wave not found', 404)

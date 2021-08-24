@@ -35,12 +35,15 @@ class Export_Files():
         merge_file_path = self.get_user_folder()
         try:
             manager = MergeManager()
-            manager.merger(self.id, UPLOAD_FOLDER, merge_file_path, self.merge_method, self.file_format)
+            res = manager.merger(self.id, UPLOAD_FOLDER, merge_file_path, self.merge_method, self.file_format)
         except:
             return "Could not create merge file"
-        merge_file_path = os.path.join(merge_file_path, 'output.sav')
+        if self.file_format == "sav":
+            merge_file_path = os.path.join(merge_file_path, 'output.sav')
+        else:
+            merge_file_path = os.path.join(merge_file_path, 'output.xlsx')
         self.merge_file = merge_file_path
-        return "Success"
+        return res
 
     def compress_file(self):
         merge_file_path = os.path.join(self.get_user_folder(), 'merge.zip')
@@ -55,7 +58,7 @@ class Export_Files():
     def export_file_to_user(self):
         '''send file to user'''
         try:
-            send_file(self.merge_file, as_attachment=True, attachment_filename="output.sav")
+            send_file(self.merge_file, as_attachment=True)
             print(self.merge_file)
         except:
             return "Fail to send file"
