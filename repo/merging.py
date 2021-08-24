@@ -121,7 +121,7 @@ class MergeManeger( SQLManager):
                     if column_name == 'baby_id':
                         full_dict.update({'baby_id':metas[columns].variable_value_labels.get('baby_id')})
                     elif column_name not in full_dict:
-                        full_dict.update({column_name+suffix[columns]:metas[columns].variable_value_labels.get(column_name)})
+                        full_dict.update({column_name+'_'+suffix[columns]:metas[columns].variable_value_labels.get(column_name)})
                     else:
                         # need to union
                         inside = full_dict.get( column_name)
@@ -156,14 +156,24 @@ class MergeManeger( SQLManager):
             destination += '/output.sav'
             # not in use file_label, compress, note, missing_ranges,variable_display_width( not important), variable_formats( automatic resolve since there is only string and double in the original file)
             pyreadstat.write_sav( result, destination, column_labels= column_labels,variable_value_labels=full_dict)#,variable_measure=)
-        elif file_format == 'csv':
-            destination += '/output.csv'
+        elif file_format == 'xlsx':
+            destination += '/output.xlsx'
             # time convertion needed for formats in SDATE10
-            # for item in metas:
-            #     if item.column_names:
-            #         return False
-            result.to_csv( destination, index=False)
-
+            bais = 141428 * 86400
+            for file in range(len(used_columns)):
+                for column in range(len(used_columns[ file])):
+                    original_type = metas[ file].original_variable_types.get(used_columns[ file][column])
+                    if "DATE" in original_type:
+                        # time conversion and get the date only
+                        if merge_method == 'union':
+                            result[used_columns[ file][column]] = pandas.to_timedelta( (result[used_columns[ file][column]] - bais), unit='s') + pandas.Timestamp('1970-1-1')
+                            result[used_columns[ file][column]] = result[used_columns[ file][column]].dt.date
+                        else:
+                            result[used_columns[ file][column]+'_'+suffix[file]] = pandas.to_timedelta( (result[used_columns[ file][column]+'_'+suffix[file]] - bais), unit='s') + pandas.Timestamp('1970-1-1')
+                            result[used_columns[ file][column]+'_'+suffix[file]] = result[used_columns[ file][column]+'_'+suffix[file]].dt.date
+                        # print(original_type,used_columns[ file][column])
+            with pandas.ExcelWriter(destination, datetime_format="YYYY-MM-DD") as writer:
+                result.to_excel( writer, index= False, sheet_name='Data')
         else:
             # not possible
             return False
