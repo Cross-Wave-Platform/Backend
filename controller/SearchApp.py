@@ -5,16 +5,16 @@ from service.search import Search
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 
-__all__ = ['SearchApp_api']
+__all__ = ['searchApp_api']
 
-SearchApp_api = Blueprint('SearchApp_api',__name__)
+searchApp_api = Blueprint('searchApp_api',__name__)
 
 def conv_req_list(params_str):
     str_list=request.args.getlist(params_str)
     return list(map(int,str_list))
 
 #get waves from selected age and survey type
-@SearchApp_api.route('/SearchWave', methods=['GET'])
+@searchApp_api.route('/searchWave', methods=['GET'])
 def searchWave():
     try:
         ageType = conv_req_list("ageType")
@@ -28,7 +28,7 @@ def searchWave():
     return HTTPResponse('ok', data={"wave":wave})
 
 #get problems from selected age, survey, wave 
-@SearchApp_api.route('/SearchInfo', methods=['GET'])
+@searchApp_api.route('/searchInfo', methods=['GET'])
 @login_required
 def searchInfo():
     try:
@@ -41,7 +41,7 @@ def searchInfo():
     return HTTPResponse('ok', data={"info":Info})
 
 #get user's last search info: age, survey type
-@SearchApp_api.route('/GetSearchInfo', methods=['GET'])
+@searchApp_api.route('/getSearchInfo', methods=['GET'])
 @login_required
 def getSearchInfo():
     try:
@@ -54,7 +54,7 @@ def getSearchInfo():
     return HTTPResponse('ok', data={"info":Info})
 
 #store user's last search info: age, survey type
-@SearchApp_api.route('/StoreSearchInfo', methods=['POST'])
+@searchApp_api.route('/storeSearchInfo', methods=['POST'])
 @login_required
 @Request.json('info: dict')
 def storeSearchInfo(info):
@@ -68,7 +68,7 @@ def storeSearchInfo(info):
     return HTTPResponse('ok')
 
 #delete user's search info: age, survey type
-@SearchApp_api.route('/DelSearchInfo', methods=['DELETE'])
+@searchApp_api.route('/delSearchInfo', methods=['DELETE'])
 @login_required
 def delSearchInfo():
     try:
@@ -79,7 +79,7 @@ def delSearchInfo():
     return HTTPResponse('ok')
 
 #store user's selected probelm to shop_cart
-@SearchApp_api.route('/StoreInfo', methods=['POST'])
+@searchApp_api.route('/storeInfo', methods=['POST'])
 @login_required
 @Request.json('problemList: list')
 def storeInfo(problemList):
@@ -92,7 +92,7 @@ def storeInfo(problemList):
     return HTTPResponse('ok')
 
 #get user's shop_cart
-@SearchApp_api.route('/GetInfo', methods=['GET'])
+@searchApp_api.route('/getInfo', methods=['GET'])
 @login_required
 def getInfo():
     try:
@@ -104,7 +104,7 @@ def getInfo():
     return HTTPResponse('ok', problem_id=problem_id)
 
 #delete user's shop_cart
-@SearchApp_api.route('/DelInfo', methods=['DELETE'])
+@searchApp_api.route('/delInfo', methods=['DELETE'])
 @login_required
 def delInfo():
     try:
