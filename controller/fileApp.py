@@ -18,7 +18,7 @@ fileApp_api = Blueprint('fileApp_api',__name__)
 @fileApp_api.route('/upload', methods=['POST'])
 @login_required
 @admin_required
-@Request.json('file: str','ageType: int', 'wave: int', 'surveyType: int')
+@Request.form('file','ageType', 'wave', 'surveyType')
 def upload_file(file, ageType, wave, surveyType):
     ''' save file'''
     #check if user upload folder exist, or create one
