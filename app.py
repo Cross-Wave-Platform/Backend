@@ -1,4 +1,3 @@
-from Backend.controller import SearchApp
 from flask import Flask
 from flask_login import LoginManager, current_user, login_required
 from service import *
