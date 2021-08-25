@@ -8,6 +8,7 @@ from service.upload import Upload_Files
 from service.export import Export_Files
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
+from .utils.auth_required import admin_required
 
 __all__ = ['fileApp_api']
 
@@ -16,6 +17,7 @@ fileApp_api = Blueprint('fileApp_api',__name__)
 
 @fileApp_api.route('/upload', methods=['POST'])
 @login_required
+@admin_required
 @Request.json('file: str','ageType: int', 'wave: int', 'surveyType: int')
 def upload_file(file, ageType, wave, surveyType):
     ''' save file'''
