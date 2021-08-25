@@ -1,5 +1,5 @@
 import os
-from flask import send_file, Blueprint, request
+from flask import send_file, Blueprint
 from flask_login import current_user
 from http import HTTPStatus
 from flask_login import login_required
