@@ -1,5 +1,5 @@
 import os
-from flask import send_file, Blueprint, request
+from flask import send_file, Blueprint
 from flask_login import current_user
 from http import HTTPStatus
 from flask_login import login_required
@@ -18,12 +18,12 @@ fileApp_api = Blueprint('fileApp_api',__name__)
 @fileApp_api.route('/upload', methods=['POST'])
 @login_required
 @admin_required
-@Request.json('file: str','ageType: int', 'wave: int', 'surveyType: int')
+@Request.form('file','ageType', 'wave', 'surveyType')
 def upload_file(file, ageType, wave, surveyType):
     ''' save file'''
     #check if user upload folder exist, or create one
     #user = 'current user' tbd user
-    user_file = Upload_Files(current_user.username, ageType, wave, surveyType)
+    user_file = Upload_Files(current_user.account_name, ageType, wave, surveyType)
     try:
         filename = user_file.get_user_file(file)
         if  filename == "No files":

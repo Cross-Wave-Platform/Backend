@@ -14,20 +14,6 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def isBase64(s):
-    try:
-        return base64.b64encode(base64.b64decode(s)) == s
-    except Exception:
-        return False
-
-def decode_file(file, filename):
-    try:
-        with open(filename, "wb") as fh:
-            fh.write(base64.b64decode(file))
-    except:
-        return "Fail"
-    return filename
-
 class Upload_Files():
     def __init__(self, username, age_type, wave, survey_type):
         self.username = username
@@ -51,17 +37,16 @@ class Upload_Files():
 
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
-        if request_file == '':
+        if request_file.filename == '':
             return "No files"
         
         #there is file
         res = "Fail"
-        request_file = request_file.encode('ascii')
-        if request_file and isBase64(request_file):
+        if request_file and allowed_file(request_file.filename):
             filename = secure_filename(str(self.wave)+".sav")
             file_path = os.path.join(self.get_file_folder(), filename)
-            # request_file.save(file_path)
-            res = decode_file(request_file, file_path)
+            request_file.save(file_path)
+            res = file_path
         return res
 
     def save_file_info(self, filename):

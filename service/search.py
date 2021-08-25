@@ -1,6 +1,6 @@
+import pandas as pd
 from repo.search import SearchManager
-from repo.shop_cart import Combo,SCManager
-import pandas
+from repo.shop_cart import Combo, SCManager
 
 __all__ = ['Search']
 
@@ -9,18 +9,15 @@ class Search():
     #get waves from selected age and survey type
     @classmethod
     def search_wave(cls, age_type, survey_type):
-        # wave = ['int','int']
-        # print(age_type)
-        # print(survey_type)
+        '''sql search for wave'''
         manager = SearchManager()
-        df = manager.search_waves(age_type,survey_type)
+        df = manager.search_waves(age_type, survey_type)
         wave = df['wave'].tolist()
         return wave
 
     #get problems from selected age, survey, wave 
     @classmethod
     def search_info(cls, id):
-        # info = [{'problem_id':'str', 'topic':'str', 'tag':[{'tag_value':'int', 'tag_name':'str'},], 'class':'str', 'exist':[{'type':'int', 'wave':{'young':[{'int':'int'}],'old':[{'int':'int'}]}}]}]
         '''
         sql search for info
         '''
@@ -82,7 +79,6 @@ class Search():
     #store user's search info
     @classmethod
     def store_search_info(cls, id, info):
-        #info = {'age_type':[],'survey_type':[],'wave':[]}
         '''
         sql save username search data
         '''
@@ -105,16 +101,12 @@ class Search():
     #store user's selected probelm to shop_cart
     @classmethod
     def store_info(cls, id, problem_list):
-        # problem_list = [
-        #     {"problem_id":"111","survey_id":[1,2]},
-        #     {"problem_id":"222","survey_id":[2,3]}
-        # ]
         res = []
         for row in problem_list:
             for tid in row['survey_id']:
                 tmp = {"problem_id":row['problem_id'],"survey_id":tid}
                 res.append(tmp)
-        res_df = pandas.DataFrame(res)
+        res_df = pd.DataFrame(res)
         '''
         sql store to shopping cart
         '''
@@ -126,10 +118,6 @@ class Search():
     #get user's shop_cart
     @classmethod
     def get_info(cls, id):
-        # problem_list = [
-        #     {"problem_id":"111","survey_id":[1,2]},
-        #     {"problem_id":"222","survey_id":[2,3]}
-        # ]
         '''
         sql get shopping cart info
         '''
@@ -149,6 +137,6 @@ class Search():
         sql delete/clear shopping cart info
         '''
         SCManager().clear_cart(id)
-        res = "Success"
         
+        res = "Success"
         return res
