@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint
 from service.account import Account
 from flask_login import login_user, logout_user, login_required, current_user
 from .utils.response import HTTPResponse, HTTPError
@@ -7,11 +7,6 @@ from .utils.request import Request
 __all__ = ['loginApp_api']
 
 loginApp_api = Blueprint('loginApp_api', __name__)
-
-@loginApp_api.route('/test', methods=['POST','GET'])
-@login_required
-def test():
-    return HTTPResponse('test', 200)
     
 @loginApp_api.route('/login', methods=['POST'])
 @Request.json('username: str', 'password: str')

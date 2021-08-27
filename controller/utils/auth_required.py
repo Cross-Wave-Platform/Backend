@@ -1,18 +1,30 @@
-from repo.manager import SQLManager
+from enum import IntEnum
+from flask import current_app
 from flask_login import current_user
+from functools import wraps
+from repo.manager import SQLManager
 from .response import HTTPError
 
-ADMIN_AUTH = 1
 
-def admin_required(func):
-    def wrapper(*args,**kwargs):
-        manager = SQLManager()
-        auth_check = ("SELECT auth FROM dbo.account WHERE account_id = %(account_id)d ")
-        manager.cursor.execute(auth_check,{"account_id":current_user.id})
-        auth = manager.cursor.fetchone()[0]
+class AuthLevel(IntEnum):
+    ADMIN = 1 
+    REGULAR = 2
+    BAN = 3
 
-        if auth != ADMIN_AUTH:
-            return HTTPError('not an admin',403)
+def auth_required(min_auth=AuthLevel.REGULAR):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args,**kwargs):
+            if current_app.config.get('AUTH_DISABLED'):
+                return func(*args, **kwargs)
+            manager = SQLManager()
+            auth_check = ("SELECT auth FROM dbo.account WHERE account_id = %(account_id)d ")
+            manager.cursor.execute(auth_check,{"account_id":current_user.id})
+            auth = manager.cursor.fetchone()[0]
 
-        return func(*args,**kwargs)
-    return wrapper
+            if auth > min_auth:
+                return HTTPError('auth is not satified',403)
+
+            return func(*args,**kwargs)
+        return wrapper
+    return decorator

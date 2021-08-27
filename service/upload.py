@@ -1,7 +1,4 @@
 import os
-import base64
-import pandas as pd
-import pyreadstat as prs
 from werkzeug.utils import secure_filename
 from repo.upload import UploadManager,SurveyInfo
 from .utils import get_yaml_config

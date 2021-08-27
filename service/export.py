@@ -1,7 +1,5 @@
 import os
 import zipfile
-import pandas as pd
-import pyreadstat as prs
 from flask import send_file
 from .utils import get_yaml_config
 from repo.merging import MergeManager

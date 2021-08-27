@@ -1,14 +1,11 @@
-import os
-from flask import send_file, Blueprint
+from flask import Blueprint
 from flask_login import current_user
-from http import HTTPStatus
 from flask_login import login_required
-from service.account import Account
 from service.upload import Upload_Files
 from service.export import Export_Files
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
-from .utils.auth_required import admin_required
+from .utils.auth_required import auth_required,AuthLevel
 
 __all__ = ['fileApp_api']
 
@@ -17,10 +14,12 @@ fileApp_api = Blueprint('fileApp_api',__name__)
 
 @fileApp_api.route('/upload', methods=['POST'])
 @login_required
-@admin_required
-@Request.form('file','ageType', 'wave', 'surveyType')
-def upload_file(file, ageType, wave, surveyType):
+@auth_required(AuthLevel.ADMIN)
+@Request.files('file')
+@Request.form('ageType', 'wave', 'surveyType')
+def upload_file(file,ageType,wave,surveyType):
     ''' save file'''
+
     #check if user upload folder exist, or create one
     #user = 'current user' tbd user
     user_file = Upload_Files(current_user.account_name, ageType, wave, surveyType)
@@ -41,6 +40,7 @@ def upload_file(file, ageType, wave, surveyType):
 
 @fileApp_api.route('/export', methods=['GET'])
 @login_required #tbc to be confirmed
+@auth_required(AuthLevel.REGULAR)
 @Request.args('mergeMethod', 'fileFormat')
 def export_file(mergeMethod, fileFormat):
     user_file = Export_Files(current_user.id, current_user.account_name, mergeMethod, fileFormat)
