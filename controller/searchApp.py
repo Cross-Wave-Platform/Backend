@@ -101,7 +101,7 @@ def getInfo():
         #     return HTTPError('Failed to fetch info', 403)
     except:
         return HTTPError('unknown error', 406)
-    return HTTPResponse('ok', data={"problem_list":problem_list})
+    return HTTPResponse('ok', data={"problemList":problem_list})
 
 #delete user's shop_cart
 @searchApp_api.route('/delInfo', methods=['DELETE'])
