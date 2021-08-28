@@ -45,7 +45,7 @@ def searchInfo():
 @login_required
 def getSearchInfo():
     try:
-        Info = Search.search_info(current_user.id)
+        Info = Search.get_search_info(current_user.id)
         # if Info == 'not found':
         #     return HTTPError('Info not found', 404)
     except:
