@@ -20,19 +20,29 @@ type_map = {
     'None': type(None)
 }
 
+
 def map_dec_params(params):
     str_list_map = map(lambda s: s.split(':', 1), params)
-    return map(conv_str_param,str_list_map)
+    return map(conv_type, str_list_map)
 
-def conv_str_param(str_list):
-    return (str_list[0]), (str_list[1:] or None) and type_map.get(str_list[1].strip())
+
+def conv_type(str_list):
+    type_result = (str_list[1:] or None) and type_map.get(str_list[1].strip())
+    return (str_list[0]), (type_result)
+
 
 def repl_underscore(key):
     split_key = filter(bool, key.split('_'))
-    return (lambda first, *others: first + ''.join(map(str.capitalize, others)))(*split_key)
+    join_capitalize = lambda first, *others: (first + ''.join(map(str.capitalize, others)))
+    return join_capitalize(*split_key)
 
-def check_type(val,val_type):
-    return (lambda v: v if val_type is None or type(v) is val_type else int(''))(val)
+
+def check_val_type(val, val_type):
+    if (val_type is None) or (type(val) is val_type):
+        return val
+    else:
+        raise ValueError(f"val:{val} is not matched type {val_type}")
+
 
 class _Request(type):
     def __getattr__(self, content_type):
@@ -45,10 +55,10 @@ class _Request(type):
                         return HTTPError(
                             f'Unaccepted Content-Type {content_type}', 415)
                     try:
-                        for k,t in map_dec_params(keys):
+                        for k, t in map_dec_params(keys):
                             repl_k = repl_underscore(k)
                             kwargs.update({
-                                k: check_type(data.get(repl_k),t)
+                                k: check_val_type(data.get(repl_k), t)
                             })
                     except ValueError as ve:
                         return HTTPError('Requested Value With Wrong Type',
@@ -67,6 +77,7 @@ class _Request(type):
 
 class Request(metaclass=_Request):
     pass
+
 
 def timing_request(func):
     '''
