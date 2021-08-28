@@ -72,7 +72,7 @@ def storeSearchInfo(info):
 @login_required
 def delSearchInfo():
     try:
-        Search.del_search_info(current_user.id)
+        res = Search.del_search_info(current_user.id)
     except:
         return HTTPError('unknown error', 406)
     
@@ -84,7 +84,7 @@ def delSearchInfo():
 @Request.json('problemList: list')
 def storeInfo(problemList):
     try:
-        Search.store_info(current_user.id, problemList)
+        res = Search.store_info(current_user.id, problemList)
         # if res == 'failed':
         #     return HTTPError('Failed to store info', 403)
     except:
@@ -96,12 +96,12 @@ def storeInfo(problemList):
 @login_required
 def getInfo():
     try:
-        problem_id = Search.get_info(current_user.id)
+        problem_list = Search.get_info(current_user.id)
         # if problem_id == 'failed':
         #     return HTTPError('Failed to fetch info', 403)
     except:
         return HTTPError('unknown error', 406)
-    return HTTPResponse('ok', problem_id=problem_id)
+    return HTTPResponse('ok', data={"problem_list":problem_list})
 
 #delete user's shop_cart
 @searchApp_api.route('/delInfo', methods=['DELETE'])
@@ -109,7 +109,7 @@ def getInfo():
 def delInfo():
     try:
         '''delete user info'''
-        Search.del_info(current_user.id)
+        res = Search.del_info(current_user.id)
         # if  res == 'failed':
         #     return HTTPError('Failed to delete info', 403)
     except:
