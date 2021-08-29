@@ -4,7 +4,6 @@ from functools import wraps
 from flask import request
 from .response import *
 
-
 __all__ = (
     'Request',
     'timing_request',
@@ -33,7 +32,8 @@ def conv_type(str_list):
 
 def repl_underscore(key):
     split_key = filter(bool, key.split('_'))
-    join_capitalize = lambda first, *others: (first + ''.join(map(str.capitalize, others)))
+    join_capitalize = lambda first, *others: (first + ''.join(
+        map(str.capitalize, others)))
     return join_capitalize(*split_key)
 
 
@@ -57,9 +57,8 @@ class _Request(type):
                     try:
                         for k, t in map_dec_params(keys):
                             repl_k = repl_underscore(k)
-                            kwargs.update({
-                                k: check_val_type(data.get(repl_k), t)
-                            })
+                            kwargs.update(
+                                {k: check_val_type(data.get(repl_k), t)})
                     except ValueError as ve:
                         return HTTPError('Requested Value With Wrong Type',
                                          400)

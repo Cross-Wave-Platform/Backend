@@ -1,10 +1,15 @@
 from repo.manager import SQLManager
-from flask_login import current_user
 
 __all__ = ['']
 
+
 def user_management(Identity):
-    dict = {'All_superadmin':'1', 'admin':'1', 'member':'2', 'blacklist':'3'}
+    dict = {
+        'All_superadmin': '1',
+        'admin': '1',
+        'member': '2',
+        'blacklist': '3'
+    }
     if Identity in dict:
         Identity = dict[Identity]
         a = SQLManager()
@@ -16,14 +21,16 @@ def user_management(Identity):
         raise ValueError
     return user
 
+
 def change_auth(user, userlevel):
     '''
     sql change auth
     '''
     return 'ok'
 
+
 def search_by_auth(auth):
-    dict = {'All_data':'1 | auth = 0', 'release':'1', 'unreleased':'0'}
+    dict = {'All_data': '1 | auth = 0', 'release': '1', 'unreleased': '0'}
     if auth in dict:
         Identity = dict[auth]
         a = SQLManager()
@@ -35,12 +42,14 @@ def search_by_auth(auth):
         raise ValueError
     return user
 
+
 def search_by_month(month):
     list = []
     '''
     sql search by month
     '''
     return list
+
 
 def search_by_wave(wave):
     list = []
@@ -49,6 +58,7 @@ def search_by_wave(wave):
     '''
     return list
 
+
 def search_by_type(type):
     list = []
     '''
@@ -56,12 +66,14 @@ def search_by_type(type):
     '''
     return list
 
+
 def search_by_keyword(keyword):
     list = []
     '''
     sql search by keywords
     '''
     return list
+
 
 if __name__ == '__main__':
     #current_user.auth = 1

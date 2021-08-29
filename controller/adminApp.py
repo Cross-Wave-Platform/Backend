@@ -1,14 +1,15 @@
 from flask import Blueprint
 
 from service.admin import *
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_required
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
-from .utils.auth_required import auth_required,AuthLevel
+from .utils.auth_required import auth_required, AuthLevel
 
 __all__ = ['adminApp_api']
 
 adminApp_api = Blueprint('adminApp_api', __name__)
+
 
 @adminApp_api.route('/user_management', methods=['GET'])
 @login_required
@@ -19,7 +20,8 @@ def user_management(Identity):
         user = user_management(Identity)
     except:
         return HTTPError('unknown error', 406)
-    return HTTPResponse('ok', list = user)
+    return HTTPResponse('ok', list=user)
+
 
 @adminApp_api.route('/change_auth', methods=['PUT'])
 @login_required
@@ -32,6 +34,7 @@ def change_auth(user, userlevel):
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok')
 
+
 @adminApp_api.route('/auth', methods=['GET'])
 @login_required
 @auth_required(AuthLevel.ADMIN)
@@ -42,6 +45,7 @@ def search_by_auth(auth):
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok', list=list)
+
 
 @adminApp_api.route('/month', methods=['GET'])
 @login_required
@@ -54,6 +58,7 @@ def search_by_month(month):
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok', list=list)
 
+
 @adminApp_api.route('/wave', methods=['GET'])
 @login_required
 @auth_required(AuthLevel.ADMIN)
@@ -65,6 +70,7 @@ def search_by_wave(wave):
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok', list=list)
 
+
 @adminApp_api.route('/type', methods=['GET'])
 @login_required
 @auth_required(AuthLevel.ADMIN)
@@ -75,6 +81,7 @@ def search_by_type(type):
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok', list=list)
+
 
 @adminApp_api.route('/keyword', methods=['GET'])
 @login_required

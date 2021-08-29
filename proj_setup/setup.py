@@ -1,19 +1,29 @@
-import os
+from pathlib import Path
 import yaml
 
-CWD = os.path.abspath(os.getcwd())
+CWD = Path().resolve()
+STORAGE_PATH = CWD / "storage"
 
-def dump_config(conf_dict,dir_path):
-    with open(os.path.join(dir_path,'config.yaml'),'w') as conf_file:
-        yaml.dump(conf_dict,conf_file,default_flow_style=False)
+
+def dump_config(conf_dict, dir_path):
+    with open(dir_path / "config.yaml", 'w') as conf_file:
+        yaml.dump(conf_dict,
+                  conf_file,
+                  default_flow_style=False,
+                  sort_keys=False)
+
 
 # create dir if no exists
 def create_dir(dir_path):
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
+    if not Path.exists(dir_path):
+        Path.mkdir(dir_path, parents=True)
 
-# repo/config.yaml
-TMP_DIR_PATH = os.path.join(CWD,'tmp_dir')
+
+# app config
+app_config = {"app_config": {"SECRET_KEY": "test"}}
+
+# repo config
+TMP_DIR_PATH = STORAGE_PATH / 'tmp_dir'
 
 repo_config = {
     "mssql": {
@@ -22,25 +32,25 @@ repo_config = {
         "password": "Kit2021db",
         "database": "KIT_DB"
     },
-    "tmp_dir": TMP_DIR_PATH
+    "tmp_dir": str(TMP_DIR_PATH)
 }
-
-REPO_PATH = os.path.join(CWD,'repo')
-dump_config(repo_config,REPO_PATH)
 
 create_dir(TMP_DIR_PATH)
 
-# service/config.yaml
-UPLOAD_PATH = os.path.join(CWD,'upload')
-DOWNLOAD_PATH = os.path.join(CWD,'download')
+# service config
+UPLOAD_PATH = STORAGE_PATH / 'upload'
+DOWNLOAD_PATH = STORAGE_PATH / 'download'
 
 service_config = {
-    "upload_dir": UPLOAD_PATH,
-    "download_dir": DOWNLOAD_PATH
+    "upload_dir": str(UPLOAD_PATH),
+    "download_dir": str(DOWNLOAD_PATH)
 }
-
-SERVICE_PATH = os.path.join(CWD,'service')
-dump_config(service_config,SERVICE_PATH)
 
 create_dir(UPLOAD_PATH)
 create_dir(DOWNLOAD_PATH)
+
+total_config = {}
+total_config.update(app_config)
+total_config.update(repo_config)
+total_config.update(service_config)
+dump_config(total_config, CWD / "config")

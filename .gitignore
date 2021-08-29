@@ -129,4 +129,6 @@ dmypy.json
 .pyre/
 
 #local files/folder
-/upfiles
+.vscode/
+storage/
+config.yaml

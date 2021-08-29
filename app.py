@@ -5,10 +5,13 @@ from service import Account
 from controller import *
 from repo.manager import SQLManager
 from controller import loginApp_api, fileApp_api, searchApp_api
+from config.config import get_yaml_config
 
 app = Flask(__name__)
 
-app.secret_key = 'test'
+# set config
+app_config = get_yaml_config('app_config')
+app.config.from_mapping(app_config)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -29,6 +32,7 @@ def get_user(user_id):
     data = a.cursor.fetchone()
     return data
 
+
 @login_manager.user_loader
 def user_loader(user_id):
     aa = get_user(user_id)
@@ -38,5 +42,6 @@ def user_loader(user_id):
         return current_user
     return None
 
+
 if __name__ == '__main__':
-    app.run(host='localhost', port = 5000,debug=True )
+    app.run(host='localhost', port=5000, debug=True)

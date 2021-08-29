@@ -51,9 +51,9 @@ CREATE TABLE dbo.account
 account_id      INT             IDENTITY,
 account_name    VARCHAR( 320)   UNIQUE    NOT NULL,
 email           VARCHAR( 320)   UNIQUE    NOT NULL,
-password        VARCHAR( 25)  NOT NULL,
+password        VARCHAR( 25)    NOT NULL,
 auth            INT             NOT NULL DEFAULT 2,
-last_combo      VARCHAR( 2000)
+last_combo      VARCHAR( 2000)  NOT NULL DEFAULT '__' 
 
 CONSTRAINT PK_account PRIMARY KEY CLUSTERED ( account_id)
 );

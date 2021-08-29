@@ -4,6 +4,7 @@ from repo.shop_cart import Combo, SCManager
 
 __all__ = ['Search']
 
+
 class Search():
 
     #get waves from selected age and survey type
@@ -15,7 +16,7 @@ class Search():
         wave = df['wave'].tolist()
         return wave
 
-    #get problems from selected age, survey, wave 
+    #get problems from selected age, survey, wave
     @classmethod
     def search_info(cls, id):
         '''
@@ -25,7 +26,7 @@ class Search():
         '''
         sql get user's search problems
         '''
-        select_prob_df,prob_info_df = manager.search_problem(id)
+        select_prob_df, prob_info_df = manager.search_problem(id)
         '''
         df to dictionary
         '''
@@ -33,7 +34,6 @@ class Search():
 
         df = prob_info_df
         df_list = df.values.tolist()
-
 
         for row in df_list:
             question = {"problem_id":row[1], \
@@ -43,10 +43,9 @@ class Search():
                         "exist":{}
                         }
             res[row[0]] = question
-        
+
         df = select_prob_df
         df_list = df.values.tolist()
-        
 
         for row in df_list:
             id = row[4]
@@ -59,9 +58,8 @@ class Search():
                 res[id]['exist'][row[2]]['young'].append(row[3])
 
             res[id]['survey_id'].add(row[0])
-        
-        for k, v  in res.items():
-            # print(k ,":" , v)
+
+        for k, v in res.items():
             v['survey_id'] = list(v['survey_id'])
 
         return res
@@ -73,7 +71,11 @@ class Search():
         sql get username search data
         '''
         combo = SCManager().decode_combo(id)
-        info = {'age_type':combo.age_types,'survey_type':combo.survey_types,'wave':combo.waves}
+        info = {
+            'age_type': combo.age_types,
+            'survey_type': combo.survey_types,
+            'wave': combo.waves
+        }
         return info
 
     #store user's search info
@@ -82,9 +84,9 @@ class Search():
         '''
         sql save username search data
         '''
-        combo = Combo(info['age_type'],info['survey_type'],info['wave'])
-        SCManager().bind_combo(id,combo)
-        
+        combo = Combo(info['age_type'], info['survey_type'], info['wave'])
+        SCManager().bind_combo(id, combo)
+
         res = "Success"
         return res
 
@@ -104,13 +106,13 @@ class Search():
         res = []
         for row in problem_list:
             for tid in row['survey_id']:
-                tmp = {"problem_id":row['problem_id'],"survey_id":tid}
+                tmp = {"problem_id": row['problem_id'], "survey_id": tid}
                 res.append(tmp)
         res_df = pd.DataFrame(res)
         '''
         sql store to shopping cart
         '''
-        SCManager().update_cart(id,res_df)
+        SCManager().update_cart(id, res_df)
 
         res = "Success"
         return res
@@ -121,12 +123,15 @@ class Search():
         '''
         sql get shopping cart info
         '''
-        df=SCManager().get_cart(id)
+        df = SCManager().get_cart(id)
 
         problem_list = []
         df = df.groupby('problem_id')
         for key, item in df:
-            problem_list.append({"problem_id":key,"survey_id":item['survey_id'].tolist()})
+            problem_list.append({
+                "problem_id": key,
+                "survey_id": item['survey_id'].tolist()
+            })
 
         return problem_list
 
@@ -137,6 +142,6 @@ class Search():
         sql delete/clear shopping cart info
         '''
         SCManager().clear_cart(id)
-        
+
         res = "Success"
         return res

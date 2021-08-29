@@ -1,10 +1,11 @@
 import os
 import zipfile
 from flask import send_file
-from .utils import get_yaml_config
+from config.config import get_yaml_config
 from repo.merging import MergeManager
 
 __all__ = ['Export_Files']
+
 
 class Export_Files():
     def __init__(self, id, username, merge_method, file_format):
@@ -16,24 +17,24 @@ class Export_Files():
         self.facet = None
 
     def get_user_folder(self):
-        #get user folder path  
-        DOWNLOAD_FOLDER = get_yaml_config()['download_dir']
-        file_dir = os.path.join( DOWNLOAD_FOLDER , self.username)
-        print(file_dir)
+        #get user folder path
+        DOWNLOAD_FOLDER = get_yaml_config('download_dir')
+        file_dir = os.path.join(DOWNLOAD_FOLDER, self.username)
         #create user folder if not exist
         if not os.path.exists(file_dir):
             os.makedirs(file_dir)
         return file_dir
-    
+
     def get_db_file(self):
         ''' get user request info'''
         ''' write info to file'''
-        UPLOAD_FOLDER = get_yaml_config()['upload_dir']
+        UPLOAD_FOLDER = get_yaml_config('upload_dir')
         '''save file to user export folder'''
         merge_file_path = self.get_user_folder()
         try:
             manager = MergeManager()
-            res = manager.merger(self.id, UPLOAD_FOLDER, merge_file_path, self.merge_method, self.file_format)
+            res = manager.merger(self.id, UPLOAD_FOLDER, merge_file_path,
+                                 self.merge_method, self.file_format)
         except:
             return "Could not create merge file"
         if self.file_format == "sav":
@@ -57,7 +58,6 @@ class Export_Files():
         '''send file to user'''
         try:
             send_file(self.merge_file, as_attachment=True)
-            print(self.merge_file)
         except:
             return "Fail to send file"
         return send_file(self.merge_file, as_attachment=True)
