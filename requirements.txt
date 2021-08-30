@@ -1,0 +1,9 @@
+Flask
+Flask-Login
+openpyxl
+pandas
+paste
+pymssql
+pyreadstat
+pyyaml
+waitress
