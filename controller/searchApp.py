@@ -31,7 +31,7 @@ def searchWave():
 
 
 #get problems from selected age, survey, wave
-@searchApp_api.route('/searchInfo', methods=['GET'])
+@searchApp_api.route('/searchProblem', methods=['GET'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 def searchInfo():
@@ -44,7 +44,7 @@ def searchInfo():
 
 
 #get user's last search info: age, survey type
-@searchApp_api.route('/getSearchInfo', methods=['GET'])
+@searchApp_api.route('/getCombo', methods=['GET'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 def getSearchInfo():
@@ -57,7 +57,7 @@ def getSearchInfo():
 
 
 #store user's last search info: age, survey type
-@searchApp_api.route('/storeSearchInfo', methods=['POST'])
+@searchApp_api.route('/storeCombo', methods=['POST'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 @Request.json('info: dict')
@@ -71,7 +71,7 @@ def storeSearchInfo(info):
 
 
 #delete user's search info: age, survey type
-@searchApp_api.route('/delSearchInfo', methods=['DELETE'])
+@searchApp_api.route('/delCombo', methods=['DELETE'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 def delSearchInfo():
@@ -84,7 +84,7 @@ def delSearchInfo():
 
 
 #store user's selected probelm to shop_cart
-@searchApp_api.route('/storeInfo', methods=['POST'])
+@searchApp_api.route('/storeProblem', methods=['POST'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 @Request.json('problemList: list')
@@ -97,7 +97,7 @@ def storeInfo(problemList):
 
 
 #get user's shop_cart
-@searchApp_api.route('/getInfo', methods=['GET'])
+@searchApp_api.route('/getProblem', methods=['GET'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 def getInfo():
@@ -111,7 +111,7 @@ def getInfo():
 
 
 #delete user's shop_cart
-@searchApp_api.route('/delInfo', methods=['DELETE'])
+@searchApp_api.route('/delProblem', methods=['DELETE'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 def delInfo():

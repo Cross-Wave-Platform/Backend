@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 from repo.search import SearchManager
 from repo.shop_cart import Combo, SCManager
 
@@ -40,7 +41,8 @@ class Search():
                         "topic":row[2], \
                         "class":row[3], \
                         "survey_id":set(), \
-                        "exist":{}
+                        "exist":[], \
+                        "exists":{}
                         }
             res[row[0]] = question
 
@@ -48,21 +50,26 @@ class Search():
         df_list = df.values.tolist()
 
         for row in df_list:
-            id = row[4]
-            if row[2] not in res[id]['exist']:
-                res[id]['exist'][row[2]] = {"young":[], \
+            id = row[5]
+            if row[3] not in res[id]['exists']:
+                res[id]['exists'][row[3]] = {"young":[], \
                                                 "old":[]}
-            if row[1] == "big":
-                res[id]['exist'][row[2]]['old'].append(row[3])
+            if row[2] == "big":
+                res[id]['exists'][row[3]]['old'].append(row[4])
             else:
-                res[id]['exist'][row[2]]['young'].append(row[3])
+                res[id]['exists'][row[3]]['young'].append(row[4])
 
-            res[id]['survey_id'].add(row[0])
-
-        for k, v in res.items():
+            res[id]['survey_id'].add(row[1])
+        
+        ret  = []
+        for k, v  in res.items():
+            for obj_k, obj_v in v['exists'].items():
+                v['exist'].append({**{"type":obj_k},**obj_v})
+            v.pop('exists')
             v['survey_id'] = list(v['survey_id'])
+            ret.append(json.dumps({**{"pid":k},**v},ensure_ascii=False))
 
-        return res
+        return ret
 
     #get user's last search info: age, survey type
     @classmethod
