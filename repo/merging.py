@@ -69,9 +69,11 @@ class MergeManager(SQLManager):
         dataframes = []
         metas = []
 
+        # takes a long time
         for i in range(len(file_names)):
             # need to read the whole file to get the metadata
-            temp_df, temp_meta = pyreadstat.read_sav(file_names[i])
+            temp_df, temp_meta = pyreadstat.read_sav(
+                file_names[i], disable_datetime_conversion=True)
             dataframes.append(temp_df.loc[:, used_columns[i]])
             metas.append(temp_meta)
 
@@ -125,6 +127,8 @@ class MergeManager(SQLManager):
                 else:
                     # need to union
                     inside = full_dict.get(column_name)
+                    if not inside:
+                        continue
                     inside.update(
                         metas[columns].variable_value_labels.get(column_name))
                     full_dict.update({column_name: inside})
@@ -169,6 +173,7 @@ class MergeManager(SQLManager):
             #     variable_measure_union = variable_measure_union | metas[i].variable_measure
 
             # not in use file_label, compress, note, missing_ranges,variable_display_width( not important), variable_formats( automatic resolve since there is only string and double in the original file)
+            # takes a long time
             pyreadstat.write_sav(
                 result,
                 destination,
@@ -187,10 +192,14 @@ class MergeManager(SQLManager):
                         current_column = used_columns[file][column]
                         if merge_method != 'union':
                             current_column = current_column + '_' + suffix[file]
+                        if current_column not in dup_columns:
+                            continue
                         result[current_column] = pandas.to_timedelta(
                             (result[current_column] - bais),
                             unit='s') + pandas.Timestamp('1970-1-1')
                         result[current_column] = result[current_column].dt.date
+                        if merge_method == 'union':
+                            dup_columns.remove(current_column)
 
             # get the ( problem_id,  problem_name, variable_value_labels)
             problem_value_labels = pandas.DataFrame()
@@ -217,6 +226,7 @@ class MergeManager(SQLManager):
                     problem_value_labels['problem_id'] == item,
                     'variable_value_label'] = str(full_dict.get(item))
 
+            # takes a long time
             with pandas.ExcelWriter(destination,
                                     datetime_format="YYYY-MM-DD") as writer:
                 result.to_excel(writer, index=False, sheet_name='Data')
