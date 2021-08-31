@@ -2,7 +2,9 @@ from pathlib import Path
 import yaml
 
 CWD = Path().resolve()
-STORAGE_PATH = CWD / "storage"
+# change if cwd == mount dir
+MOUNT = Path('/app')
+STORAGE_PATH = Path("storage")
 
 
 def dump_config(conf_dict, dir_path):
@@ -32,22 +34,22 @@ repo_config = {
         "password": "Kit2021db",
         "database": "KIT_DB"
     },
-    "tmp_dir": str(TMP_DIR_PATH)
+    "tmp_dir": str(MOUNT / TMP_DIR_PATH)
 }
 
-create_dir(TMP_DIR_PATH)
+create_dir(CWD / TMP_DIR_PATH)
 
 # service config
 UPLOAD_PATH = STORAGE_PATH / 'upload'
 DOWNLOAD_PATH = STORAGE_PATH / 'download'
 
 service_config = {
-    "upload_dir": str(UPLOAD_PATH),
-    "download_dir": str(DOWNLOAD_PATH)
+    "upload_dir": str(MOUNT / UPLOAD_PATH),
+    "download_dir": str(MOUNT / DOWNLOAD_PATH)
 }
 
-create_dir(UPLOAD_PATH)
-create_dir(DOWNLOAD_PATH)
+create_dir(CWD / UPLOAD_PATH)
+create_dir(CWD / DOWNLOAD_PATH)
 
 total_config = {}
 total_config.update(app_config)

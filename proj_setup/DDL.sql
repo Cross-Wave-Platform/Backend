@@ -12,6 +12,9 @@ GO
 --切換使用中的資料庫
 USE KIT_DB;
 GO
+-- fix jump number issue
+ALTER DATABASE SCOPED CONFIGURATION SET IDENTITY_CACHE = OFF
+GO
 
 --建立tables
 CREATE TABLE dbo.class

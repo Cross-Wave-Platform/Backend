@@ -1,23 +1,15 @@
-# docker build
+# backend docker setup
 
-## for init setup 
-(skip if use ```docker pull littlepenguin89106/kit```)
-```
-docker image build -t kit .
-```
+## 1. for init config and directory
+python3 proj_setup/setup.py
 
-```
-bash proj_setup/docker.sh
-```
-## run docker without init setup
-```
-docker stop kit-container
-```
+## 2. for docker building
 
 ```
-docker commit -c "ENV PROJ_INIT=1" kit-container test_init
+docker image build -t kit_test .
 ```
 
+## 3. for docker running
 ```
-bash proj_setup/test_docker.sh
+bash proj_setup/run.sh
 ```
