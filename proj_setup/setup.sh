@@ -1,3 +1,5 @@
 #!/bin/bash
 
-sqlcmd -S localhost -U SA -P Kit2021db -i proj_setup/DDL.sql
+# sys setup
+apt-get update && \
+apt-get install -y python3-pip
