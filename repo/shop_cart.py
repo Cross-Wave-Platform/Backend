@@ -47,7 +47,7 @@ class SCManager(SQLManager):
             waves = list(map(int, str_wave_list))
             return Combo(age_types, survey_types, waves)
         except:
-            return Combo([],[],[])
+            return Combo([], [], [])
 
     def unbind_combo(self, account_id):
         # bind empty combo

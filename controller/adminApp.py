@@ -5,6 +5,7 @@ from flask_login import login_required
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 from .utils.auth_required import auth_required, AuthLevel
+from service.admin import Admin
 
 __all__ = ['adminApp_api']
 
@@ -17,10 +18,11 @@ adminApp_api = Blueprint('adminApp_api', __name__)
 @Request.json('Identity: str')
 def user_management(Identity):
     try:
-        user = user_management(Identity)
+        manager = Admin()
+        users = manager.user_management(Identity)
     except:
         return HTTPError('unknown error', 406)
-    return HTTPResponse('ok', list=user)
+    return HTTPResponse('ok', data=users)
 
 
 @adminApp_api.route('/change_auth', methods=['PUT'])
@@ -29,7 +31,8 @@ def user_management(Identity):
 @Request.json('user: str', 'userlevel: str')
 def change_auth(user, userlevel):
     try:
-        change_auth(user, userlevel)
+        manager = Admin()
+        manager.change_auth(user, userlevel)
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok')
@@ -41,10 +44,11 @@ def change_auth(user, userlevel):
 @Request.json('auth: str')
 def search_by_auth(auth):
     try:
-        list = search_by_auth(auth)
+        manager = Admin()
+        surveys = manager.search_by_auth(auth)
     except:
         return HTTPError('unknown error', 406)
-    return HTTPResponse('ok', list=list)
+    return HTTPResponse('ok', data=surveys)
 
 
 @adminApp_api.route('/month', methods=['GET'])
@@ -53,10 +57,11 @@ def search_by_auth(auth):
 @Request.json('month: str')
 def search_by_month(month):
     try:
-        list = search_by_month(month)
+        manager = Admin()
+        surveys = manager.search_by_month(month)
     except:
         return HTTPError('unknown error', 406)
-    return HTTPResponse('ok', list=list)
+    return HTTPResponse('ok', data=surveys)
 
 
 @adminApp_api.route('/wave', methods=['GET'])
@@ -65,10 +70,11 @@ def search_by_month(month):
 @Request.json('wave: str')
 def search_by_wave(wave):
     try:
-        list = search_by_wave(wave)
+        manager = Admin()
+        surveys = manager.search_by_wave(wave)
     except:
         return HTTPError('unknown error', 406)
-    return HTTPResponse('ok', list=list)
+    return HTTPResponse('ok', data=surveys)
 
 
 @adminApp_api.route('/type', methods=['GET'])
@@ -77,10 +83,11 @@ def search_by_wave(wave):
 @Request.json('type: str')
 def search_by_type(type):
     try:
-        list = search_by_type(type)
+        manager = Admin()
+        surveys = manager.search_by_type(type)
     except:
         return HTTPError('unknown error', 406)
-    return HTTPResponse('ok', list=list)
+    return HTTPResponse('ok', data=surveys)
 
 
 @adminApp_api.route('/keyword', methods=['GET'])
@@ -89,7 +96,8 @@ def search_by_type(type):
 @Request.json('keyword: str')
 def search_by_keyword(keyword):
     try:
-        list = search_by_keyword(keyword)
+        manager = Admin()
+        surveys = manager.search_by_keyword(keyword)
     except:
         return HTTPError('unknown error', 406)
-    return HTTPResponse('ok', list=list)
+    return HTTPResponse('ok', data=surveys)

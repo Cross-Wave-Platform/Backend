@@ -1,6 +1,4 @@
 # from typing import List
-from numpy.core.numeric import full
-from pandas.core.reshape.merge import merge
 import pyreadstat
 import pandas
 import os

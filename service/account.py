@@ -1,19 +1,38 @@
 from .utils import hash_id
 from hmac import compare_digest
+from repo.account import AccountSQLManager
 from repo.manager import SQLManager
-from flask_login import UserMixin
-
-import os
+from flask_login import UserMixin, LoginManager
 import re
 
 __all__ = ['Account']
 
+login_manager = LoginManager()
+
+
+def get_user(user_id):
+    manager = SQLManager()
+    sql = "SELECT * FROM dbo.account WHERE account_name = %(user_id)s"
+    manager.cursor.execute(sql, {"user_id": user_id})
+    data = manager.cursor.fetchone()
+    return data
+
+
+@login_manager.user_loader
+def user_loader(user_id):
+    user_info = get_user(user_id)
+    if user_info is not None:
+        current_user = Account(user_info)
+        return current_user
+    return None
+
 
 class Account(UserMixin):
-    def __init__(self, account_name, password, email):
-        self.account_name = account_name
-        self.password = password
-        self.email = email
+    def __init__(self, user_info):
+        self.id = user_info[0]
+        self.account_name = user_info[1]
+        self.email = user_info[2]
+        self.password = user_info[3]
 
     def get_id(self):
         return self.id
@@ -24,19 +43,16 @@ class Account(UserMixin):
             raise ValueError
 
         user = cls.get_by_email(email)
-        if user:
+        if user is not None:
             return 'email used'
         user = cls.get_by_username(username)
-        if user:
+        if user is not None:
             return 'account exists'
 
-        user_id = hash_id(username, password)
+        hash_password = hash_id(username, password)
 
-        a = SQLManager()
-        sql = "INSERT INTO dbo.account (account_name, email, password) VALUES ( \'" + username + "\', \'" + email + "\', \'" + user_id + "\')"
-        a.cursor.execute(sql)
-        a.conn.commit()
-        a.close()
+        manager = AccountSQLManager()
+        manager.add_account(username, email, hash_password)
         return 'ok'
 
     @classmethod
@@ -47,11 +63,7 @@ class Account(UserMixin):
             user = cls.get_by_email(username)
         if user is None:
             return 'user not found'
-
-        account = Account(account_name=user[1],
-                          password=user[3],
-                          email=user[2])
-        account.id = username
+        account = Account(user)
         user_id = hash_id(account.account_name, password)
         if compare_digest(account.password, user_id):
             return account
@@ -61,28 +73,21 @@ class Account(UserMixin):
     def change_password(self, old_password, new_password):
         user_id = hash_id(self.account_name, old_password)
         if compare_digest(self.password, user_id):
-            user_id = hash_id(self.account_name, new_password)
-            a = SQLManager()
-            sql = "UPDATE dbo.account SET password = \'" + user_id + "\' WHERE account_name = \'" + self.account_name + "\'"
-            a.cursor.execute(sql)
-            a.conn.commit()
+            hash_password = hash_id(self.account_name, new_password)
+            a = AccountSQLManager()
+            a.change_password(self.account_name, hash_password)
         else:
             return 'change password incorrect'
-
         return self
 
     @classmethod
     def get_by_username(cls, username):
-        a = SQLManager()
-        sql = "SELECT * FROM dbo.account WHERE account_name = \'" + username + "\'"
-        a.cursor.execute(sql)
-        data = a.cursor.fetchone()
+        manager = AccountSQLManager()
+        data = manager.get_by_username(username)
         return data
 
     @classmethod
     def get_by_email(cls, email):
-        a = SQLManager()
-        sql = "SELECT * FROM dbo.account WHERE email = \'" + email + "\'"
-        a.cursor.execute(sql)
-        data = a.cursor.fetchone()
+        manager = AccountSQLManager()
+        data = manager.get_by_email(email)
         return data

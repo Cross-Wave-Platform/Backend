@@ -31,7 +31,6 @@ class Upload_Files():
 
     def get_user_file(self, request_file):
         # check if the post request has the file part
-        print(request_file)
         if not request_file:
             return "No files"
 
