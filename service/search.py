@@ -5,12 +5,17 @@ from repo.shop_cart import Combo, SCManager
 
 __all__ = ['Search']
 
+class NotEnoughParams(Exception):
+    pass
 
 class Search():
 
     #get waves from selected age and survey type
     @classmethod
     def search_wave(cls, age_type, survey_type):
+        '''check Params'''
+        if age_type is None or survey_type is None:
+            raise NotEnoughParams
         '''sql search for wave'''
         manager = SearchManager()
         df = manager.search_waves(age_type, survey_type)
@@ -88,6 +93,9 @@ class Search():
     #store user's search info
     @classmethod
     def store_search_info(cls, id, info):
+        '''check info content'''
+        if 'age_type' not in info or 'survey_type' not in info or 'wave' not in info:
+            raise NotEnoughParams
         '''
         sql save username search data
         '''
@@ -110,6 +118,8 @@ class Search():
     #store user's selected probelm to shop_cart
     @classmethod
     def store_info(cls, id, problem_list):
+        '''check problem_list'''
+        '''modify problem_list for db format'''
         res = []
         for row in problem_list:
             for tid in row['survey_id']:
