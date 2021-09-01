@@ -8,6 +8,9 @@ __all__ = ['Search']
 class NotEnoughParams(Exception):
     pass
 
+class WrongParamType(Exception):
+    pass
+
 class Search():
 
     #get waves from selected age and survey type
@@ -96,6 +99,8 @@ class Search():
         '''check info content'''
         if 'age_type' not in info or 'survey_type' not in info or 'wave' not in info:
             raise NotEnoughParams
+        if type(info['age_type']) is not list or type(info['survey_type']) is not list or type(info['wave']) is not list:
+            raise WrongParamType 
         '''
         sql save username search data
         '''
@@ -122,6 +127,8 @@ class Search():
         '''modify problem_list for db format'''
         res = []
         for row in problem_list:
+            if type(row['survey_id']) is not list:
+                raise WrongParamType 
             for tid in row['survey_id']:
                 tmp = {"problem_id": row['problem_id'], "survey_id": tid}
                 res.append(tmp)

@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from flask_login import login_required, current_user
-from service.search import NotEnoughParams, Search
+from service.search import NotEnoughParams, Search, WrongParamType
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 from .utils.auth_required import auth_required, AuthLevel
@@ -68,6 +68,8 @@ def storeSearchInfo(info):
         res = Search.store_search_info(current_user.id, info)
     except NotEnoughParams:
         return HTTPError('Not enough body', 405)
+    except WrongParamType:
+        return HTTPError('Wrong Param Type', 405)
     except:
         return HTTPError('unknown error', 406)
 
@@ -95,6 +97,8 @@ def delSearchInfo():
 def storeInfo(problemList):
     try:
         Search.store_info(current_user.id, problemList)
+    except WrongParamType:
+        return HTTPError('Wrong Param Type', 405)
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok')
