@@ -50,16 +50,16 @@ class Search():
         df_list = df.values.tolist()
 
         for row in df_list:
-            id = row[5]
-            if row[3] not in res[id]['exists']:
-                res[id]['exists'][row[3]] = {"young":[], \
+            id = row[4]
+            if row[2] not in res[id]['exists']:
+                res[id]['exists'][row[2]] = {"young":[], \
                                                 "old":[]}
-            if row[2] == "big":
-                res[id]['exists'][row[3]]['old'].append(row[4])
+            if row[1] == "big":
+                res[id]['exists'][row[2]]['old'].append(row[3])
             else:
-                res[id]['exists'][row[3]]['young'].append(row[4])
+                res[id]['exists'][row[2]]['young'].append(row[3])
 
-            res[id]['survey_id'].add(row[1])
+            res[id]['survey_id'].add(row[0])
 
         ret = []
         for k, v in res.items():
