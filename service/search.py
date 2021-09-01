@@ -6,11 +6,22 @@ from repo.shop_cart import Combo, SCManager
 __all__ = ['Search']
 
 
+class NotEnoughParams(Exception):
+    pass
+
+
+class WrongParamType(Exception):
+    pass
+
+
 class Search():
 
     #get waves from selected age and survey type
     @classmethod
     def search_wave(cls, age_type, survey_type):
+        '''check Params'''
+        if age_type is None or survey_type is None:
+            raise NotEnoughParams
         '''sql search for wave'''
         manager = SearchManager()
         df = manager.search_waves(age_type, survey_type)
@@ -50,16 +61,16 @@ class Search():
         df_list = df.values.tolist()
 
         for row in df_list:
-            id = row[5]
-            if row[3] not in res[id]['exists']:
-                res[id]['exists'][row[3]] = {"young":[], \
+            id = row[4]
+            if row[2] not in res[id]['exists']:
+                res[id]['exists'][row[2]] = {"young":[], \
                                                 "old":[]}
-            if row[2] == "big":
-                res[id]['exists'][row[3]]['old'].append(row[4])
+            if row[1] == "big":
+                res[id]['exists'][row[2]]['old'].append(row[3])
             else:
-                res[id]['exists'][row[3]]['young'].append(row[4])
+                res[id]['exists'][row[2]]['young'].append(row[3])
 
-            res[id]['survey_id'].add(row[1])
+            res[id]['survey_id'].add(row[0])
 
         ret = []
         for k, v in res.items():
@@ -67,7 +78,7 @@ class Search():
                 v['exist'].append({**{"type": obj_k}, **obj_v})
             v.pop('exists')
             v['survey_id'] = list(v['survey_id'])
-            ret.append(json.dumps({**{"pid": k}, **v}, ensure_ascii=False))
+            ret.append({**{"pid": k}, **v})
 
         return ret
 
@@ -88,6 +99,13 @@ class Search():
     #store user's search info
     @classmethod
     def store_search_info(cls, id, info):
+        '''check info content'''
+        if 'age_type' not in info or 'survey_type' not in info or 'wave' not in info:
+            raise NotEnoughParams
+        if type(info['age_type']) is not list or type(
+                info['survey_type']) is not list or type(
+                    info['wave']) is not list:
+            raise WrongParamType
         '''
         sql save username search data
         '''
@@ -110,8 +128,12 @@ class Search():
     #store user's selected probelm to shop_cart
     @classmethod
     def store_info(cls, id, problem_list):
+        '''check problem_list'''
+        '''modify problem_list for db format'''
         res = []
         for row in problem_list:
+            if type(row['survey_id']) is not list:
+                raise WrongParamType
             for tid in row['survey_id']:
                 tmp = {"problem_id": row['problem_id'], "survey_id": tid}
                 res.append(tmp)
