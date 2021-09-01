@@ -72,10 +72,7 @@ class Account(UserMixin):
 
     @classmethod
     def login(cls, username, password):
-        try:
-            user = cls.get_by_username(username)
-        except:
-            user = cls.get_by_email(username)
+        user = cls.get_by_username(username) or cls.get_by_email(username)
         if user is None:
             raise UserNotFound
         account = Account(user)
