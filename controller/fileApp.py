@@ -2,10 +2,11 @@ from flask import Blueprint
 from flask_login import current_user
 from flask_login import login_required
 from service.upload import Upload_Files
-from service.export import Export_Files
+from service.export import Export_Files, CantMerge, SendFail
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 from .utils.auth_required import auth_required, AuthLevel
+from repo.upload import SurveyExists
 
 __all__ = ['fileApp_api']
 
@@ -34,6 +35,8 @@ def upload_file(file, ageType, wave, surveyType):
     try:
         '''save info to db'''
         user_file.save_file_info(filename)
+    except SurveyExists:
+        return HTTPError('survey exists', 403)
     except:
         return HTTPError('unknown error db', 406)
     return HTTPResponse('ok')
@@ -49,13 +52,13 @@ def export_file(mergeMethod, fileFormat):
     ''' send file to user'''
     try:
         res = user_file.get_db_file()
-        if res == "Could not create merge file":
-            return HTTPError('File can\'t merge', 404)
         if res == False:
             return HTTPError('DB fail', 405)
         res = user_file.export_file_to_user()
-        if res == "Fail":
-            return HTTPError('Fail to send file', 403)
+    except CantMerge:
+        return HTTPError('File can\'t merge', 404)
+    except SendFail:
+        return HTTPError('Fail to send file', 403)
     except:
         return HTTPError('unknown error', 406)
 

@@ -11,7 +11,6 @@ RUN sed -i 's/archive.ubuntu.com/free.nchc.org.tw/g' /etc/apt/sources.list && \
 
 # test env
 FROM kit_base AS kit_test
-USER mssql
 WORKDIR /app
 ENV ACCEPT_EULA=Y \
     SA_PASSWORD=Kit2021db

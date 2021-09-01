@@ -1,5 +1,6 @@
 from .manager import SQLManager
 
+
 class AccountSQLManager(SQLManager):
     def add_account(self, username: str, hash_in: str, email: str):
         insert_op = 'INSERT INTO dbo.account (account_name, password, email) VALUES (%(username)s, %(email)s, %(password)s)'
@@ -30,8 +31,8 @@ class AccountSQLManager(SQLManager):
     def get_by_email(self, email: str):
         search_op = 'SELECT * FROM dbo.account WHERE email=%(email)s'
         try:
-            self.conn.execute(search_op, {'email': email})
+            self.cursor.execute(search_op, {'email': email})
         except:
             return None
-        data = self.conn.fetchone()
+        data = self.cursor.fetchone()
         return data

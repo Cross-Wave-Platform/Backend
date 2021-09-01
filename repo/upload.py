@@ -3,6 +3,10 @@ import pandas
 import pyreadstat
 
 
+class SurveyExists(Exception):
+    pass
+
+
 class SurveyInfo:
     def __init__(self, age_type: int, survey_type: int, wave: int,
                  release: int):
@@ -21,11 +25,10 @@ class UploadManager(SQLManager):
         new_id = self.add_survey(survey_info)
 
         if not new_id:
-            print('already exists')
+            raise SurveyExists
         else:
             self.add_problem(meta)
             self.add_survey_problem(meta, new_id, survey_info.release)
-            print('success')
 
     # survey_id is auto_increment without give the value
     # check duplicate, if not, return survey_id it gets

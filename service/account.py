@@ -12,7 +12,7 @@ login_manager = LoginManager()
 
 def get_user(user_id):
     manager = SQLManager()
-    sql = "SELECT * FROM dbo.account WHERE account_name = %(user_id)s"
+    sql = "SELECT * FROM dbo.account WHERE account_id = %(user_id)s"
     manager.cursor.execute(sql, {"user_id": user_id})
     data = manager.cursor.fetchone()
     return data
@@ -25,6 +25,22 @@ def user_loader(user_id):
         current_user = Account(user_info)
         return current_user
     return None
+
+
+class EmailUsed(ValueError):
+    pass
+
+
+class AccountUsed(ValueError):
+    pass
+
+
+class UserNotFound(ValueError):
+    pass
+
+
+class PasswordIncorrect(ValueError):
+    pass
 
 
 class Account(UserMixin):
@@ -44,16 +60,15 @@ class Account(UserMixin):
 
         user = cls.get_by_email(email)
         if user is not None:
-            return 'email used'
+            raise EmailUsed
         user = cls.get_by_username(username)
         if user is not None:
-            return 'account exists'
+            raise AccountUsed
 
         hash_password = hash_id(username, password)
 
         manager = AccountSQLManager()
         manager.add_account(username, email, hash_password)
-        return 'ok'
 
     @classmethod
     def login(cls, username, password):
@@ -62,13 +77,13 @@ class Account(UserMixin):
         except:
             user = cls.get_by_email(username)
         if user is None:
-            return 'user not found'
+            raise UserNotFound
         account = Account(user)
         user_id = hash_id(account.account_name, password)
         if compare_digest(account.password, user_id):
             return account
         else:
-            return 'password incorrect'
+            raise PasswordIncorrect
 
     def change_password(self, old_password, new_password):
         user_id = hash_id(self.account_name, old_password)
@@ -77,7 +92,7 @@ class Account(UserMixin):
             a = AccountSQLManager()
             a.change_password(self.account_name, hash_password)
         else:
-            return 'change password incorrect'
+            raise PasswordIncorrect
         return self
 
     @classmethod

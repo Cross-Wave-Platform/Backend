@@ -7,6 +7,18 @@ from repo.merging import MergeManager
 __all__ = ['Export_Files']
 
 
+class CantMerge(Exception):
+    pass
+
+
+class SendFail(Exception):
+    pass
+
+
+class CompressFail(Exception):
+    pass
+
+
 class Export_Files():
     def __init__(self, id, username, merge_method, file_format):
         self.id = id
@@ -35,8 +47,8 @@ class Export_Files():
             manager = MergeManager()
             res = manager.merger(self.id, UPLOAD_FOLDER, merge_file_path,
                                  self.merge_method, self.file_format)
-        except:
-            return "Could not create merge file"
+        except Exception as e:
+            raise CantMerge from e
         if self.file_format == "sav":
             merge_file_path = os.path.join(merge_file_path, 'output.sav')
         else:
@@ -50,14 +62,13 @@ class Export_Files():
             with zipfile.ZipFile(merge_file_path, 'w') as zf:
                 zf.write(self.merge_file)
                 zf.write(self.facet)
-        except:
-            return "Fail to compress merge file"
-        return "Success"
+        except Exception as e:
+            raise CompressFail from e
 
     def export_file_to_user(self):
         '''send file to user'''
         try:
             send_file(self.merge_file, as_attachment=True)
-        except:
-            return "Fail to send file"
+        except Exception as e:
+            raise SendFail from e
         return send_file(self.merge_file, as_attachment=True)

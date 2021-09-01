@@ -90,7 +90,7 @@ def delSearchInfo():
 @Request.json('problemList: list')
 def storeInfo(problemList):
     try:
-        res = Search.store_info(current_user.id, problemList)
+        Search.store_info(current_user.id, problemList)
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok')
@@ -103,8 +103,6 @@ def storeInfo(problemList):
 def getInfo():
     try:
         problem_list = Search.get_info(current_user.id)
-        # if problem_id == 'failed':
-        #     return HTTPError('Failed to fetch info', 403)
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok', data={"problemList": problem_list})
@@ -117,7 +115,7 @@ def getInfo():
 def delInfo():
     try:
         '''delete user info'''
-        res = Search.del_info(current_user.id)
+        Search.del_info(current_user.id)
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok')
