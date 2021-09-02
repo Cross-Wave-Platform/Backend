@@ -7,10 +7,10 @@ class Admin():
     @classmethod
     def user_management(cls, Identity):
         dict = {
-            'All_superadmin': 1,
-            'admin': 1,
-            'member': 2,
-            'blacklist': 3
+            'All_superadmin': '1',
+            'admin': '1',
+            'member': '2',
+            'blacklist': '3'
         }
         if Identity in dict:
             Identity = dict[Identity]
@@ -23,6 +23,15 @@ class Admin():
 
     @classmethod
     def change_auth(cls, user, userlevel):
+        dict = {
+            'All_superadmin': '1',
+            'admin': '1',
+            'member': '2',
+            'blacklist': '3'
+        }
+        if userlevel in dict:
+            userlevel = dict[userlevel]
+
         manager = AdminSQLManager()
         manager.change_auth(user, userlevel)
         return 'ok'
@@ -30,7 +39,7 @@ class Admin():
     @classmethod
     def search_by_auth(cls, auth):
         dict = {
-            'All_data': '1 | release = 0',
+            'All_data': 'all',
             'release': '1',
             'unreleased': '0'
         }
@@ -44,7 +53,7 @@ class Admin():
 
     @classmethod
     def search_by_month(cls, month):
-        dict = {'Month_all': 'all', 'Month_small': 'small', 'Month_big': 'big'}
+        dict = {'Month_all': 'all', 'Month_small': '1', 'Month_big': '2'}
         if month in dict:
             month = dict[month]
             manager = AdminSQLManager()
@@ -55,7 +64,8 @@ class Admin():
 
     @classmethod
     def search_by_wave(cls, wave):
-        if 'Wave' in wave:
+        if 'Wave_' in wave:
+            wave = wave[5:]
             manager = AdminSQLManager()
             list = manager.search_by_wave(wave)
         else:
@@ -71,6 +81,7 @@ class Admin():
             'Relatives': '3'
         }
         if type in dict:
+            type = dict[type]
             manager = AdminSQLManager()
             list = manager.search_by_type(type)
         else:

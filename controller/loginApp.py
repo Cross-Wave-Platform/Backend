@@ -8,10 +8,6 @@ __all__ = ['loginApp_api']
 
 loginApp_api = Blueprint('loginApp_api', __name__)
 
-@loginApp_api.route('/test', methods=['GET', 'POST'])
-def test():
-    return HTTPResponse('ok ??????aerg')
-
 @loginApp_api.route('/login', methods=['POST'])
 @Request.json('username: str', 'password: str')
 def login(username, password):

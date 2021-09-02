@@ -17,7 +17,7 @@ class AdminSQLManager(SQLManager):
     def _get_allsurvey(self):
         search_op = "SELECT * FROM dbo.survey"
         self.cursor.execute(search_op)
-        data = self.conn.fetchall()
+        data = self.cursor.fetchall()
         return data
 
     def user_management(self, Identity: str):
@@ -32,9 +32,13 @@ class AdminSQLManager(SQLManager):
         self.conn.commit()
 
     def search_by_auth(self, auth: str):
-        search_op = "SELECT * FROM dbo.survey WHERE release=%(auth)d"
-        self.cursor.execute(search_op, {'auth': auth})
-        data = self.cursor.fetchall()
+        if auth == 'all':
+            a = self._get_allsurvey()
+            return a
+        else:
+            search_op = "SELECT * FROM dbo.survey WHERE release=%(auth)d"
+            self.cursor.execute(search_op, {'auth': auth})
+            data = self.cursor.fetchall()
         return data
 
     def search_by_month(self, month: str):
@@ -47,7 +51,7 @@ class AdminSQLManager(SQLManager):
         return data
 
     def search_by_wave(self, wave: str):
-        if wave == 'Wave_all':
+        if wave == 'all':
             return self._get_allsurvey()
         else:
             search_op = "SELECT * FROM dbo.survey WHERE wave=%(wave)d"

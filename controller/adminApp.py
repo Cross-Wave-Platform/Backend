@@ -11,17 +11,11 @@ __all__ = ['adminApp_api']
 
 adminApp_api = Blueprint('adminApp_api', __name__)
 
-@adminApp_api.route('/test', methods=['GET', 'POST'])
-@login_required
-def test():
-    return HTTPResponse('ok')
-
 @adminApp_api.route('/user_management', methods=['GET'])
 @login_required
 @auth_required(AuthLevel.ADMIN)
 @Request.args('Identity')
 def user_management(Identity):
-    print(Identity)
     try:
         users = Admin.user_management(Identity)
     except:
