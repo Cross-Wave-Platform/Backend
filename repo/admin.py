@@ -33,8 +33,7 @@ class AdminSQLManager(SQLManager):
 
     def search_by_auth(self, auth: str):
         if auth == 'all':
-            a = self._get_allsurvey()
-            return a
+            return self._get_allsurvey()
         else:
             search_op = "SELECT * FROM dbo.survey WHERE release=%(auth)d"
             self.cursor.execute(search_op, {'auth': auth})

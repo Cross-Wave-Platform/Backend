@@ -53,7 +53,11 @@ class Admin():
 
     @classmethod
     def search_by_month(cls, month):
-        dict = {'Month_all': 'all', 'Month_small': '1', 'Month_big': '2'}
+        dict = {
+            'Month_all': 'all',
+            'Month_small': '1',
+            'Month_big': '2'
+        }
         if month in dict:
             month = dict[month]
             manager = AdminSQLManager()
