@@ -7,10 +7,10 @@ class Admin():
     @classmethod
     def user_management(cls, Identity):
         dict = {
-            'All_superadmin': '1',
-            'admin': '1',
-            'member': '2',
-            'blacklist': '3'
+            'All_superadmin': 1,
+            'admin': 1,
+            'member': 2,
+            'blacklist': 3
         }
         if Identity in dict:
             Identity = dict[Identity]
