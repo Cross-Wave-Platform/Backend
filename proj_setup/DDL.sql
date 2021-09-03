@@ -21,7 +21,7 @@ CREATE TABLE dbo.class
 (
     class_id INT IDENTITY,
     class VARCHAR( 800) NOT NULL,
-    subclass VARCHAR( 800),
+    subclass VARCHAR( 800) NOT NULL DEFAULT "",
 
     CONSTRAINT  PK_class PRIMARY KEY CLUSTERED ( class_id)
 );
@@ -56,7 +56,7 @@ CREATE TABLE dbo.problem
 CREATE TABLE dbo.account
 (
     account_id INT IDENTITY,
-    nickname VARCHAR( 800)
+    nickname VARCHAR( 800),
     account_name VARCHAR( 800) UNIQUE NOT NULL,
     email VARCHAR( 320) UNIQUE NOT NULL,
     password VARCHAR( 25) NOT NULL,
