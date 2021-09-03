@@ -6,7 +6,7 @@ from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
-import smtplib
+import smtplib, os
 
 __all__=['Send_Email']
 
@@ -18,6 +18,9 @@ class Send_Email:
 		self.sender = "kidsit.no.reply@gmail.com"
 		self.senderpass = 'xnfhsuyjwhgyzkhk'
 		self.attachments = []
+		self.cwd = os.path.join(os.getcwd(),"storage/tmp_up")
+		if not os.path.exists(self.cwd): 
+			os.makedirs(self.cwd)
  
 	def send(self):
 		msg = MIMEMultipart('alternative')
@@ -44,12 +47,12 @@ class Send_Email:
  
 	def attach(self,msg):
 		for f in self.attachments:
-		
+			
 			ctype, encoding = mimetypes.guess_type(f)
 			if ctype is None or encoding is not None:
 				ctype = "application/octet-stream"
 			
-			print(ctype, encoding)
+			# print(ctype, encoding)
 			maintype, subtype = ctype.split("/", 1)
  
  
@@ -72,9 +75,15 @@ class Send_Email:
 				attachment.set_payload(fp.read())
 				fp.close()
 				encoders.encode_base64(attachment)
-			attachment.add_header("Content-Disposition", "attachment", filename=f)
+			attachment.add_header("Content-Disposition", "attachment", filename=f.split('/')[-1])
 			attachment.add_header('Content-ID', '<{}>'.format(f))
 			msg.attach(attachment)
-	
+			os.remove(f)
+
 	def addattach(self, files):
-		self.attachments = self.attachments + files
+		f_list = []
+		for file in files:
+			cwd = os.path.join(self.cwd, file.filename)
+			file.save(cwd)
+			f_list.append(cwd)
+		self.attachments = self.attachments + f_list
