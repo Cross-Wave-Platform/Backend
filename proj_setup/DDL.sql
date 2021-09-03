@@ -20,7 +20,8 @@ GO
 CREATE TABLE dbo.class
 (
     class_id INT IDENTITY,
-    class VARCHAR( 800),
+    class VARCHAR( 800) NOT NULL,
+    subclass VARCHAR( 800),
 
     CONSTRAINT  PK_class PRIMARY KEY CLUSTERED ( class_id)
 );
@@ -35,7 +36,7 @@ CREATE TABLE dbo.survey
     survey_id INT IDENTITY,
     age_type INT NOT NULL,
     survey_type INT NOT NULL,
-    wave INT NOT NULL,
+    wave VARCHAR(10) NOT NULL,
     release INT NOT NULL DEFAULT 0,
 
     CONSTRAINT PK_survey PRIMARY KEY CLUSTERED ( survey_id)
@@ -55,11 +56,12 @@ CREATE TABLE dbo.problem
 CREATE TABLE dbo.account
 (
     account_id INT IDENTITY,
-    account_name VARCHAR( 320) UNIQUE NOT NULL,
+    nickname VARCHAR( 800)
+    account_name VARCHAR( 800) UNIQUE NOT NULL,
     email VARCHAR( 320) UNIQUE NOT NULL,
     password VARCHAR( 25) NOT NULL,
     auth INT NOT NULL DEFAULT 2,
-    last_combo VARCHAR( 2000) NOT NULL DEFAULT '__'
+    last_combo VARCHAR( 800) NOT NULL DEFAULT '__'
 
         CONSTRAINT PK_account PRIMARY KEY CLUSTERED ( account_id)
 );
