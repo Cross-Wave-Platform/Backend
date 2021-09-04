@@ -1,6 +1,7 @@
 
 from numpy.core.fromnumeric import product
 import pandas
+from pandas.core.frame import DataFrame
 from .manager import SQLManager
 
 # what is '3月齡組\n18月齡（已回補）', does '（已回補）' have meaning??
@@ -31,33 +32,67 @@ class SurveyUpload(SQLManager):
         # surveys.append(temp)
 
         # get the friend part
-        temp = self.get_survey('親友問卷',all_data)
-        if type(temp) == str:
-            return temp
-        surveys.append(temp)
+        # temp = self.get_survey('親友問卷',all_data)
+        # if type(temp) == str:
+        #     return temp
+        # surveys.append(temp)
 
-        # get the teacher part
-        temp = self.get_survey('教保問卷',all_data)
-        if type(temp) == str:
-            return temp
-        surveys.append(temp)
+        # # get the teacher part
+        # temp = self.get_survey('教保問卷',all_data)
+        # if type(temp) == str:
+        #     return temp
+        # surveys.append(temp)
 
-        # flatten
-        surveys = [ i for sublist in surveys for i in sublist]
+        # # flatten
+        # surveys = [ i for sublist in surveys for i in sublist]
 
-        surveys = pandas.DataFrame(surveys, columns=['age_type','survey_type','wave','release'])
+        # surveys = pandas.DataFrame(surveys, columns=['age_type','survey_type','wave','release'])
 
-        print(surveys)
+        # print(surveys)
 
+        # get all classes
+        # get the current classes
+        command = ("SELECT class, subclass FROM class;")
+        current_class = pandas.read_sql( command, self.conn)
+        print(current_class)
+        # drop no_group
+        current_class.drop( current_class[current_class['class'] == 'no_group'].index, inplace=True)
+
+        print(current_class)
+
+
+        classes = pandas.DataFrame(columns=['class_id','class','subclass'])
+
+        classes = classes.append( self.get_class('家長問卷', all_data, current_class))
+        # classes = classes.append( self.get_class('教保問卷', all_data, current_class))
+        classes = classes.drop_duplicates().reset_index(drop=True)
+
+        print( classes)
+
+
+        # get all problems
+        # problems = pandas.DataFrame(columns=['problem_name','topic','class'])
+
+        # problems = pandas.merge(left=problems, right=self.get_problem('親友問卷', all_data), how='outer')
+
+        # problems = pandas.merge(left=problems, right=self.get_problem('教保問卷', all_data), how='outer')
+
+        # print(problems)
+
+
+        # get survey_problem
 
 
 
 
 
         # insert all data to database
-        # self.bulk_insert(surveys, 'dbo.survey')
+        # self.bulk_insert( surveys, 'dbo.survey')
+        self.bulk_insert( classes, 'dbo.class')
 
         return 'success'
+
+    # send the database info into the functions to be checked for duplicates in function
 
     # need to tweek the numbers of columns that need to be chooped off
     def get_survey( self, sheet_name: str, all_data: dict):
@@ -119,3 +154,29 @@ class SurveyUpload(SQLManager):
             survey[ i].append(release)
 
         return survey
+
+    def get_class( self, sheet_name: str, all_data: dict, database_class: DataFrame):
+
+        page = all_data.get( sheet_name)
+        
+        # the main and sub is still not here
+        # so this is a temporary solution
+        classes = page[['主構面','次構面']].rename(columns={'主構面':'class','次構面':'subclass'}).drop_duplicates()
+
+        classes = classes.append(database_class).drop_duplicates(keep=False)
+
+        classes.dropna(inplace=True)
+
+        return classes
+
+    def get_problem( self, sheet_name: str, all_data: dict):
+
+        page = all_data.get(sheet_name)
+
+        problems = page[['變項名稱','變項標籤','構面']].rename(columns={'變項名稱':'problem_name','變項標籤':'topic','構面':'class'})
+
+        problems.dropna(subset=['problem_name'], inplace=True)
+
+        # print(problems)
+
+        return problems
