@@ -1,4 +1,5 @@
 
+from typing import ClassVar
 from numpy.core.fromnumeric import product
 import pandas
 from pandas.core.frame import DataFrame
@@ -26,51 +27,64 @@ class SurveyUpload(SQLManager):
         surveys = []
         # get the parent part
         # this is not usable since the file format is not settled
-        # temp = self.get_survey('家長問卷',all_data)
-        # if type(temp) == str:
-        #     return temp
-        # surveys.append(temp)
+        temp = self.get_survey('家長問卷',all_data)
+        if type(temp) == str:
+            return temp
+        surveys.append(temp)
 
         # get the friend part
-        # temp = self.get_survey('親友問卷',all_data)
-        # if type(temp) == str:
-        #     return temp
-        # surveys.append(temp)
+        temp = self.get_survey('親友問卷',all_data)
+        if type(temp) == str:
+            return temp
+        surveys.append(temp)
 
         # # get the teacher part
-        # temp = self.get_survey('教保問卷',all_data)
-        # if type(temp) == str:
-        #     return temp
-        # surveys.append(temp)
+        temp = self.get_survey('教保問卷',all_data)
+        if type(temp) == str:
+            return temp
+        surveys.append(temp)
 
-        # # flatten
-        # surveys = [ i for sublist in surveys for i in sublist]
+        # flatten
+        surveys = [ i for sublist in surveys for i in sublist]
+        # make it a dataframe
+        surveys = pandas.DataFrame(surveys, columns=['age_type','survey_type','wave','release'])
+        # get the current surveys
+        command = ("SELECT * FROM survey;")
+        current_survey = pandas.read_sql(command,self.conn)
 
-        # surveys = pandas.DataFrame(surveys, columns=['age_type','survey_type','wave','release'])
+        # remove duplicates
+        surveys = pandas.concat([surveys, current_survey[['age_type','survey_type','wave','release']]]).drop_duplicates(subset=['age_type','survey_type','wave','release'], keep=False)
+        surveys['survey_id'] = ''
 
-        # print(surveys)
+        surveys = surveys[['survey_id','age_type','survey_type','wave','release']]
+
+        print(surveys)
+
 
         # get all classes
         # get the current classes
-        command = ("SELECT class, subclass FROM class;")
+        command = ("SELECT * FROM class;")
         current_class = pandas.read_sql( command, self.conn)
-        print(current_class)
         # drop no_group
         current_class.drop( current_class[current_class['class'] == 'no_group'].index, inplace=True)
 
-        print(current_class)
+        classes = pandas.DataFrame(columns=['class','subclass'])
 
-
-        classes = pandas.DataFrame(columns=['class_id','class','subclass'])
-
-        classes = classes.append( self.get_class('家長問卷', all_data, current_class))
-        # classes = classes.append( self.get_class('教保問卷', all_data, current_class))
-        classes = classes.drop_duplicates().reset_index(drop=True)
-
-        print( classes)
+        classes = classes.append( self.get_class('家長問卷', all_data))
+        classes = classes.append( self.get_class('親友問卷', all_data))
+        classes = classes.append( self.get_class('教保問卷', all_data))
+        # drop duplicates
+        classes = pandas.concat([classes, current_class[['class','subclass']]]).drop_duplicates(subset=['class', 'subclass'],keep=False)
+        classes['class_id'] = ''
+        classes = classes[['class_id','class','subclass']]
+        # print( classes)
 
 
         # get all problems
+        # get the current problems
+        command = ("SELECT problem_name, topic, class_id FROM problem;")
+        current_problem = pandas.read_sql( command, self.conn)
+
         # problems = pandas.DataFrame(columns=['problem_name','topic','class'])
 
         # problems = pandas.merge(left=problems, right=self.get_problem('親友問卷', all_data), how='outer')
@@ -87,7 +101,7 @@ class SurveyUpload(SQLManager):
 
 
         # insert all data to database
-        # self.bulk_insert( surveys, 'dbo.survey')
+        self.bulk_insert( surveys, 'dbo.survey')
         self.bulk_insert( classes, 'dbo.class')
 
         return 'success'
@@ -116,9 +130,9 @@ class SurveyUpload(SQLManager):
         # convert to dataframe later
         survey = []
 
-        # print( page.columns.to_list()[3:])
+        # print( page.columns.to_list()[4:])
 
-        for string in page.columns.to_list()[3:]:
+        for string in page.columns.to_list()[4:]:
             age_type = string.split('月齡組')[0]
             if age_type == '3':
                 age_type = 1
@@ -131,18 +145,16 @@ class SurveyUpload(SQLManager):
                 print(age_type)
                 return '月齡組_error'
             
-            wave = string.split('\n')[1].split('月齡')[0]
-            try:
-                wave = int(wave)
-            except ValueError:
-                return 'column_name_error'
+            # this is a full sized '('
+            # need to restrict this kind of usage
+            wave = string.split('\n')[1].split('（')[0]
             
             survey.append([age_type,survey_type,wave])
         
         # the release part
         release_row = [ i for sublist in page.iloc[-1:].values.tolist() for i in sublist]
         # slice the unused columns
-        release_row = release_row[3:]
+        release_row = release_row[4:]
 
         # print(survey,release_row)
 
@@ -155,15 +167,15 @@ class SurveyUpload(SQLManager):
 
         return survey
 
-    def get_class( self, sheet_name: str, all_data: dict, database_class: DataFrame):
+    # there seems to be duplicate '不等機率加權值' and are not being shed off
+    def get_class( self, sheet_name: str, all_data: dict):
 
         page = all_data.get( sheet_name)
-        
-        # the main and sub is still not here
-        # so this is a temporary solution
+
         classes = page[['主構面','次構面']].rename(columns={'主構面':'class','次構面':'subclass'}).drop_duplicates()
 
-        classes = classes.append(database_class).drop_duplicates(keep=False)
+        # the duplicates will be delt at the main function
+        # classes = classes.append(database_class[['class', 'subclass']]).drop_duplicates(keep=False)
 
         classes.dropna(inplace=True)
 
