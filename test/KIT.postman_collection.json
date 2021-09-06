@@ -1,0 +1,437 @@
+{
+	"info": {
+		"_postman_id": "66172351-136f-4611-9178-aa8c76f1ceee",
+		"name": "KIT",
+		"description": "# age_type:int\n1. teacher\n2. parent\n3. friend\n\n# survey_type:int\n1. small\n2. big\n\n# wave(aka 月齡):int\njust number",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "loginApp",
+			"item": [
+				{
+					"name": "register",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"console.log(\"click that will be sent: \"+data.username);\r",
+									"pm.environment.set(\"{{username}}\", data.username);\r",
+									"pm.environment.set(\"{{password}}\", data.password);\r",
+									"pm.environment.set(\"{{email}}\", data.email);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{USERNAME}}\",\r\n    \"password\": \"{{PASSWORD}}\",\r\n    \"email\": \"{{EMAIL}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/loginApp/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"loginApp",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{USERNAME}}\",\r\n    \"password\": \"{{PASSWORD}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/loginApp/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"loginApp",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/loginApp/logout",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"loginApp",
+								"logout"
+							]
+						},
+						"description": "## should send after login"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "personalApp",
+			"item": [
+				{
+					"name": "changepassword",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"oldPassword\":\"oldPassword\",\r\n    \"newPassword\":\"newPassword\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/personalApp/changepassword",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"personalApp",
+								"changepassword"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "searchApp",
+			"item": [
+				{
+					"name": "searchWave",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/searchApp/searchWave?ageType=1&surveyType=3",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"searchApp",
+								"searchWave"
+							],
+							"query": [
+								{
+									"key": "ageType",
+									"value": "1"
+								},
+								{
+									"key": "surveyType",
+									"value": "3"
+								}
+							]
+						},
+						"description": "## age_type: list\n## survey_type: list\n\nsearch waves satisfy those condition"
+					},
+					"response": []
+				},
+				{
+					"name": "storeCombo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"info\":{\r\n        \"age_type\":[1],\r\n        \"survey_type\":[3],\r\n        \"wave\":[6]\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/searchApp/storeCombo",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"searchApp",
+								"storeCombo"
+							]
+						},
+						"description": "## age_type: list\nthe list of age_type you want store\n\n## survey_type: list\nthe list of survey_type you want store\n\n## wave(aka 月齡): list\nthe list of wave you want store"
+					},
+					"response": []
+				},
+				{
+					"name": "searchProblem",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/searchApp/searchProblem",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"searchApp",
+								"searchProblem"
+							]
+						},
+						"description": "## must send after storeCombo"
+					},
+					"response": []
+				},
+				{
+					"name": "storeProblem",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"problemList\":[\r\n        {\"problem_id\":1,\"survey_id\":[1]},\r\n        {\"problem_id\":2,\"survey_id\":[1]}\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/searchApp/storeProblem",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"searchApp",
+								"storeProblem"
+							]
+						},
+						"description": "## problemList: list\neach element is the info of the problem you want store\n## problem_id: int\nthe id of problem you want store,the id is given by db\n## survey_id: list\nthe ids of surveys where the problem you want to store,the id is given by db"
+					},
+					"response": []
+				},
+				{
+					"name": "getCombo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/searchApp/getCombo",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"searchApp",
+								"getCombo"
+							]
+						},
+						"description": "## response is empty if user doesn't bind combo"
+					},
+					"response": []
+				},
+				{
+					"name": "delCombo",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/searchApp/delCombo",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"searchApp",
+								"delCombo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getProblem",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/searchApp/getProblem",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"searchApp",
+								"getProblem"
+							]
+						},
+						"description": "## get back the problem user store, empty if it is not set"
+					},
+					"response": []
+				},
+				{
+					"name": "delProblem",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/searchApp/delProblem",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"searchApp",
+								"delProblem"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "## make sure survey is in the db"
+		},
+		{
+			"name": "fileApp",
+			"item": [
+				{
+					"name": "upload",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "KIT3月齡組第2波6月齡親友_final.sav"
+								},
+								{
+									"key": "ageType",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "surveyType",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "wave",
+									"value": "6",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/fileApp/upload",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"fileApp",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "export",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/fileApp/export?mergeMethod=inner&fileFormat=sav",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"fileApp",
+								"export"
+							],
+							"query": [
+								{
+									"key": "mergeMethod",
+									"value": "inner"
+								},
+								{
+									"key": "fileFormat",
+									"value": "sav"
+								}
+							]
+						},
+						"description": "## mergeMethod: str\n- inner\n- union\n\n## fileFormat: str\n- sav\n- csv\n\n### must send after storeProblem"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:5000"
+		},
+		{
+			"key": "USERNAME",
+			"value": "admin"
+		},
+		{
+			"key": "PASSWORD",
+			"value": "123"
+		},
+		{
+			"key": "EMAIL",
+			"value": "123"
+		}
+	]
+}

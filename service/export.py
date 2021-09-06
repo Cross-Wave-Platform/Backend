@@ -68,7 +68,6 @@ class Export_Files():
     def export_file_to_user(self):
         '''send file to user'''
         try:
-            send_file(self.merge_file, as_attachment=True)
+            return send_file(self.merge_file, as_attachment=True)
         except Exception as e:
             raise SendFail from e
-        return send_file(self.merge_file, as_attachment=True)

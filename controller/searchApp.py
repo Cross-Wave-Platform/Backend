@@ -25,7 +25,7 @@ def searchWave():
         surveyType = conv_req_list('surveyType')
         wave = Search.search_wave(ageType, surveyType)
     except NotEnoughParams:
-        return('Not enough params', 405)
+        return ('Not enough params', 405)
     except:
         return HTTPError('unknown error', 406)
 

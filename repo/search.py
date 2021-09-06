@@ -1,6 +1,7 @@
 import pandas
 from .manager import SQLManager
 from .shop_cart import SCManager
+from .utils import SURVEY_TYPE, AGE_TYPE
 
 
 class SearchManager(SQLManager):
@@ -38,19 +39,27 @@ class SearchManager(SQLManager):
         self.conn.commit()
         self.bulk_insert(select_survey_df, "dbo.#select_survey")
 
-        select_prob_op = (
+        all_select_prob_op = (
             "SELECT select_surv.survey_id,select_surv.age_type,select_surv.survey_type,select_surv.wave, "
             "survey_prob.problem_id "
             "FROM dbo.survey_problem AS survey_prob "
             "INNER JOIN dbo.#select_survey AS select_surv "
             "ON survey_prob.survey_id = select_surv.survey_id "
             "WHERE survey_prob.release = 1 ")
+
+        # drop baby_id
+        select_prob_op = (
+            "SELECT all_select.survey_id,all_select.age_type,all_select.survey_type,all_select.wave, "
+            "all_select.problem_id "
+            f"FROM ({all_select_prob_op}) AS all_select "
+            "INNER JOIN dbo.problem as prob "
+            "ON prob.problem_id = all_select.problem_id "
+            "WHERE NOT prob.problem_name = 'baby_id' ")
+
         select_prob_df = pandas.read_sql(select_prob_op, self.conn)
 
-        survey_type_dict = {1: 'teacher', 2: 'parent', 3: 'friend'}
-        select_prob_df['survey_type'].replace(survey_type_dict, inplace=True)
-        age_type_dict = {1: 'small', 2: 'big'}
-        select_prob_df['age_type'].replace(age_type_dict, inplace=True)
+        select_prob_df['survey_type'].replace(SURVEY_TYPE.inv, inplace=True)
+        select_prob_df['age_type'].replace(AGE_TYPE.inv, inplace=True)
 
         prob_info_op = ("SELECT DISTINCT select_prob.problem_id, "
                         "prob.problem_name,prob.topic,prob.class_id "
