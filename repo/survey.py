@@ -1,4 +1,5 @@
 
+from mmap import PAGESIZE
 from typing import ClassVar
 from numpy.core.fromnumeric import product
 import pandas
@@ -55,18 +56,16 @@ class SurveyUpload(SQLManager):
         # remove duplicates
         surveys = pandas.concat([surveys, current_survey[['age_type','survey_type','wave','release']]]).drop_duplicates(subset=['age_type','survey_type','wave','release'], keep=False)
         surveys['survey_id'] = ''
-
         surveys = surveys[['survey_id','age_type','survey_type','wave','release']]
 
-        print(surveys)
+        # print(surveys)
 
 
         # get all classes
         # get the current classes
         command = ("SELECT * FROM class;")
         current_class = pandas.read_sql( command, self.conn)
-        # drop no_group
-        current_class.drop( current_class[current_class['class'] == 'no_group'].index, inplace=True)
+        # print(current_class)
 
         classes = pandas.DataFrame(columns=['class','subclass'])
 
@@ -75,6 +74,8 @@ class SurveyUpload(SQLManager):
         classes = classes.append( self.get_class('教保問卷', all_data))
         # drop duplicates
         classes = pandas.concat([classes, current_class[['class','subclass']]]).drop_duplicates(subset=['class', 'subclass'],keep=False)
+        # drop no_group
+        classes.drop( classes[classes['class'] == 'no_group'].index, inplace=True)
         classes['class_id'] = ''
         classes = classes[['class_id','class','subclass']]
         # print( classes)
@@ -82,19 +83,31 @@ class SurveyUpload(SQLManager):
 
         # get all problems
         # get the current problems
-        command = ("SELECT problem_name, topic, class_id FROM problem;")
+        command = ("SELECT * FROM problem;")
         current_problem = pandas.read_sql( command, self.conn)
 
-        # problems = pandas.DataFrame(columns=['problem_name','topic','class'])
+        problems = pandas.DataFrame(columns=['problem_name','topic','class','subclass'])
 
-        # problems = pandas.merge(left=problems, right=self.get_problem('親友問卷', all_data), how='outer')
+        problems = problems.append( self.get_problem('家長問卷', all_data))
+        # problems = problems.append( self.get_problem('親友問卷', all_data))
+        # problems = problems.append( self.get_problem('教保問卷', all_data))
 
-        # problems = pandas.merge(left=problems, right=self.get_problem('教保問卷', all_data), how='outer')
+        problems.drop_duplicates(inplace=True)
+        problems = pandas.merge( left=problems, right=current_class, on=['class','subclass'])
 
-        # print(problems)
+        # remove duplicate from current
+        problems = pandas.concat([problems,current_problem[['problem_name','topic','class_id']]]).drop_duplicates(subset=['problem_name','topic','class_id'],keep=False)
+
+        # check for same problem_name but different other things
+
+        # give it problem_id and sort the columns
+        problems['problem_id'] = ''
+        problems = problems[['problem_id','problem_name','topic','class_id']]
+        print(problems)
 
 
         # get survey_problem
+        self.get_survey_problem('家長問卷', all_data)
 
 
 
@@ -103,6 +116,8 @@ class SurveyUpload(SQLManager):
         # insert all data to database
         self.bulk_insert( surveys, 'dbo.survey')
         self.bulk_insert( classes, 'dbo.class')
+        self.bulk_insert( problems, 'dbo.problem')
+        # self.bulk_insert( survey_problem, 'dbo.survey_problem')
 
         return 'success'
 
@@ -169,7 +184,6 @@ class SurveyUpload(SQLManager):
 
     # there seems to be duplicate '不等機率加權值' and are not being shed off
     def get_class( self, sheet_name: str, all_data: dict):
-
         page = all_data.get( sheet_name)
 
         classes = page[['主構面','次構面']].rename(columns={'主構面':'class','次構面':'subclass'}).drop_duplicates()
@@ -185,10 +199,30 @@ class SurveyUpload(SQLManager):
 
         page = all_data.get(sheet_name)
 
-        problems = page[['變項名稱','變項標籤','構面']].rename(columns={'變項名稱':'problem_name','變項標籤':'topic','構面':'class'})
+        problems = page[['變項名稱','變項標籤','主構面','次構面']].rename(columns={'變項名稱':'problem_name','變項標籤':'topic','主構面':'class','次構面':'subclass'})
 
         problems.dropna(subset=['problem_name'], inplace=True)
 
         # print(problems)
 
         return problems
+
+    def get_survey_problem( self, sheet_name: str, all_data: dict):
+        page = all_data.get(sheet_name)
+        survey_list = self.get_survey( sheet_name, all_data)
+        problem_list = page.iloc[:,0].tolist()
+        # print(problem_list)
+
+        survey_problem = pandas.DataFrame(columns=['age_type','survey_type','wave','release','problem_name'])
+
+        for i in range(len(survey_list)):
+            temp = page.iloc[:,i+4].tolist()
+            print(temp)
+
+            for j in range(len(problem_list)):
+                if temp[ j] == 'O':
+                    # add the row
+                    survey_problem = survey_problem.append(survey_list[i]+problem_list[j], columns=['age_type','survey_type','wave','release','problem_name'])
+            
+        print(survey_problem)
+        return survey_problem
