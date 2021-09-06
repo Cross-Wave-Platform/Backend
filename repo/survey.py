@@ -116,7 +116,8 @@ class SurveyUpload(SQLManager):
         command = ("SELECT * FROM survey_problem;")
         current_survey_problem = pandas.read_sql(command,self.conn)
 
-        survey_problems = pandas.concat([survey_problems,current_survey_problem]).drop_duplicates(subset=['survey_id','problem_id'],keep=False)
+        survey_problems = pandas.concat([survey_problems,current_survey_problem[['survey_id','problem_id']]]).drop_duplicates(subset=['survey_id','problem_id'],keep=False)
+        survey_problems['release'] = '1'
         print(survey_problems)
 
 
@@ -127,8 +128,6 @@ class SurveyUpload(SQLManager):
         self.bulk_insert( survey_problems, 'dbo.survey_problem')
 
         return 'success'
-
-    # send the database info into the functions to be checked for duplicates in function
 
     # need to tweek the numbers of columns that need to be chooped off
     def get_survey( self, sheet_name: str, all_data: dict):
