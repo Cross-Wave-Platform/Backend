@@ -57,8 +57,7 @@ class SurveyUpload(SQLManager):
         surveys = pandas.concat([surveys, current_survey[['age_type','survey_type','wave','release']]]).drop_duplicates(subset=['age_type','survey_type','wave','release'], keep=False)
         surveys['survey_id'] = ''
         surveys = surveys[['survey_id','age_type','survey_type','wave','release']]
-
-        # print(surveys)
+        print(surveys)
 
 
         # get all classes
@@ -78,7 +77,7 @@ class SurveyUpload(SQLManager):
         classes.drop( classes[classes['class'] == 'no_group'].index, inplace=True)
         classes['class_id'] = ''
         classes = classes[['class_id','class','subclass']]
-        # print( classes)
+        print( classes)
 
 
         # get all problems
@@ -107,17 +106,25 @@ class SurveyUpload(SQLManager):
 
 
         # get survey_problem
-        self.get_survey_problem('家長問卷', all_data)
+        survey_problems = self.get_survey_problem('家長問卷', all_data)
 
+        survey_problems = pandas.merge(left=survey_problems, right=current_problem, on=['problem_name'])
+        survey_problems = pandas.merge(left=survey_problems, right=current_survey, on=['age_type','survey_type','wave','release'])
 
+        survey_problems = survey_problems[['survey_id','problem_id']]
+        # remove duplicates
+        command = ("SELECT * FROM survey_problem;")
+        current_survey_problem = pandas.read_sql(command,self.conn)
 
+        survey_problems = pandas.concat([survey_problems,current_survey_problem]).drop_duplicates(subset=['survey_id','problem_id'],keep=False)
+        print(survey_problems)
 
 
         # insert all data to database
         self.bulk_insert( surveys, 'dbo.survey')
         self.bulk_insert( classes, 'dbo.class')
         self.bulk_insert( problems, 'dbo.problem')
-        # self.bulk_insert( survey_problem, 'dbo.survey_problem')
+        self.bulk_insert( survey_problems, 'dbo.survey_problem')
 
         return 'success'
 
@@ -210,19 +217,22 @@ class SurveyUpload(SQLManager):
     def get_survey_problem( self, sheet_name: str, all_data: dict):
         page = all_data.get(sheet_name)
         survey_list = self.get_survey( sheet_name, all_data)
-        problem_list = page.iloc[:,0].tolist()
-        # print(problem_list)
 
         survey_problem = pandas.DataFrame(columns=['age_type','survey_type','wave','release','problem_name'])
 
         for i in range(len(survey_list)):
-            temp = page.iloc[:,i+4].tolist()
-            print(temp)
+            temp = page.iloc[:,[0,i+4]]
+            temp = temp[temp.iloc[:,1] == 'O']
+            temp = temp.rename(columns={'變項名稱':'problem_name'})
+            # print(temp)
 
-            for j in range(len(problem_list)):
-                if temp[ j] == 'O':
-                    # add the row
-                    survey_problem = survey_problem.append(survey_list[i]+problem_list[j], columns=['age_type','survey_type','wave','release','problem_name'])
+            temp['age_type'] = survey_list[ i][ 0]
+            temp['survey_type'] = survey_list[ i][ 1]
+            temp['wave'] = survey_list[ i][ 2]
+            temp['release'] = survey_list[ i][ 3]
+
+            temp = temp[['age_type','survey_type','wave','release','problem_name']]
+            survey_problem = survey_problem.append(temp)
             
-        print(survey_problem)
+        # print(survey_problem)
         return survey_problem
