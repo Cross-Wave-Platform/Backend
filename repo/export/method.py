@@ -60,12 +60,18 @@ class Join(MethodInterface):
     def concat_meta(self, res, tmp, str_info):
         tmp_org_type = tmp.original_variable_types
         tmp_var_labels = tmp.variable_value_labels
+        tmp_col_names = tmp.column_names
+        tmp_col_labels = tmp.column_labels
 
         for col, col_type in tmp_org_type.items():
             res['org_types'].update({f'{col}_{str_info}': col_type})
 
         for col, labels in tmp_var_labels.items():
             res['var_labels'][f'{col}_{str_info}'] = labels
+
+        for i in range(len(tmp_col_labels)):
+            res['prob_topic'].update({f'{tmp_col_names[i]}_{str_info}': tmp_col_labels[i]})
+
         return res
 
 

@@ -39,7 +39,7 @@ class MergeManager(SQLManager):
             ['age_type', 'survey_type', 'wave'])
 
         res_df = pandas.DataFrame()
-        res_meta = {'var_labels': {}, 'org_types': {}}
+        res_meta = {'var_labels': {}, 'org_types': {}, 'prob_topic': {}}
 
         for keys, prob_df in survey_group:
             prob_df = prob_df.append({'problem_name': 'baby_id'},
