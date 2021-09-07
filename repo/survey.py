@@ -72,7 +72,8 @@ class SurveyUpload(SQLManager):
         classes = classes.append( self.get_class('親友問卷', all_data))
         classes = classes.append( self.get_class('教保問卷', all_data))
         # drop duplicates
-        classes = pandas.concat([classes, current_class[['class','subclass']]]).drop_duplicates(subset=['class', 'subclass'],keep=False)
+        classes.drop_duplicates(subset=['class', 'subclass'],inplace=True)
+        classes = pandas.concat([classes, current_class[['class','subclass']]]).drop_duplicates(subset=['class', 'subclass'],keep=False).reset_index(drop=True)
         # drop no_group
         classes.drop( classes[classes['class'] == 'no_group'].index, inplace=True)
         classes['class_id'] = ''
