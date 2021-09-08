@@ -23,6 +23,7 @@ class Sav(FormatInterface):
         pyreadstat.write_sav(df,
                              file_path,
                              variable_value_labels=meta['var_labels'],
+                             column_labels=meta['prob_topic'],
                              variable_format=meta['org_types'])
 
 
