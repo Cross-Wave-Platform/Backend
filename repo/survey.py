@@ -58,6 +58,12 @@ class SurveyUpload(SQLManager):
         surveys['survey_id'] = ''
         surveys = surveys[['survey_id','age_type','survey_type','wave','release']]
         print(surveys)
+        # insert to database
+        self.bulk_insert( surveys, 'dbo.survey')
+        # get the current surveys
+        command = ("SELECT * FROM survey;")
+        current_survey = pandas.read_sql(command,self.conn)
+        
 
 
         # get all classes
@@ -79,6 +85,11 @@ class SurveyUpload(SQLManager):
         classes['class_id'] = ''
         classes = classes[['class_id','class','subclass']]
         print( classes)
+        # insert ot database
+        self.bulk_insert( classes, 'dbo.class')
+        # get the current classes
+        command = ("SELECT * FROM class;")
+        current_class = pandas.read_sql( command, self.conn)
 
 
         # get all problems
@@ -93,17 +104,24 @@ class SurveyUpload(SQLManager):
         # problems = problems.append( self.get_problem('教保問卷', all_data))
 
         problems.drop_duplicates(inplace=True)
+        problems['problem_name'] = problems['problem_name'].str.lower()
         problems = pandas.merge( left=problems, right=current_class, on=['class','subclass'])
 
         # remove duplicate from current
         problems = pandas.concat([problems,current_problem[['problem_name','topic','class_id']]]).drop_duplicates(subset=['problem_name','topic','class_id'],keep=False)
 
         # check for same problem_name but different other things
+        # sanity check
 
         # give it problem_id and sort the columns
         problems['problem_id'] = ''
         problems = problems[['problem_id','problem_name','topic','class_id']]
         print(problems)
+        # insert to database
+        self.bulk_insert( problems, 'dbo.problem')
+        # get the current problems
+        command = ("SELECT * FROM problem;")
+        current_problem = pandas.read_sql( command, self.conn)
 
 
         # get survey_problem
@@ -120,12 +138,7 @@ class SurveyUpload(SQLManager):
         survey_problems = pandas.concat([survey_problems,current_survey_problem[['survey_id','problem_id']]]).drop_duplicates(subset=['survey_id','problem_id'],keep=False)
         survey_problems['release'] = '1'
         print(survey_problems)
-
-
-        # insert all data to database
-        self.bulk_insert( surveys, 'dbo.survey')
-        self.bulk_insert( classes, 'dbo.class')
-        self.bulk_insert( problems, 'dbo.problem')
+        # insert to database
         self.bulk_insert( survey_problems, 'dbo.survey_problem')
 
         return 'success'
