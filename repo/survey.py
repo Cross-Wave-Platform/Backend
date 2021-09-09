@@ -54,15 +54,12 @@ class SurveyUpload(SQLManager):
         current_survey = pandas.read_sql(command,self.conn)
 
         # remove duplicates
-        surveys = pandas.concat([surveys, current_survey[['age_type','survey_type','wave','release']]]).drop_duplicates(subset=['age_type','survey_type','wave','release'], keep=False)
+        surveys = pandas.concat([surveys, current_survey[['age_type','survey_type','wave']]]).drop_duplicates(subset=['age_type','survey_type','wave'], keep=False)
         surveys['survey_id'] = ''
         surveys = surveys[['survey_id','age_type','survey_type','wave','release']]
         print(surveys)
         # insert to database
         self.bulk_insert( surveys, 'dbo.survey')
-        # get the current surveys
-        command = ("SELECT * FROM survey;")
-        current_survey = pandas.read_sql(command,self.conn)
         
 
 
@@ -79,6 +76,7 @@ class SurveyUpload(SQLManager):
         classes = classes.append( self.get_class('教保問卷', all_data))
         # drop duplicates
         classes.drop_duplicates(subset=['class', 'subclass'],inplace=True)
+        classes.fillna('', inplace=True)
         classes = pandas.concat([classes, current_class[['class','subclass']]]).drop_duplicates(subset=['class', 'subclass'],keep=False).reset_index(drop=True)
         # drop no_group
         classes.drop( classes[classes['class'] == 'no_group'].index, inplace=True)
@@ -112,6 +110,9 @@ class SurveyUpload(SQLManager):
 
         # check for same problem_name but different other things
         # sanity check
+        sanity = problems.groupby('problem_name').size().to_list()
+        if sanity and max(sanity) != 1:
+            return 'problem_collision'
 
         # give it problem_id and sort the columns
         problems['problem_id'] = ''
@@ -119,27 +120,10 @@ class SurveyUpload(SQLManager):
         print(problems)
         # insert to database
         self.bulk_insert( problems, 'dbo.problem')
-        # get the current problems
-        command = ("SELECT * FROM problem;")
-        current_problem = pandas.read_sql( command, self.conn)
 
 
         # get survey_problem
-        survey_problems = self.get_survey_problem('家長問卷', all_data)
-
-        survey_problems = pandas.merge(left=survey_problems, right=current_problem, on=['problem_name'])
-        survey_problems = pandas.merge(left=survey_problems, right=current_survey, on=['age_type','survey_type','wave','release'])
-
-        survey_problems = survey_problems[['survey_id','problem_id']]
-        # remove duplicates
-        command = ("SELECT * FROM survey_problem;")
-        current_survey_problem = pandas.read_sql(command,self.conn)
-
-        survey_problems = pandas.concat([survey_problems,current_survey_problem[['survey_id','problem_id']]]).drop_duplicates(subset=['survey_id','problem_id'],keep=False)
-        survey_problems['release'] = '1'
-        print(survey_problems)
-        # insert to database
-        self.bulk_insert( survey_problems, 'dbo.survey_problem')
+        # this will be handled by the sav upload part
 
         return 'success'
 
@@ -182,27 +166,26 @@ class SurveyUpload(SQLManager):
             
             # this is a full sized '('
             # need to restrict this kind of usage
-            wave = string.split('\n')[1].split('（')[0]
+            wave = string.split('\n')[1]
             
             survey.append([age_type,survey_type,wave])
         
-        # the release part
-        release_row = [ i for sublist in page.iloc[-1:].values.tolist() for i in sublist]
-        # slice the unused columns
-        release_row = release_row[4:]
+        # # the release part
+        # release_row = [ i for sublist in page.iloc[-1:].values.tolist() for i in sublist]
+        # # slice the unused columns
+        # release_row = release_row[4:]
 
         # print(survey,release_row)
 
         for i in range(len(survey)):
-            release = 0
-            if release_row[ i] == '已釋出':
-                release = 1
+            release = ''
+            # if release_row[ i] == '已釋出':
+            #     release = 1
             
             survey[ i].append(release)
 
         return survey
 
-    # there seems to be duplicate '不等機率加權值' and are not being shed off
     def get_class( self, sheet_name: str, all_data: dict):
         page = all_data.get( sheet_name)
 
@@ -211,7 +194,7 @@ class SurveyUpload(SQLManager):
         # the duplicates will be delt at the main function
         # classes = classes.append(database_class[['class', 'subclass']]).drop_duplicates(keep=False)
 
-        classes.dropna(inplace=True)
+        classes.dropna(subset=['class'],inplace=True)
 
         return classes
 
