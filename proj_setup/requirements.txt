@@ -1,3 +1,4 @@
+bidict
 Flask
 Flask-Login
 openpyxl

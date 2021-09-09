@@ -2,7 +2,10 @@ from flask import Blueprint
 from flask_login import current_user
 from flask_login import login_required
 from service.upload import Upload_Files, FileFormatError, NoFileError
-from service.export import Export_Files, CantMerge, SendFail
+from service.export import Export_Files, SendFail, CompressError
+from repo.export.format import FormatTypeError
+from repo.export.method import MethodTypeError
+from repo.export.merge import SurveyNotFound
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 from .utils.auth_required import auth_required, AuthLevel
@@ -52,14 +55,16 @@ def export_file(mergeMethod, fileFormat):
                              mergeMethod, fileFormat)
     ''' send file to user'''
     try:
-        res = user_file.get_db_file()
-        if res == False:
-            return HTTPError('DB fail', 405)
+        user_file.get_db_file()
         res = user_file.export_file_to_user()
-    except CantMerge:
-        return HTTPError('File can\'t merge', 404)
+    except (MethodTypeError, FormatTypeError):
+        return HTTPError('Wrong type of merge method or format', 403)
+    except SurveyNotFound:
+        return HTTPError('Select survey not found', 404)
+    except CompressError:
+        return HTTPError('Compress fail', 405)
     except SendFail:
-        return HTTPError('Fail to send file', 403)
+        return HTTPError('Fail to send file', 406)
     except:
         return HTTPError('unknown error', 406)
 
