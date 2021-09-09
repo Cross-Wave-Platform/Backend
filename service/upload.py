@@ -1,7 +1,16 @@
 import os
 from werkzeug.utils import secure_filename
-from repo.upload import UploadManager, SurveyInfo
+from repo.upload.sav import SavUpload, SurveyInfo
 from config.config import get_yaml_config
+
+
+class NoFileError(OSError):
+    pass
+
+
+class FileFormatError(Exception):
+    pass
+
 
 __all__ = ['Upload_Files']
 
@@ -32,23 +41,22 @@ class Upload_Files():
     def get_user_file(self, request_file):
         # check if the post request has the file part
         if not request_file:
-            return "No files"
+            raise NoFileError
 
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
         if request_file.filename == '':
-            return "No files"
+            raise NoFileError
 
         #there is file
-        res = "Fail"
         if request_file and allowed_file(request_file.filename):
             filename = secure_filename(str(self.wave) + ".sav")
             file_path = os.path.join(self.get_file_folder(), filename)
             request_file.save(file_path)
-            res = file_path
-        return res
+        else:
+            raise FileFormatError
 
     def save_file_info(self, filename):
         survey_info = SurveyInfo(self.age_type, self.survey_type, self.wave, 1)
-        manager = UploadManager()
+        manager = SavUpload()
         manager.upload_sav(filename, survey_info)
