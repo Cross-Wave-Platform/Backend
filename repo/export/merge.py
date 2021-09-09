@@ -2,11 +2,14 @@
 import pyreadstat
 import pandas
 import os
-from functools import reduce
 from ..manager import SQLManager
 from .format import FormatFactory
 from .method import MethodFactory
 from ..utils import AGE_TYPE, SURVEY_TYPE
+
+
+class SurveyNotFound(FileNotFoundError):
+    pass
 
 
 class MergeManager(SQLManager):
@@ -50,7 +53,7 @@ class MergeManager(SQLManager):
 
             # check file exists
             if not os.path.isfile(file_path):
-                return False
+                raise SurveyNotFound
 
             tmp_df, tmp_meta = pyreadstat.read_sav(
                 file_path,
