@@ -86,10 +86,15 @@ class Account(UserMixin):
         user_id = hash_id(self.account_name, old_password)
         if compare_digest(self.password, user_id):
             hash_password = hash_id(self.account_name, new_password)
-            a = AccountSQLManager()
-            a.change_password(self.account_name, hash_password)
+            manager = AccountSQLManager()
+            manager.change_password(self.account_name, hash_password)
         else:
             raise PasswordIncorrect
+        return self
+    
+    def change_nickname(self, new_nickname):
+        manager = AccountSQLManager()
+        manager.change_nickname(self.account_name, new_nickname)
         return self
 
     @classmethod

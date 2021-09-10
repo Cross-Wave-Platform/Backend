@@ -19,6 +19,14 @@ class AccountSQLManager(SQLManager):
         })
         self.conn.commit()
 
+    def change_nickname(self, username: str, nickname: str):
+        change_op = 'UPDATE dbo.account SET nickname=%(nickname)s WHERE account_name=%(username)s'
+        self.cursor.execute(change_op, {
+            'username': username,
+            'nickname': nickname
+        })
+        self.conn.commit()
+
     def get_by_username(self, username: str):
         search_op = 'SELECT * FROM dbo.account WHERE account_name=%(username)s'
         try:

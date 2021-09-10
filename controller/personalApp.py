@@ -17,9 +17,22 @@ personalApp_api = Blueprint('personalApp_api', __name__)
 @Request.json('oldPassword: str', 'newPassword: str')
 def change_password(oldPassword, newPassword):
     try:
-        current_user.change_password(oldPassword, newPassword)
+        change = current_user.change_password(oldPassword, newPassword)
     except PasswordIncorrect:
         return HTTPError('password incorrect', 403)
     except:
         return HTTPError('unknown error', 406)
+    current_user.password = change.password
     return HTTPResponse('change password success')
+
+@personalApp_api.route('/changenickname', methods=['PUT'])
+@login_required
+@auth_required(AuthLevel.REGULAR)
+@Request.json('newNickname: str')
+def change_nickname(newNickname):
+    try:
+        change = current_user.change_nickname(newNickname)
+    except:
+        return HTTPError('unknown error', 406)
+    current_user.nickname = change.nickname
+    return HTTPResponse('change nickname success')
