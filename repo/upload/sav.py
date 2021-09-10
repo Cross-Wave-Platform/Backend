@@ -17,6 +17,11 @@ class SurveyInfo:
 
 
 class SavUpload(SQLManager):
+    def search_all_survey(self):
+        command = "SELECT survey_id, age_type, survey_type, wave FROM survey;"
+        res = pandas.read_sql( command, self.conn)
+        return res.to_dict('records',dict)
+
     def upload_sav(self, sav_path: str, survey_info: SurveyInfo):
         _, meta = pyreadstat.read_sav(sav_path, metadataonly=True)
         # force lowercase
