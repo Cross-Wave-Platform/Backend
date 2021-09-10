@@ -1,7 +1,22 @@
 from .manager import SQLManager
-
+from config.config import get_yaml_config
+import pymssql
 
 class AccountSQLManager(SQLManager):
+    def __init__(self, asdict=False):
+        self.conn = None
+        self.cursor = None
+        self.connect(asdict)
+
+    def connect(self, asdict):
+        config = get_yaml_config('mssql')
+
+        self.conn = pymssql.connect(host=config['host'],
+                                    user=config['user'],
+                                    password=config['password'],
+                                    database=config['database'])
+        self.cursor = self.conn.cursor(as_dict=asdict)
+
     def add_account(self, username: str, hash_in: str, email: str):
         insert_op = 'INSERT INTO dbo.account (account_name, password, email) VALUES (%(username)s, %(email)s, %(password)s)'
         self.cursor.execute(insert_op, {
