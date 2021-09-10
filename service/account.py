@@ -12,6 +12,7 @@ login_manager = LoginManager()
 
 def get_user(user_id):
     manager = SQLManager()
+    manager.cursor = manager.conn.cursor(as_dict=True)
     sql = "SELECT * FROM dbo.account WHERE account_id = %(user_id)s"
     manager.cursor.execute(sql, {"user_id": user_id})
     data = manager.cursor.fetchone()
