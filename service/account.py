@@ -97,6 +97,11 @@ class Account(UserMixin):
         manager.change_nickname(self.account_name, new_nickname)
         return self
 
+    def loadinfo(self):
+        manager = AccountSQLManager()
+        user = manager.loadinfo(self.account_name)
+        return user
+
     @classmethod
     def get_by_username(cls, username):
         manager = AccountSQLManager()

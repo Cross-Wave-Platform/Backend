@@ -27,6 +27,15 @@ class AccountSQLManager(SQLManager):
         })
         self.conn.commit()
 
+    def loadinfo(self, username: str):
+        search_op = 'SELECT account_name, nickname, email, auth FROM dbo.account WHERE account_name=%(username)s'
+        try:
+            self.cursor.execute(search_op, {'username': username,})
+        except:
+            return None
+        data = self.cursor.fetchone()
+        return data
+
     def get_by_username(self, username: str):
         search_op = 'SELECT * FROM dbo.account WHERE account_name=%(username)s'
         try:

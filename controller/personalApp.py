@@ -36,3 +36,13 @@ def change_nickname(newNickname):
         return HTTPError('unknown error', 406)
     current_user.nickname = change.nickname
     return HTTPResponse('change nickname success')
+
+@personalApp_api.route('/loadinfo', methods=['GET'])
+@login_required
+@auth_required(AuthLevel.REGULAR)
+def loadinfo():
+    try:
+        user = current_user.loadinfo()
+    except:
+        return HTTPError('unknown error', 406)
+    return HTTPResponse('loadinfo success', data=user)
