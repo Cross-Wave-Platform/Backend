@@ -57,14 +57,12 @@ class Account(UserMixin):
     def signup(cls, username, password, email):
         if re.match(r'^[a-zA-Z0-9_\-]+$', username) is None:
             raise ValueError
-        print('in signup')
         user = cls.get_by_email(email)
         if user is not None:
             raise EmailUsed
         user = cls.get_by_username(username)
         if user is not None:
             raise AccountUsed
-        print('ok', user )
         hash_password = hash_id(username, password)
 
         manager = AccountSQLManager()
