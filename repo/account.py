@@ -2,6 +2,7 @@ from .manager import SQLManager
 from config.config import get_yaml_config
 import pymssql
 
+
 class AccountSQLManager(SQLManager):
     def __init__(self, asdict=False):
         self.conn = None
@@ -18,12 +19,14 @@ class AccountSQLManager(SQLManager):
         self.cursor = self.conn.cursor(as_dict=asdict)
 
     def add_account(self, username: str, hash_in: str, email: str):
-        insert_op = 'INSERT INTO dbo.account (account_name, password, email) VALUES (%(username)s, %(email)s, %(password)s)'
-        self.cursor.execute(insert_op, {
-            'username': username,
-            'password': hash_in,
-            'email': email
-        })
+        insert_op = 'INSERT INTO dbo.account (account_name,nickname, password, email) VALUES (%(username)s,%(nickname)s, %(email)s, %(password)s)'
+        self.cursor.execute(
+            insert_op, {
+                'username': username,
+                'nickname': username,
+                'password': hash_in,
+                'email': email
+            })
         self.conn.commit()
 
     def change_password(self, username: str, hash_new: str):
@@ -45,7 +48,9 @@ class AccountSQLManager(SQLManager):
     def loadinfo(self, username: str):
         search_op = 'SELECT account_name, nickname, email, auth FROM dbo.account WHERE account_name=%(username)s'
         try:
-            self.cursor.execute(search_op, {'username': username,})
+            self.cursor.execute(search_op, {
+                'username': username,
+            })
         except:
             return None
         data = self.cursor.fetchone()
