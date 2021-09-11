@@ -11,7 +11,7 @@ __all__ = ['personalApp_api']
 personalApp_api = Blueprint('personalApp_api', __name__)
 
 
-@personalApp_api.route('/changepassword', methods=['PUT'])
+@personalApp_api.route('/changePassword', methods=['PUT'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 @Request.json('oldPassword: str', 'newPassword: str')
@@ -25,7 +25,8 @@ def change_password(oldPassword, newPassword):
     current_user.password = change.password
     return HTTPResponse('change password success')
 
-@personalApp_api.route('/changenickname', methods=['PUT'])
+
+@personalApp_api.route('/changeNickname', methods=['PUT'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 @Request.json('newNickname: str')
@@ -37,7 +38,8 @@ def change_nickname(newNickname):
     current_user.nickname = change.nickname
     return HTTPResponse('change nickname success')
 
-@personalApp_api.route('/loadinfo', methods=['GET'])
+
+@personalApp_api.route('/loadInfo', methods=['GET'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 def loadinfo():
