@@ -18,7 +18,7 @@ class NotEnoughParams(Exception):
 
 __all__ = ['Upload_Files','Upload_Problem','get_file_wave']
 
-ALLOWED_EXTENSIONS = {'xlsx','csv', 'sav'}
+ALLOWED_EXTENSIONS = ['xlsx','csv', 'sav']
 
 
 def allowed_file(filename, index=None):

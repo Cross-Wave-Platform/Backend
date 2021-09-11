@@ -11,7 +11,7 @@ searchApp_api = Blueprint('searchApp_api', __name__)
 
 
 def conv_req_list(params_str):
-    str_list = request.args.getlist(params_str)
+    str_list = request.args.getlist(params_str+"[]")
     return list(map(int, str_list))
 
 
