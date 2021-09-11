@@ -12,6 +12,7 @@ login_manager = LoginManager()
 
 def get_user(user_id):
     manager = SQLManager()
+    manager.cursor = manager.conn.cursor(as_dict=True)
     sql = "SELECT * FROM dbo.account WHERE account_id = %(user_id)s"
     manager.cursor.execute(sql, {"user_id": user_id})
     data = manager.cursor.fetchone()
@@ -45,10 +46,10 @@ class PasswordIncorrect(ValueError):
 
 class Account(UserMixin):
     def __init__(self, user_info):
-        self.id = user_info[0]
-        self.account_name = user_info[1]
-        self.email = user_info[2]
-        self.password = user_info[3]
+        self.id = user_info['account_id']
+        self.account_name = user_info['account_name']
+        self.email = user_info['email']
+        self.password = user_info['password']
 
     def get_id(self):
         return self.id
@@ -57,14 +58,12 @@ class Account(UserMixin):
     def signup(cls, username, password, email):
         if re.match(r'^[a-zA-Z0-9_\-]+$', username) is None:
             raise ValueError
-
         user = cls.get_by_email(email)
         if user is not None:
             raise EmailUsed
         user = cls.get_by_username(username)
         if user is not None:
             raise AccountUsed
-
         hash_password = hash_id(username, password)
 
         manager = AccountSQLManager()
@@ -72,7 +71,7 @@ class Account(UserMixin):
 
     @classmethod
     def login(cls, username, password):
-        user = cls.get_by_username(username) or cls.get_by_email(username)
+        user = cls.get_by_username(username, as_dict=True) or cls.get_by_email(username, as_dict=True)
         if user is None:
             raise UserNotFound
         account = Account(user)
@@ -86,20 +85,30 @@ class Account(UserMixin):
         user_id = hash_id(self.account_name, old_password)
         if compare_digest(self.password, user_id):
             hash_password = hash_id(self.account_name, new_password)
-            a = AccountSQLManager()
-            a.change_password(self.account_name, hash_password)
+            manager = AccountSQLManager()
+            manager.change_password(self.account_name, hash_password)
         else:
             raise PasswordIncorrect
         return self
+    
+    def change_nickname(self, new_nickname):
+        manager = AccountSQLManager()
+        manager.change_nickname(self.account_name, new_nickname)
+        return self
+
+    def loadinfo(self):
+        manager = AccountSQLManager()
+        user = manager.loadinfo(self.account_name)
+        return user
 
     @classmethod
-    def get_by_username(cls, username):
-        manager = AccountSQLManager()
+    def get_by_username(cls, username, as_dict=False):
+        manager = AccountSQLManager(asdict=as_dict)
         data = manager.get_by_username(username)
         return data
 
     @classmethod
-    def get_by_email(cls, email):
-        manager = AccountSQLManager()
+    def get_by_email(cls, email, as_dict=False):
+        manager = AccountSQLManager(asdict=as_dict)
         data = manager.get_by_email(email)
         return data

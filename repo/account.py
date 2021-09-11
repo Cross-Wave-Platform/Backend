@@ -1,7 +1,22 @@
 from .manager import SQLManager
-
+from config.config import get_yaml_config
+import pymssql
 
 class AccountSQLManager(SQLManager):
+    def __init__(self, asdict=False):
+        self.conn = None
+        self.cursor = None
+        self.connect(asdict)
+
+    def connect(self, asdict):
+        config = get_yaml_config('mssql')
+
+        self.conn = pymssql.connect(host=config['host'],
+                                    user=config['user'],
+                                    password=config['password'],
+                                    database=config['database'])
+        self.cursor = self.conn.cursor(as_dict=asdict)
+
     def add_account(self, username: str, hash_in: str, email: str):
         insert_op = 'INSERT INTO dbo.account (account_name, password, email) VALUES (%(username)s, %(email)s, %(password)s)'
         self.cursor.execute(insert_op, {
@@ -18,6 +33,23 @@ class AccountSQLManager(SQLManager):
             'new_password': hash_new
         })
         self.conn.commit()
+
+    def change_nickname(self, username: str, nickname: str):
+        change_op = 'UPDATE dbo.account SET nickname=%(nickname)s WHERE account_name=%(username)s'
+        self.cursor.execute(change_op, {
+            'username': username,
+            'nickname': nickname
+        })
+        self.conn.commit()
+
+    def loadinfo(self, username: str):
+        search_op = 'SELECT account_name, nickname, email, auth FROM dbo.account WHERE account_name=%(username)s'
+        try:
+            self.cursor.execute(search_op, {'username': username,})
+        except:
+            return None
+        data = self.cursor.fetchone()
+        return data
 
     def get_by_username(self, username: str):
         search_op = 'SELECT * FROM dbo.account WHERE account_name=%(username)s'

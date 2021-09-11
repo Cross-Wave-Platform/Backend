@@ -26,7 +26,6 @@ def login(username, password):
 @loginApp_api.route('/register', methods=['POST'])
 @Request.json('username: str', 'password: str', 'email: str')
 def signup(username, password, email):
-
     try:
         Account.signup(username, password, email)
     except EmailUsed:
