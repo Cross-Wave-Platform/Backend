@@ -131,16 +131,13 @@ class SurveyUpload(SQLManager):
                                 right=current_class,
                                 on=['class', 'subclass'])
 
-        # new problems for insertion
-        new_prob = pandas.pandas.concat([problems, current_problem[['problem_name', 'topic', 'class_id']]]).drop_duplicates(subset=['problem_name'],keep=False)
-
-
+        # sometimes it is viewed as a number
         problems['topic'] = problems['topic'].apply(str)
         # remove duplicate from current
-        problems = pandas.concat([
-            problems[['problem_name', 'topic', 'class_id']], current_problem[['problem_name', 'topic', 'class_id']]
-        ]).drop_duplicates(subset=['problem_name', 'topic', 'class_id'],
-                           keep=False)
+        problems = pandas.merge( problems[['problem_name', 'topic', 'class_id']], current_problem[['problem_name', 'topic', 'class_id']], how='left', on=['problem_name', 'topic', 'class_id'], indicator=True)
+        problems = problems.loc[problems['_merge']=='left_only']
+        problems = problems[['problem_name', 'topic', 'class_id']]
+
 
         updated_prob = problems.drop_duplicates(subset=['problem_name'],keep='first').merge(current_problem[['problem_id','problem_name']], on=['problem_name'])
         updated_prob = updated_prob[['problem_id','problem_name', 'topic', 'class_id']]
@@ -168,7 +165,15 @@ class SurveyUpload(SQLManager):
                     "ON problem.problem_id = t.problem_id;")
         if all_str:
             self.cursor.execute(command)
+
+        # new problems for insertion
+        new_prob = problems
         
+        # remove records that are in update_prob
+        new_prob = new_prob.merge( updated_prob, on=['problem_name', 'topic', 'class_id'], how='left', indicator=True)
+        new_prob = new_prob.loc[new_prob['_merge']=='left_only']
+        # print(new_prob)
+
         # give it problem_id and sort the columns
         new_prob['problem_id'] = ''
         new_prob = new_prob[[
