@@ -113,8 +113,8 @@ class SurveyUpload(SQLManager):
             columns=['problem_name', 'topic', 'class', 'subclass'])
 
         problems = problems.append(self.get_problem('家長問卷', all_data))
-        problems = problems.append( self.get_problem('親友問卷', all_data))
-        problems = problems.append( self.get_problem('教保問卷', all_data))
+        # problems = problems.append( self.get_problem('親友問卷', all_data))
+        # problems = problems.append( self.get_problem('教保問卷', all_data))
         problems = problems.reset_index(drop=True)
 
         problems.drop_duplicates(inplace=True)
