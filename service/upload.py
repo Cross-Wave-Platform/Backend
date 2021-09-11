@@ -37,6 +37,8 @@ def get_file_wave():
 
 class Upload_Files():
     def __init__(self, age_type, wave, survey_type):
+        if not age_type or not survey_type or not wave:
+            raise NotEnoughParams
         self.age_type = age_type
         self.wave = wave
         self.survey_type = survey_type
