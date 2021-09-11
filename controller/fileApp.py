@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_login import current_user
 from flask_login import login_required
-from service.upload import Upload_Files, FileFormatError, NoFileError
+from service.upload import Upload_Files, FileFormatError, NoFileError, Upload_Problem, get_file_wave, NotEnoughParams
 from service.export import Export_Files, SendFail, CompressError
 from repo.export.format import FormatTypeError
 from repo.export.method import MethodTypeError
@@ -16,7 +16,7 @@ __all__ = ['fileApp_api']
 fileApp_api = Blueprint('fileApp_api', __name__)
 
 
-@fileApp_api.route('/upload', methods=['POST'])
+@fileApp_api.route('/upload/sav', methods=['POST'])
 @login_required
 @auth_required(AuthLevel.ADMIN)
 @Request.files('file')
@@ -26,9 +26,11 @@ def upload_file(file, ageType, wave, surveyType):
 
     #check if user upload folder exist, or create one
     #user = 'current user' tbd user
-    user_file = Upload_Files(ageType, wave, surveyType)
     try:
+        user_file = Upload_Files(ageType, wave, surveyType)
         filename = user_file.get_user_file(file)
+    except NotEnoughParams:
+        return HTTPError('Not enough params', 403)
     except NoFileError:
         return HTTPError('No files', 404)
     except FileFormatError:
@@ -44,6 +46,47 @@ def upload_file(file, ageType, wave, surveyType):
     except:
         return HTTPError('unknown error db', 406)
     return HTTPResponse('ok')
+
+
+@fileApp_api.route('/upload/surveyProblem', methods=['POST'])
+@login_required
+@auth_required(AuthLevel.ADMIN)
+@Request.files('file')
+def upload_problem(file):
+    ''' save file'''
+
+    #check if user upload folder exist, or create one
+    #user = 'current user' tbd user
+    user_file = Upload_Problem()
+    try:
+        filename = user_file.get_user_file(file)
+    except NoFileError:
+        return HTTPError('No files', 404)
+    except FileFormatError:
+        return HTTPError('Failed to save file', 405)
+    except:
+        return HTTPError('unknown error', 406)
+
+    try:
+        '''save info to db'''
+        user_file.save_file_info(filename)
+    # except SurveyNotExists:
+    #     return HTTPError('survey not exists', 403)
+    except:
+        return HTTPError('unknown error db', 406)
+    return HTTPResponse('ok')
+
+@fileApp_api.route('/fileWave', methods=['GET'])
+@login_required
+@auth_required(AuthLevel.ADMIN)
+def file_wave():
+    try: 
+        wave = get_file_wave()
+        print(wave)
+    except:
+        return HTTPError('Unkown error', 406)
+    # print(type(wave))
+    return HTTPResponse('ok', data={"wave":wave})
 
 
 @fileApp_api.route('/export', methods=['GET'])
