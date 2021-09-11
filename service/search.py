@@ -25,7 +25,12 @@ class Search():
         '''sql search for wave'''
         manager = SearchManager()
         df = manager.search_waves(age_type, survey_type)
-        wave = df['wave'].tolist()
+
+        if len(age_type) >= 2:
+            wave = df.groupby('wave').filter(lambda x:len(x['age_type'])>=2)['wave'].drop_duplicates().tolist()
+        else:
+            wave = df['wave'].drop_duplicates().tolist()
+
         return wave
 
     #get problems from selected age, survey, wave

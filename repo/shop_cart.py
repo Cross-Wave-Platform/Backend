@@ -44,7 +44,7 @@ class SCManager(SQLManager):
         try:
             age_types = list(map(int, str_age_list))
             survey_types = list(map(int, str_survey_list))
-            waves = list(map(int, str_wave_list))
+            waves = str_wave_list
             return Combo(age_types, survey_types, waves)
         except:
             return Combo([], [], [])

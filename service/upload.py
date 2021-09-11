@@ -70,6 +70,13 @@ class Upload_Files():
             raise FileFormatError
         return file_path
 
+    def remove_failed_file(self, filename):
+        try:
+            os.remove(filename)
+        except Exception as e:
+            return e
+        return True
+
     def save_file_info(self, filename):
         survey_info = SurveyInfo(self.age_type, self.survey_type, self.wave, 1)
         manager = SavUpload()

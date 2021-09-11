@@ -33,7 +33,7 @@ class SearchManager(SQLManager):
                      "survey_id INT, "
                      "age_type INT, "
                      "survey_type INT, "
-                     "wave INT "
+                     "wave VARCHAR (10) "
                      ") ")
         self.cursor.execute(create_op)
         self.conn.commit()
