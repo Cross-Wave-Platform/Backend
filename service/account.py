@@ -71,7 +71,8 @@ class Account(UserMixin):
 
     @classmethod
     def login(cls, username, password):
-        user = cls.get_by_username(username, as_dict=True) or cls.get_by_email(username, as_dict=True)
+        user = cls.get_by_username(username, as_dict=True) or cls.get_by_email(
+            username, as_dict=True)
         if user is None:
             raise UserNotFound
         account = Account(user)
@@ -90,14 +91,14 @@ class Account(UserMixin):
         else:
             raise PasswordIncorrect
         return self
-    
+
     def change_nickname(self, new_nickname):
         manager = AccountSQLManager()
         manager.change_nickname(self.account_name, new_nickname)
         return self
 
     def loadinfo(self):
-        manager = AccountSQLManager()
+        manager = AccountSQLManager(asdict=True)
         user = manager.loadinfo(self.account_name)
         return user
 
