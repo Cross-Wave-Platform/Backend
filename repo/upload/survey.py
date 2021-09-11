@@ -115,19 +115,11 @@ class SurveyUpload(SQLManager):
         problems = problems.append(self.get_problem('家長問卷', all_data))
         # problems = problems.append( self.get_problem('親友問卷', all_data))
         # problems = problems.append( self.get_problem('教保問卷', all_data))
+
         problems = problems.reset_index(drop=True)
 
-        problems.drop_duplicates(inplace=True)
         problems['problem_name'] = problems['problem_name'].str.lower()
-        problems = pandas.merge(left=problems,
-                                right=current_class,
-                                on=['class', 'subclass'])
-
-        # remove duplicate from current
-        problems = pandas.concat([
-            problems, current_problem[['problem_name', 'topic', 'class_id']]
-        ]).drop_duplicates(subset=['problem_name', 'topic', 'class_id'],
-                           keep=False)
+        problems.drop_duplicates(inplace=True)
 
         # check for same problem_name but different other things
         # sanity check
@@ -135,14 +127,55 @@ class SurveyUpload(SQLManager):
         if sanity and max(sanity) != 1:
             raise ProblemCollision
 
+        problems = pandas.merge(left=problems,
+                                right=current_class,
+                                on=['class', 'subclass'])
+
+        # new problems for insertion
+        new_prob = pandas.pandas.concat([problems, current_problem[['problem_name', 'topic', 'class_id']]]).drop_duplicates(subset=['problem_name'],keep=False)
+
+
+        problems['topic'] = problems['topic'].apply(str)
+        # remove duplicate from current
+        problems = pandas.concat([
+            problems[['problem_name', 'topic', 'class_id']], current_problem[['problem_name', 'topic', 'class_id']]
+        ]).drop_duplicates(subset=['problem_name', 'topic', 'class_id'],
+                           keep=False)
+
+        updated_prob = problems.drop_duplicates(subset=['problem_name'],keep='first').merge(current_problem[['problem_id','problem_name']], on=['problem_name'])
+        updated_prob = updated_prob[['problem_id','problem_name', 'topic', 'class_id']]
+        # need to update the database
+        all_str = []
+        for key, value in updated_prob.transpose().to_dict('list').items():
+            strings = ''
+            tmp = []
+            strings += ' ('
+            tmp.append(str(value[0]))
+            tmp.append('\''+str(value[1])+'\'')
+            tmp.append('\''+str(value[2])+'\'')
+            tmp.append(str(value[3]))
+            strings += ','.join(tmp)
+            strings += ')'
+            all_str.append(strings)
+        all_str = ','.join(all_str)
+        # print(all_str)
+
+        command = ("UPDATE problem "
+                    "SET class_id = t.class_id, topic = t.topic "
+                    "FROM problem JOIN ( VALUES "
+                    f"{all_str}"
+                    ") AS t (problem_id, problem_name, topic, class_id) "
+                    "ON problem.problem_id = t.problem_id;")
+        if all_str:
+            self.cursor.execute(command)
+        
         # give it problem_id and sort the columns
-        problems['problem_id'] = ''
-        problems = problems[[
+        new_prob['problem_id'] = ''
+        new_prob = new_prob[[
             'problem_id', 'problem_name', 'topic', 'class_id'
         ]]
-        print(problems)
         # insert to database
-        self.bulk_insert(problems, 'dbo.problem')
+        self.bulk_insert(new_prob, 'dbo.problem')
 
         # get survey_problem
         # this will be handled by the sav upload part

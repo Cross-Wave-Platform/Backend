@@ -45,7 +45,7 @@ CREATE TABLE dbo.survey
 CREATE TABLE dbo.problem
 (
     problem_id INT IDENTITY,
-    problem_name VARCHAR( 30) NOT NULL,
+    problem_name VARCHAR( 30) NOT NULL UNIQUE,
     topic VARCHAR( 1000) NOT NULL,
     class_id INT NOT NULL DEFAULT 1,
 
