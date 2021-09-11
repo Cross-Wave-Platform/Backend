@@ -20,7 +20,7 @@ class Search():
     @classmethod
     def search_wave(cls, age_type, survey_type):
         '''check Params'''
-        if age_type is None or survey_type is None:
+        if not age_type or not survey_type:
             raise NotEnoughParams
         '''sql search for wave'''
         manager = SearchManager()
