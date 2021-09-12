@@ -16,6 +16,10 @@ admin_email = 'admin@gmail.com' ##TBC
 @login_required
 @Request.form('title', 'content')
 def upload_file(title, content):
+    if not title:
+        title = "No title"
+    if not content:
+        content = "No content"
     mymail = Send_Email(title+datetime.now().strftime(' %Y/%m/%d %H:%M:%S'),[admin_email])
     try:
         mymail.htmladd(content)

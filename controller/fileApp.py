@@ -47,7 +47,7 @@ def upload_file(file, ageType, wave, surveyType):
     except:
         user_file.remove_failed_file(filename)
         return HTTPError('unknown error db', 406)
-    return HTTPResponse('ok')
+    return HTTPResponse('successfully uploaded')
 
 
 @fileApp_api.route('/upload/surveyProblem', methods=['POST'])
@@ -76,7 +76,7 @@ def upload_problem(file):
     #     return HTTPError('survey not exists', 403)
     except:
         return HTTPError('unknown error db', 406)
-    return HTTPResponse('ok')
+    return HTTPResponse('successfully uploaded')
 
 @fileApp_api.route('/fileWave', methods=['GET'])
 @login_required
