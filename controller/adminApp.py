@@ -5,7 +5,7 @@ from flask_login import login_required
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 from .utils.auth_required import auth_required, AuthLevel
-from service.admin import Admin
+from service.admin import Admin, NonedataError
 
 __all__ = ['adminApp_api']
 
@@ -93,3 +93,15 @@ def search_by_keyword(keyword):
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok', data=surveys)
+
+@adminApp_api.route('/release', methods=['PUt'])
+@login_required
+@auth_required(AuthLevel.ADMIN)
+@Request.json('DataId: int', 'Release: str')
+def release(DataId, Release):
+    try:
+        Admin.release_survey(DataId, Release)
+    except NonedataError:
+        return HTTPError('None Data', 404)
+    except:
+        return HTTPError('unknown error', 406)
