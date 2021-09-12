@@ -28,6 +28,8 @@ class Search():
 
         if len(age_type) >= 2:
             wave = df.groupby('wave').filter(lambda x:len(x['age_type'])>=2)['wave'].drop_duplicates().tolist()
+        elif len(survey_type) >=2:
+            wave = df.groupby('wave').filter(lambda x:len(x['survey_type'])>=len(survey_type))['wave'].drop_duplicates().tolist()
         else:
             wave = df['wave'].drop_duplicates().tolist()
 
