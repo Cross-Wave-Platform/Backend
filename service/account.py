@@ -50,6 +50,7 @@ class Account(UserMixin):
         self.account_name = user_info['account_name']
         self.email = user_info['email']
         self.password = user_info['password']
+        self.nickname = user_info['nickname']
 
     def get_id(self):
         return self.id
