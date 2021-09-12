@@ -21,8 +21,12 @@ class AdminSQLManager(SQLManager):
         return data
 
     def user_management(self, Identity: str):
-        search_op = "SELECT account_name, email, auth FROM dbo.account WHERE auth=%(Identity)d"
-        self.cursor.execute(search_op, {'Identity': Identity})
+        if Identity == 'all':
+            search_op = "SELECT account_name, email, auth FROM dbo.account WHERE auth=1 OR auth=2"
+            self.cursor.execute(search_op)
+        else:
+            search_op = "SELECT account_name, email, auth FROM dbo.account WHERE auth=%(Identity)d"
+            self.cursor.execute(search_op, {'Identity': Identity})
         data = self.cursor.fetchall()
         return data
 

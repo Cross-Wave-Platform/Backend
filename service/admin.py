@@ -7,7 +7,7 @@ class Admin():
     @classmethod
     def user_management(cls, Identity):
         dict = {
-            'All_superadmin': '1',
+            'All': 'all',
             'admin': '1',
             'member': '2',
             'blacklist': '3'
