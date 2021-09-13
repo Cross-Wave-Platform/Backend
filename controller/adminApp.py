@@ -94,10 +94,10 @@ def search_by_keyword(keyword):
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok', data=surveys)
 
-@adminApp_api.route('/release', methods=['PUt'])
+@adminApp_api.route('/release', methods=['PUT'])
 @login_required
 @auth_required(AuthLevel.ADMIN)
-@Request.json('DataId: str', 'Release: str')
+@Request.json('DataId: int', 'Release: int')
 def release(DataId, Release):
     try:
         Admin.release_survey(DataId, Release)
@@ -105,3 +105,4 @@ def release(DataId, Release):
         return HTTPError('None Data', 404)
     except:
         return HTTPError('unknown error', 406)
+    return HTTPResponse('ok')
