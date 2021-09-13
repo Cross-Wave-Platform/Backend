@@ -34,7 +34,7 @@ def upload_file(file, ageType, wave, surveyType):
     except NoFileError:
         return HTTPError('No files', 404)
     except FileFormatError:
-        return HTTPError('Failed to save file', 405)
+        return HTTPError('File format error', 405)
     except:
         return HTTPError('unknown error', 406)
 
@@ -65,7 +65,7 @@ def upload_problem(file):
     except NoFileError:
         return HTTPError('No files', 404)
     except FileFormatError:
-        return HTTPError('Failed to save file', 405)
+        return HTTPError('File format error', 405)
     except:
         return HTTPError('unknown error', 406)
 
@@ -84,10 +84,8 @@ def upload_problem(file):
 def file_wave():
     try: 
         wave = get_file_wave()
-        print(wave)
     except:
         return HTTPError('Unkown error', 406)
-    # print(type(wave))
     return HTTPResponse('ok', data={"wave":wave})
 
 

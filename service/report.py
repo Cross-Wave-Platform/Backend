@@ -39,7 +39,6 @@ class Send_Email:
 		s.login(self.sender,self.senderpass)
 		s.sendmail(self.sender, self.recipients, msg.as_string())
 		#test
-		# print(msg)
 		s.quit()
 	
 	def htmladd(self, html):
@@ -52,7 +51,6 @@ class Send_Email:
 			if ctype is None or encoding is not None:
 				ctype = "application/octet-stream"
 			
-			# print(ctype, encoding)
 			maintype, subtype = ctype.split("/", 1)
  
  
