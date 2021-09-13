@@ -97,7 +97,7 @@ def search_by_keyword(keyword):
 @adminApp_api.route('/release', methods=['PUt'])
 @login_required
 @auth_required(AuthLevel.ADMIN)
-@Request.json('DataId: int', 'Release: str')
+@Request.json('DataId: str', 'Release: str')
 def release(DataId, Release):
     try:
         Admin.release_survey(DataId, Release)
