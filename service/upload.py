@@ -41,7 +41,7 @@ class Upload_Files():
     def __init__(self, age_type, wave, survey_type):
         if not age_type or not survey_type or not wave:
             raise NotEnoughParams
-        if type(age_type) != int or type(survey_type) != int or type(wave) != str:
+        if type(age_type) != str or type(survey_type) != str or type(wave) != str:
             if age_type == "null" or survey_type == "null" or wave == "null":
                 raise NotEnoughParams
             raise WrongParamType
