@@ -5,7 +5,7 @@ from flask_login import login_required
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 from .utils.auth_required import auth_required, AuthLevel
-from service.admin import Admin, NoneLevel, AuthError, NoneAccount
+from service.admin import Admin, NoneLevel, AuthError, NoneAccount, NonedataError
 
 __all__ = ['adminApp_api']
 
@@ -98,17 +98,6 @@ def search_by_type(type):
         return HTTPError('unknown error', 406)
     return HTTPResponse('search by type success', data=surveys)
 
-
-@adminApp_api.route('/keyword', methods=['GET'])
-@login_required
-@auth_required(AuthLevel.ADMIN)
-@Request.args('keyword')
-def search_by_keyword(keyword):
-    try:
-        surveys = Admin.search_by_keyword(keyword)
-    except:
-        return HTTPError('unknown error', 406)
-    return HTTPResponse('ok', data=surveys)
 
 @adminApp_api.route('/release', methods=['PUT'])
 @login_required

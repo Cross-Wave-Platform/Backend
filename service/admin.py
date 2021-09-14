@@ -123,10 +123,3 @@ class Admin():
         data = manager.check_auth(user)
         return data
 
-    @classmethod
-    def search_by_keyword(cls, keyword):
-        list = []
-        '''
-        sql search by keywords
-        '''
-        return list
