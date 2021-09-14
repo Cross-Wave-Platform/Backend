@@ -84,3 +84,18 @@ class AdminSQLManager(SQLManager):
         change_op = "UPDATE dbo.survey SET release=%(release)d WHERE survey_id=%(survey_id)d"
         self.cursor.execute(change_op, {'release': release, 'survey_id': survey})
         self.conn.commit()
+        
+    def check_auth(self, user: str):
+        search_op = "SELECT auth FROM dbo.account WHERE account_name=%(user)d"
+        self.cursor.execute(search_op, {'user': user})
+        data = self.cursor.fetchone()
+        return data['auth']
+
+    def check_account(self, user: str):
+        search_op = "SELECT account_id FROM dbo.account WHERE account_name=%(user)d"
+        try:
+            self.cursor.execute(search_op, {'user': user})
+            data = self.cursor.fetchone()
+        except:
+            return None
+        return data['account_id']

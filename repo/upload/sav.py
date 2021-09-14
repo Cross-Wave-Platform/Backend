@@ -60,6 +60,10 @@ class SavUpload(SQLManager):
 
     def add_survey_problem(self, meta, survey_id: int, release: int):
 
+        command = ("DELETE FROM survey_problem WHERE survey_id = %(survey_id)s")
+        self.cursor.execute(command,{'survey_id':survey_id})
+        self.conn.commit()
+
         survey_problems = pandas.DataFrame()
         survey_problems['problem_name'] = meta.column_names
 

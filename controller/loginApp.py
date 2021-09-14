@@ -20,7 +20,7 @@ def login(username, password):
     except:
         return HTTPError('unknown error', 406)
     login_user(user)
-    return HTTPResponse('Login success')
+    return HTTPResponse('login success')
 
 
 @loginApp_api.route('/register', methods=['POST'])
@@ -35,7 +35,6 @@ def signup(username, password, email):
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('signup success')
-
 
 @loginApp_api.route('/logout', methods=['POST'])
 @login_required
