@@ -1,5 +1,14 @@
 from repo.admin import AdminSQLManager
 
+class NoneLevel(ValueError):
+    pass
+
+class AuthError(ValueError):
+    pass
+
+class NoneAccount(ValueError):
+    pass
+
 __all__ = ['Admin']
 
 
@@ -30,12 +39,18 @@ class Admin():
             'blacklist': '3'
         }
         if cls.check_auth(user) != 0:
-            if userlevel in dict:
-                userlevel = dict[userlevel]
+            if cls.check_account(user) is not None:
+                if userlevel in dict:
+                    userlevel = dict[userlevel]
+                else:
+                    raise NoneLevel
 
-            manager = AdminSQLManager()
-            manager.change_auth(user, userlevel)
-            return 'ok'
+                manager = AdminSQLManager()
+                manager.change_auth(user, userlevel)
+            else:
+                raise NoneAccount
+        else:
+            raise AuthError
 
     @classmethod
     def search_by_auth(cls, auth):
