@@ -10,7 +10,7 @@ add account and combo
 sc_manager = SQLManager()
 # admin account
 password = hash_id('admin', "123")
-account_op = "INSERT INTO dbo.account (account_name,nickname,email,password,auth) VALUES ('admin','admin','123',%(password)s,1)"
+account_op = "INSERT INTO dbo.account (account_name,nickname,email,password,auth) VALUES ('admin','admin','123',%(password)s,0)"
 sc_manager.cursor.execute(account_op, {"password": password})
 # normal account
 password = hash_id('normal', "456")
