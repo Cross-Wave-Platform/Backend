@@ -46,8 +46,8 @@ def loadinfo():
         return HTTPResponse('loadinfo success', data=user)
     except:
         data = {
-                "account_name": "",
-                "nickname": "",
-                "email": "",
+                "account_name": None,
+                "nickname": None,
+                "email": None,
                 "auth": "3"}
         return HTTPResponse('loadinfo not login', data=data)
