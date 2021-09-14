@@ -1,87 +1,125 @@
-from repo.manager import SQLManager
+from repo.admin import AdminSQLManager
 
-__all__ = ['']
+class NoneLevel(ValueError):
+    pass
 
+class AuthError(ValueError):
+    pass
 
-def user_management(Identity):
-    dict = {
-        'All_superadmin': '1',
-        'admin': '1',
-        'member': '2',
-        'blacklist': '3'
-    }
-    if Identity in dict:
-        Identity = dict[Identity]
-        a = SQLManager()
-        a.conn.cursor(as_dict=True)
-        sql = "SELECT account_name, email, auth FROM dbo.account WHERE auth = " + Identity
-        a.cursor.execute(sql)
-        user = a.cursor.fetchall()
-    else:
-        raise ValueError
-    return user
+class NoneAccount(ValueError):
+    pass
 
+__all__ = ['Admin']
 
-def change_auth(user, userlevel):
-    '''
-    sql change auth
-    '''
-    return 'ok'
+class NonedataError(Exception):
+    pass
+class Admin():
+    @classmethod
+    def user_management(cls, Identity):
+        dict = {
+            'All': 'all',
+            'admin': '1',
+            'member': '2',
+            'blacklist': '3'
+        }
+        if Identity in dict:
+            Identity = dict[Identity]
 
+            manager = AdminSQLManager()
+            user = manager.user_management(Identity)
+        else:
+            raise ValueError
+        return user
 
-def search_by_auth(auth):
-    dict = {'All_data': '1 | auth = 0', 'release': '1', 'unreleased': '0'}
-    if auth in dict:
-        Identity = dict[auth]
-        a = SQLManager()
-        a.conn.cursor(as_dict=True)
-        sql = "SELECT account_name, email, auth FROM dbo.account WHERE auth = " + Identity
-        a.cursor.execute(sql)
-        user = a.cursor.fetchall()
-    else:
-        raise ValueError
-    return user
+    @classmethod
+    def change_auth(cls, user, userlevel):
+        dict = {
+            'All_superadmin': '1',
+            'admin': '1',
+            'member': '2',
+            'blacklist': '3'
+        }
+        if cls.check_auth(user) != 0:
+            if cls.check_account(user) is not None:
+                if userlevel in dict:
+                    userlevel = dict[userlevel]
+                else:
+                    raise NoneLevel
 
+                manager = AdminSQLManager()
+                manager.change_auth(user, userlevel)
+            else:
+                raise NoneAccount
+        else:
+            raise AuthError
 
-def search_by_month(month):
-    list = []
-    '''
-    sql search by month
-    '''
-    return list
+    @classmethod
+    def search_by_auth(cls, auth):
+        dict = {
+            'All_data': 'all',
+            'release': '1',
+            'unreleased': '0'
+        }
+        if auth in dict:
+            auth = dict[auth]
+            manager = AdminSQLManager()
+            user = manager.search_by_auth(auth)
+        else:
+            raise ValueError
+        return user
 
+    @classmethod
+    def search_by_month(cls, month):
+        dict = {
+            'Month_all': 'all',
+            'Month_small': '1',
+            'Month_big': '2'
+        }
+        if month in dict:
+            month = dict[month]
+            manager = AdminSQLManager()
+            list = manager.search_by_month(month)
+        else:
+            raise ValueError
+        return list
 
-def search_by_wave(wave):
-    list = []
-    '''
-    sql search by wave
-    '''
-    return list
+    @classmethod
+    def search_by_wave(cls, wave):
+        if 'Wave_' in wave:
+            wave = wave[5:]
+            manager = AdminSQLManager()
+            list = manager.search_by_wave(wave)
+        else:
+            raise ValueError
+        return list
 
+    @classmethod
+    def search_by_type(cls, type):
+        dict = {
+            'Allpeople': 'all',
+            'Teachers': '1',
+            'Parent': '2',
+            'Relatives': '3'
+        }
+        if type in dict:
+            type = dict[type]
+            manager = AdminSQLManager()
+            list = manager.search_by_type(type)
+        else:
+            return ValueError
+        return list
 
-def search_by_type(type):
-    list = []
-    '''
-    sql search by type
-    '''
-    return list
+    @classmethod
+    def release_survey(cls, DataId, Release):
+        manager = AdminSQLManager()
+        if manager.is_survey_exists(DataId) is not None:
+            manager.release_survey(DataId, Release)
+        else:
+            raise NonedataError
 
+    @classmethod
+    def check_auth(cls, user):
+        manager = AdminSQLManager()
+        data = manager.check_auth(user)
+        return data
 
-def search_by_keyword(keyword):
-    list = []
-    '''
-    sql search by keywords
-    '''
-    return list
-
-
-if __name__ == '__main__':
-    #current_user.auth = 1
-    try:
-        a = user_management('member')
-        for i in a:
-            print(i)
-    except ValueError:
-        print('ValueError')
-    except:
-        print('unknown exception')

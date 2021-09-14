@@ -2,9 +2,17 @@ import os
 import zipfile
 from flask import send_file
 from config.config import get_yaml_config
-from repo.merging import MergeManager
+from repo.export.merge import MergeManager
 
 __all__ = ['Export_Files']
+
+
+class SendFail(Exception):
+    pass
+
+
+class CompressError(Exception):
+    pass
 
 
 class Export_Files():
@@ -30,34 +38,33 @@ class Export_Files():
         ''' write info to file'''
         UPLOAD_FOLDER = get_yaml_config('upload_dir')
         '''save file to user export folder'''
-        merge_file_path = self.get_user_folder()
-        try:
-            manager = MergeManager()
-            res = manager.merger(self.id, UPLOAD_FOLDER, merge_file_path,
-                                 self.merge_method, self.file_format)
-        except:
-            return "Could not create merge file"
-        if self.file_format == "sav":
-            merge_file_path = os.path.join(merge_file_path, 'output.sav')
-        else:
-            merge_file_path = os.path.join(merge_file_path, 'output.xlsx')
-        self.merge_file = merge_file_path
-        return res
+        user_download_path = self.get_user_folder()
 
-    def compress_file(self):
+        manager = MergeManager(self.merge_method, self.file_format)
+        manager.merger(self.id, UPLOAD_FOLDER, user_download_path)
+
+        if self.file_format == "sav":
+            merge_file_path = os.path.join(user_download_path, 'output.sav')
+        else:
+            merge_file_path = os.path.join(user_download_path, 'output.csv')
+            facet_path = os.path.join(user_download_path, 'output.xlsx')
+            merge_file_path = self.compress_file([merge_file_path, facet_path])
+
+        self.merge_file = merge_file_path
+
+    def compress_file(self, file_paths):
         merge_file_path = os.path.join(self.get_user_folder(), 'merge.zip')
         try:
             with zipfile.ZipFile(merge_file_path, 'w') as zf:
-                zf.write(self.merge_file)
-                zf.write(self.facet)
-        except:
-            return "Fail to compress merge file"
-        return "Success"
+                for p in file_paths:
+                    zf.write(p, os.path.basename(p))
+            return merge_file_path
+        except Exception as e:
+            raise CompressError from e
 
     def export_file_to_user(self):
         '''send file to user'''
         try:
-            send_file(self.merge_file, as_attachment=True)
-        except:
-            return "Fail to send file"
-        return send_file(self.merge_file, as_attachment=True)
+            return send_file(self.merge_file, as_attachment=True)
+        except Exception as e:
+            raise SendFail from e

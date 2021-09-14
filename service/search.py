@@ -1,8 +1,17 @@
 import pandas as pd
+import json
 from repo.search import SearchManager
 from repo.shop_cart import Combo, SCManager
 
 __all__ = ['Search']
+
+
+class NotEnoughParams(Exception):
+    pass
+
+
+class WrongParamType(Exception):
+    pass
 
 
 class Search():
@@ -10,10 +19,20 @@ class Search():
     #get waves from selected age and survey type
     @classmethod
     def search_wave(cls, age_type, survey_type):
+        '''check Params'''
+        if not age_type or not survey_type:
+            raise NotEnoughParams
         '''sql search for wave'''
         manager = SearchManager()
         df = manager.search_waves(age_type, survey_type)
-        wave = df['wave'].tolist()
+
+        if len(age_type) >= 2:
+            wave = df.groupby('wave').filter(lambda x:len(x['age_type'])>=2)['wave'].drop_duplicates().tolist()
+        elif len(survey_type) >=2:
+            wave = df.groupby('wave').filter(lambda x:len(x['survey_type'])>=len(survey_type))['wave'].drop_duplicates().tolist()
+        else:
+            wave = df['wave'].drop_duplicates().tolist()
+
         return wave
 
     #get problems from selected age, survey, wave
@@ -40,7 +59,8 @@ class Search():
                         "topic":row[2], \
                         "class":row[3], \
                         "survey_id":set(), \
-                        "exist":{}
+                        "exist":[], \
+                        "exists":{}
                         }
             res[row[0]] = question
 
@@ -49,20 +69,25 @@ class Search():
 
         for row in df_list:
             id = row[4]
-            if row[2] not in res[id]['exist']:
-                res[id]['exist'][row[2]] = {"young":[], \
+            if row[2] not in res[id]['exists']:
+                res[id]['exists'][row[2]] = {"young":[], \
                                                 "old":[]}
             if row[1] == "big":
-                res[id]['exist'][row[2]]['old'].append(row[3])
+                res[id]['exists'][row[2]]['old'].append(row[3])
             else:
-                res[id]['exist'][row[2]]['young'].append(row[3])
+                res[id]['exists'][row[2]]['young'].append(row[3])
 
             res[id]['survey_id'].add(row[0])
 
+        ret = []
         for k, v in res.items():
+            for obj_k, obj_v in v['exists'].items():
+                v['exist'].append({**{"type": obj_k}, **obj_v})
+            v.pop('exists')
             v['survey_id'] = list(v['survey_id'])
+            ret.append({**{"pid": k}, **v})
 
-        return res
+        return ret
 
     #get user's last search info: age, survey type
     @classmethod
@@ -81,6 +106,13 @@ class Search():
     #store user's search info
     @classmethod
     def store_search_info(cls, id, info):
+        '''check info content'''
+        if 'age_type' not in info or 'survey_type' not in info or 'wave' not in info:
+            raise NotEnoughParams
+        if type(info['age_type']) is not list or type(
+                info['survey_type']) is not list or type(
+                    info['wave']) is not list:
+            raise WrongParamType
         '''
         sql save username search data
         '''
@@ -103,8 +135,12 @@ class Search():
     #store user's selected probelm to shop_cart
     @classmethod
     def store_info(cls, id, problem_list):
+        '''check problem_list'''
+        '''modify problem_list for db format'''
         res = []
         for row in problem_list:
+            if type(row['survey_id']) is not list:
+                raise WrongParamType
             for tid in row['survey_id']:
                 tmp = {"problem_id": row['problem_id'], "survey_id": tid}
                 res.append(tmp)

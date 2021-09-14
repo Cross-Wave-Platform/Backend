@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from flask_login import login_required, current_user
-from service.search import Search
+from service.search import NotEnoughParams, Search, WrongParamType
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 from .utils.auth_required import auth_required, AuthLevel
@@ -11,7 +11,7 @@ searchApp_api = Blueprint('searchApp_api', __name__)
 
 
 def conv_req_list(params_str):
-    str_list = request.args.getlist(params_str)
+    str_list = request.args.getlist(params_str+"[]")
     return list(map(int, str_list))
 
 
@@ -24,6 +24,8 @@ def searchWave():
         ageType = conv_req_list("ageType")
         surveyType = conv_req_list('surveyType')
         wave = Search.search_wave(ageType, surveyType)
+    except NotEnoughParams:
+        return ('Not enough params', 405)
     except:
         return HTTPError('unknown error', 406)
 
@@ -31,7 +33,7 @@ def searchWave():
 
 
 #get problems from selected age, survey, wave
-@searchApp_api.route('/searchInfo', methods=['GET'])
+@searchApp_api.route('/searchProblem', methods=['GET'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 def searchInfo():
@@ -44,7 +46,7 @@ def searchInfo():
 
 
 #get user's last search info: age, survey type
-@searchApp_api.route('/getSearchInfo', methods=['GET'])
+@searchApp_api.route('/getCombo', methods=['GET'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 def getSearchInfo():
@@ -57,13 +59,17 @@ def getSearchInfo():
 
 
 #store user's last search info: age, survey type
-@searchApp_api.route('/storeSearchInfo', methods=['POST'])
+@searchApp_api.route('/storeCombo', methods=['POST'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 @Request.json('info: dict')
 def storeSearchInfo(info):
     try:
         res = Search.store_search_info(current_user.id, info)
+    except NotEnoughParams:
+        return HTTPError('Not enough body', 405)
+    except WrongParamType:
+        return HTTPError('Wrong Param Type', 405)
     except:
         return HTTPError('unknown error', 406)
 
@@ -71,7 +77,7 @@ def storeSearchInfo(info):
 
 
 #delete user's search info: age, survey type
-@searchApp_api.route('/delSearchInfo', methods=['DELETE'])
+@searchApp_api.route('/delCombo', methods=['DELETE'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 def delSearchInfo():
@@ -84,40 +90,40 @@ def delSearchInfo():
 
 
 #store user's selected probelm to shop_cart
-@searchApp_api.route('/storeInfo', methods=['POST'])
+@searchApp_api.route('/storeProblem', methods=['POST'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 @Request.json('problemList: list')
 def storeInfo(problemList):
     try:
-        res = Search.store_info(current_user.id, problemList)
+        Search.store_info(current_user.id, problemList)
+    except WrongParamType:
+        return HTTPError('Wrong Param Type', 405)
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok')
 
 
 #get user's shop_cart
-@searchApp_api.route('/getInfo', methods=['GET'])
+@searchApp_api.route('/getProblem', methods=['GET'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 def getInfo():
     try:
         problem_list = Search.get_info(current_user.id)
-        # if problem_id == 'failed':
-        #     return HTTPError('Failed to fetch info', 403)
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok', data={"problemList": problem_list})
 
 
 #delete user's shop_cart
-@searchApp_api.route('/delInfo', methods=['DELETE'])
+@searchApp_api.route('/delProblem', methods=['DELETE'])
 @login_required
 @auth_required(AuthLevel.REGULAR)
 def delInfo():
     try:
         '''delete user info'''
-        res = Search.del_info(current_user.id)
+        Search.del_info(current_user.id)
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('ok')

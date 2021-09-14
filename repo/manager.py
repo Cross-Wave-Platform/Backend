@@ -19,7 +19,7 @@ class SQLManager:
         self.cursor = self.conn.cursor()
 
     def close(self):
-        if self.conn:
+        if getattr(self, 'conn', None):
             self.conn.close()
             self.conn = None
             self.cursor = None

@@ -1,19 +1,56 @@
 from .utils import hash_id
 from hmac import compare_digest
+from repo.account import AccountSQLManager
 from repo.manager import SQLManager
-from flask_login import UserMixin
-
-import os
+from flask_login import UserMixin, LoginManager
 import re
 
 __all__ = ['Account']
 
+login_manager = LoginManager()
+
+
+def get_user(user_id):
+    manager = SQLManager()
+    manager.cursor = manager.conn.cursor(as_dict=True)
+    sql = "SELECT * FROM dbo.account WHERE account_id = %(user_id)s"
+    manager.cursor.execute(sql, {"user_id": user_id})
+    data = manager.cursor.fetchone()
+    return data
+
+
+@login_manager.user_loader
+def user_loader(user_id):
+    user_info = get_user(user_id)
+    if user_info is not None:
+        current_user = Account(user_info)
+        return current_user
+    return None
+
+
+class EmailUsed(ValueError):
+    pass
+
+
+class AccountUsed(ValueError):
+    pass
+
+
+class UserNotFound(ValueError):
+    pass
+
+
+class PasswordIncorrect(ValueError):
+    pass
+
 
 class Account(UserMixin):
-    def __init__(self, account_name, password, email):
-        self.account_name = account_name
-        self.password = password
-        self.email = email
+    def __init__(self, user_info):
+        self.id = user_info['account_id']
+        self.account_name = user_info['account_name']
+        self.email = user_info['email']
+        self.password = user_info['password']
+        self.nickname = user_info['nickname']
 
     def get_id(self):
         return self.id
@@ -22,67 +59,58 @@ class Account(UserMixin):
     def signup(cls, username, password, email):
         if re.match(r'^[a-zA-Z0-9_\-]+$', username) is None:
             raise ValueError
-
         user = cls.get_by_email(email)
-        if user:
-            return 'email used'
+        if user is not None:
+            raise EmailUsed
         user = cls.get_by_username(username)
-        if user:
-            return 'account exists'
+        if user is not None:
+            raise AccountUsed
+        hash_password = hash_id(username, password)
 
-        user_id = hash_id(username, password)
-
-        a = SQLManager()
-        sql = "INSERT INTO dbo.account (account_name, email, password) VALUES ( \'" + username + "\', \'" + email + "\', \'" + user_id + "\')"
-        a.cursor.execute(sql)
-        a.conn.commit()
-        a.close()
-        return 'ok'
+        manager = AccountSQLManager()
+        manager.add_account(username, email, hash_password)
 
     @classmethod
     def login(cls, username, password):
-        try:
-            user = cls.get_by_username(username)
-        except:
-            user = cls.get_by_email(username)
+        user = cls.get_by_username(username, as_dict=True) or cls.get_by_email(
+            username, as_dict=True)
         if user is None:
-            return 'user not found'
-
-        account = Account(account_name=user[1],
-                          password=user[3],
-                          email=user[2])
-        account.id = username
+            raise UserNotFound
+        account = Account(user)
         user_id = hash_id(account.account_name, password)
         if compare_digest(account.password, user_id):
             return account
         else:
-            return 'password incorrect'
+            raise PasswordIncorrect
 
     def change_password(self, old_password, new_password):
         user_id = hash_id(self.account_name, old_password)
         if compare_digest(self.password, user_id):
-            user_id = hash_id(self.account_name, new_password)
-            a = SQLManager()
-            sql = "UPDATE dbo.account SET password = \'" + user_id + "\' WHERE account_name = \'" + self.account_name + "\'"
-            a.cursor.execute(sql)
-            a.conn.commit()
+            hash_password = hash_id(self.account_name, new_password)
+            manager = AccountSQLManager()
+            manager.change_password(self.account_name, hash_password)
         else:
-            return 'change password incorrect'
-
+            raise PasswordIncorrect
         return self
 
+    def change_nickname(self, new_nickname):
+        manager = AccountSQLManager()
+        manager.change_nickname(self.account_name, new_nickname)
+        return self
+
+    def loadinfo(self):
+        manager = AccountSQLManager(asdict=True)
+        user = manager.loadinfo(self.account_name)
+        return user
+
     @classmethod
-    def get_by_username(cls, username):
-        a = SQLManager()
-        sql = "SELECT * FROM dbo.account WHERE account_name = \'" + username + "\'"
-        a.cursor.execute(sql)
-        data = a.cursor.fetchone()
+    def get_by_username(cls, username, as_dict=False):
+        manager = AccountSQLManager(asdict=as_dict)
+        data = manager.get_by_username(username)
         return data
 
     @classmethod
-    def get_by_email(cls, email):
-        a = SQLManager()
-        sql = "SELECT * FROM dbo.account WHERE email = \'" + email + "\'"
-        a.cursor.execute(sql)
-        data = a.cursor.fetchone()
+    def get_by_email(cls, email, as_dict=False):
+        manager = AccountSQLManager(asdict=as_dict)
+        data = manager.get_by_email(email)
         return data
