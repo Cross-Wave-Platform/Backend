@@ -8,6 +8,8 @@ from config.config import get_yaml_config
 class NoFileError(OSError):
     pass
 
+class WrongParamType(Exception):
+    pass
 
 class FileFormatError(Exception):
     pass
@@ -39,6 +41,10 @@ class Upload_Files():
     def __init__(self, age_type, wave, survey_type):
         if not age_type or not survey_type or not wave:
             raise NotEnoughParams
+        if type(age_type) != int or type(survey_type) != int or type(wave) != str:
+            if age_type == "null" or survey_type == "null" or wave == "null":
+                raise NotEnoughParams
+            raise WrongParamType
         self.age_type = age_type
         self.wave = wave
         self.survey_type = survey_type
