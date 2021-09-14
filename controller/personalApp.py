@@ -49,5 +49,5 @@ def loadinfo():
                 "account_name": None,
                 "nickname": None,
                 "email": None,
-                "auth": "3"}
+                "auth": 3}
         return HTTPResponse('loadinfo not login', data=data)
