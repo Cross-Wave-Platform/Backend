@@ -40,11 +40,14 @@ def change_nickname(newNickname):
 
 
 @personalApp_api.route('/loadInfo', methods=['GET'])
-@login_required
-@auth_required(AuthLevel.REGULAR)
 def loadinfo():
     try:
         user = current_user.loadinfo()
+        return HTTPResponse('loadinfo success', data=user)
     except:
-        return HTTPError('unknown error', 406)
-    return HTTPResponse('loadinfo success', data=user)
+        data = {
+                "account_name": "",
+                "nickname": "",
+                "email": "",
+                "auth": "3"}
+        return HTTPResponse('loadinfo not login', data=data)
