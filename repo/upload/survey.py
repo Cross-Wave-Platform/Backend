@@ -33,8 +33,6 @@ class SurveyUpload(SQLManager):
         except IOError as exec:
             raise exec
 
-        # print(all_data)
-
         # suppose there are three sheets [家長問卷,教保問卷,親友問卷]
         # need to change the code here to have more references
         if len(all_data) != 3:
@@ -71,7 +69,6 @@ class SurveyUpload(SQLManager):
         surveys = surveys[[
             'survey_id', 'age_type', 'survey_type', 'wave', 'release'
         ]]
-        # print(surveys)
         # insert to database
         self.bulk_insert(surveys, 'dbo.survey')
 
@@ -97,7 +94,6 @@ class SurveyUpload(SQLManager):
                      inplace=True)
         classes['class_id'] = ''
         classes = classes[['class_id', 'class', 'subclass']]
-        # print(classes)
         # insert ot database
         self.bulk_insert(classes, 'dbo.class')
         # get the current classes
@@ -113,8 +109,8 @@ class SurveyUpload(SQLManager):
             columns=['problem_name', 'topic', 'class', 'subclass'])
 
         problems = problems.append(self.get_problem('家長問卷', all_data))
-        # problems = problems.append( self.get_problem('親友問卷', all_data))
-        # problems = problems.append( self.get_problem('教保問卷', all_data))
+        problems = problems.append( self.get_problem('親友問卷', all_data))
+        problems = problems.append( self.get_problem('教保問卷', all_data))
 
         problems = problems.reset_index(drop=True)
 
@@ -155,7 +151,6 @@ class SurveyUpload(SQLManager):
             strings += ')'
             all_str.append(strings)
         all_str = ','.join(all_str)
-        # print(all_str)
 
         command = ("UPDATE problem "
                     "SET class_id = t.class_id, topic = t.topic "
@@ -172,7 +167,6 @@ class SurveyUpload(SQLManager):
         # remove records that are in update_prob
         new_prob = new_prob.merge( updated_prob, on=['problem_name', 'topic', 'class_id'], how='left', indicator=True)
         new_prob = new_prob.loc[new_prob['_merge']=='left_only']
-        # print(new_prob)
 
         # give it problem_id and sort the columns
         new_prob['problem_id'] = ''
@@ -208,7 +202,6 @@ class SurveyUpload(SQLManager):
         # convert to dataframe later
         survey = []
 
-        # print( page.columns.to_list()[4:])
 
         for string in page.columns.to_list()[4:]:
             age_type = string.split('月齡組')[0]
@@ -276,7 +269,6 @@ class SurveyUpload(SQLManager):
             temp = page.iloc[:, [0, i + 4]]
             temp = temp[temp.iloc[:, 1] == 'O']
             temp = temp.rename(columns={'變項名稱': 'problem_name'})
-            # print(temp)
 
             temp['age_type'] = survey_list[i][0]
             temp['survey_type'] = survey_list[i][1]
@@ -288,5 +280,4 @@ class SurveyUpload(SQLManager):
             ]]
             survey_problem = survey_problem.append(temp)
 
-        # print(survey_problem)
         return survey_problem

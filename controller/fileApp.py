@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_login import current_user
 from flask_login import login_required
-from service.upload import Upload_Files, FileFormatError, NoFileError, Upload_Problem, get_file_wave, NotEnoughParams
+from service.upload import Upload_Files, FileFormatError, NoFileError, Upload_Problem, get_file_wave, NotEnoughParams, WrongParamType
 from service.export import Export_Files, SendFail, CompressError
 from repo.export.format import FormatTypeError
 from repo.export.method import MethodTypeError
@@ -31,10 +31,12 @@ def upload_file(file, ageType, wave, surveyType):
         filename = user_file.get_user_file(file)
     except NotEnoughParams:
         return HTTPError('Not enough params', 403)
+    except WrongParamType:
+        return HTTPError('Wrong params type', 403)
     except NoFileError:
         return HTTPError('No files', 404)
     except FileFormatError:
-        return HTTPError('Failed to save file', 405)
+        return HTTPError('File format error', 405)
     except:
         return HTTPError('unknown error', 406)
 
@@ -65,7 +67,7 @@ def upload_problem(file):
     except NoFileError:
         return HTTPError('No files', 404)
     except FileFormatError:
-        return HTTPError('Failed to save file', 405)
+        return HTTPError('File format error', 405)
     except:
         return HTTPError('unknown error', 406)
 
@@ -84,10 +86,8 @@ def upload_problem(file):
 def file_wave():
     try: 
         wave = get_file_wave()
-        print(wave)
     except:
         return HTTPError('Unkown error', 406)
-    # print(type(wave))
     return HTTPResponse('ok', data={"wave":wave})
 
 

@@ -11,7 +11,8 @@ class NoneAccount(ValueError):
 
 __all__ = ['Admin']
 
-
+class NonedataError(Exception):
+    pass
 class Admin():
     @classmethod
     def user_management(cls, Identity):
@@ -107,6 +108,14 @@ class Admin():
         else:
             return ValueError
         return list
+
+    @classmethod
+    def release_survey(cls, DataId, Release):
+        manager = AdminSQLManager()
+        if manager.is_survey_exists(DataId) is not None:
+            manager.release_survey(DataId, Release)
+        else:
+            raise NonedataError
 
     @classmethod
     def check_auth(cls, user):

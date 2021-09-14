@@ -71,6 +71,20 @@ class AdminSQLManager(SQLManager):
         data = self.cursor.fetchall()
         return data
 
+    def is_survey_exists(self, survey: int):
+        try:
+            search_op = "SELECT * FROM dbo.survey WHERE survey_id=%(survey_id)d"
+            self.cursor.execute(search_op, {'survey_id': survey})
+            data = self.cursor.fetchall()
+            return data
+        except:
+            return None
+
+    def release_survey(self, survey: int, release: int):
+        change_op = "UPDATE dbo.survey SET release=%(release)d WHERE survey_id=%(survey_id)d"
+        self.cursor.execute(change_op, {'release': release, 'survey_id': survey})
+        self.conn.commit()
+        
     def check_auth(self, user: str):
         search_op = "SELECT auth FROM dbo.account WHERE account_name=%(user)d"
         self.cursor.execute(search_op, {'user': user})
