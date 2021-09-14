@@ -70,3 +70,9 @@ class AdminSQLManager(SQLManager):
             self.cursor.execute(search_op, {'type': type})
         data = self.cursor.fetchall()
         return data
+
+    def check_auth(self, user: str):
+        search_op = "SELECT auth FROM dbo.account WHERE account_name=%(user)d"
+        self.cursor.execute(search_op, {'user': user})
+        data = self.cursor.fetchone()
+        return data['auth']

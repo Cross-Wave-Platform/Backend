@@ -29,12 +29,13 @@ class Admin():
             'member': '2',
             'blacklist': '3'
         }
-        if userlevel in dict:
-            userlevel = dict[userlevel]
+        if cls.check_auth(user) != 0:
+            if userlevel in dict:
+                userlevel = dict[userlevel]
 
-        manager = AdminSQLManager()
-        manager.change_auth(user, userlevel)
-        return 'ok'
+            manager = AdminSQLManager()
+            manager.change_auth(user, userlevel)
+            return 'ok'
 
     @classmethod
     def search_by_auth(cls, auth):
@@ -91,6 +92,12 @@ class Admin():
         else:
             return ValueError
         return list
+
+    @classmethod
+    def check_auth(cls, user):
+        manager = AdminSQLManager()
+        data = manager.check_auth(user)
+        return data
 
     @classmethod
     def search_by_keyword(cls, keyword):
