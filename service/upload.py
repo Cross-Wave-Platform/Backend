@@ -42,9 +42,9 @@ class Upload_Files():
         if not age_type or not survey_type or not wave:
             raise NotEnoughParams
         if type(age_type) != str or type(survey_type) != str or type(wave) != str:
-            if age_type == "null" or survey_type == "null" or wave == "null":
-                raise NotEnoughParams
             raise WrongParamType
+        elif age_type == "null" or survey_type == "null" or wave == "null":
+            raise NotEnoughParams
         self.age_type = age_type
         self.wave = wave
         self.survey_type = survey_type
