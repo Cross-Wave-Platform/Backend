@@ -10,7 +10,7 @@ from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 from .utils.auth_required import auth_required, AuthLevel
 from repo.upload.sav import SurveyNotExists
-from repo.upload.survey import SheetCountError, InvalidName, MissingSheet, ColumnNameError, DataError, ProblemCollision
+from repo.upload.survey import ExcelError, SheetCountError, InvalidName, MissingSheet, ColumnNameError, DataError, ProblemCollision, ExcelError
 
 __all__ = ['fileApp_api']
 
@@ -89,6 +89,8 @@ def upload_problem(file):
         return HTTPError('DataError', 406)        
     except ProblemCollision:
         return HTTPError('ProblemCollision', 406)
+    except ExcelError:
+        return HTTPError("ExcelError",406)
     except:
         return HTTPError('unknown error db', 406)
     return HTTPResponse('successfully uploaded')
