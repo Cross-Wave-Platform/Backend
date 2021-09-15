@@ -116,7 +116,7 @@ class Upload_Problem():
 
         #there is file
         if request_file and allowed_file(request_file.filename,0):
-            filename = secure_filename("surveyProblem" + ".csv")
+            filename = secure_filename("surveyProblem" + ".xlsx")
             file_path = os.path.join(self.get_file_folder(), filename)
             request_file.save(file_path)
         else:

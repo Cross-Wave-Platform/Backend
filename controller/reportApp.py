@@ -28,4 +28,4 @@ def upload_file(title, content):
     except Exception as e:
         return HTTPError(str(e), 406) 
     
-    return HTTPResponse('ok')
+    return HTTPResponse('successfully send')

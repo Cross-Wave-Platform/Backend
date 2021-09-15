@@ -40,13 +40,13 @@ class Admin():
             'blacklist': '3'
         }
         if cls.check_auth(user) != 0:
-            if cls.check_account(user) is not None:
+            manager = AdminSQLManager()
+            if manager.check_account(user) is not None:
                 if userlevel in dict:
                     userlevel = dict[userlevel]
                 else:
                     raise NoneLevel
 
-                manager = AdminSQLManager()
                 manager.change_auth(user, userlevel)
             else:
                 raise NoneAccount

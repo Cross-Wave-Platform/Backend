@@ -23,6 +23,9 @@ class DataError(Exception):
 class ProblemCollision(Exception):
     pass
 
+class ExcelError(Exception):
+    pass
+
 class SurveyUpload(SQLManager):
     def upload(self, xlsx_path: str):
         all_data = dict()
@@ -30,9 +33,8 @@ class SurveyUpload(SQLManager):
         try:
             with open(xlsx_path, 'rb') as file:
                 all_data = pandas.read_excel(file, sheet_name=None)
-        except IOError as exec:
-            raise exec
-
+        except:
+            raise ExcelError
         # suppose there are three sheets [家長問卷,教保問卷,親友問卷]
         # need to change the code here to have more references
         if len(all_data) != 3:
