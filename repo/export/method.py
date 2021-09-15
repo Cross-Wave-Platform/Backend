@@ -61,9 +61,9 @@ class Join(MethodInterface):
             return f'{col_name}_{str_info}'
 
     def concat_df(self, res, tmp, str_info):
-        tmp.columns = [self.repl_except(c, str_info) for c in tmp.columns]
         # to lower
         tmp.columns = [ x.lower() for x in tmp.columns]
+        tmp.columns = [self.repl_except(c, str_info) for c in tmp.columns]
         if res.empty:
             res = tmp
         else:
