@@ -136,6 +136,8 @@ class Search():
     @classmethod
     def store_info(cls, id, problem_list):
         '''check problem_list'''
+        if not problem_list:
+            raise NotEnoughParams
         '''modify problem_list for db format'''
         res = []
         for row in problem_list:
