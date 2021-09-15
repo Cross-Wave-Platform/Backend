@@ -33,7 +33,7 @@ def signup(username, password, email):
     except AccountUsed:
         return HTTPError('account exists', 404)
     except ValueError:
-        return HTTPError('illegal character', 405)
+        return HTTPError('illegal characters in username', 405)
     except:
         return HTTPError('unknown error', 406)
     return HTTPResponse('signup success')
