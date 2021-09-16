@@ -43,14 +43,14 @@ def upload_file(file, ageType, wave, surveyType):
 
     try:
         '''save info to db'''
-        user_file.save_file_info(filename)
+        row, col = user_file.save_file_info(filename)
     except SurveyNotExists:
         user_file.remove_failed_file(filename)
         return HTTPError('survey not exists', 403)
     except:
         user_file.remove_failed_file(filename)
         return HTTPError('unknown error db', 406)
-    return HTTPResponse('successfully uploaded')
+    return HTTPResponse(f'successfully uploaded problem count={row} response={col}')
 
 
 @fileApp_api.route('/upload/surveyProblem', methods=['POST'])
