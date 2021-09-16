@@ -2,11 +2,14 @@ from flask import Flask
 from service.account import login_manager
 from controller import loginApp_api, fileApp_api, personalApp_api, searchApp_api, adminApp_api, reportApp_api
 from config.config import get_yaml_config
+from datetime import timedelta
 
 app = Flask(__name__)
 
 # set app config
 app_config = get_yaml_config('app_config')
+app.config["REMEMBER_COOKIE_DURATION"] = timedelta(hours=1)
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 app.config.from_mapping(app_config)
 
 login_manager.init_app(app)

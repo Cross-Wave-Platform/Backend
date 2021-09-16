@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, session
 from service.account import Account, AccountUsed, EmailUsed, UserNotFound, PasswordIncorrect
 from flask_login import login_user, logout_user, login_required
 from .utils.response import HTTPResponse, HTTPError
@@ -19,6 +19,7 @@ def login(username, password):
         return HTTPError('password incorrect', 403)
     except:
         return HTTPError('unknown error', 406)
+    session.permanent = False
     login_user(user)
     return HTTPResponse('login success')
 
