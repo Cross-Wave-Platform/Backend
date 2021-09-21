@@ -39,7 +39,7 @@ class SavUpload(SQLManager):
 
         self.add_survey_problem(meta, survey_id, survey_info.release)
 
-        return meta.number_columns, meta.number_rows
+        return meta.number_rows,meta.number_columns
 
     def search_survey(self, survey_info):
         search_op = (

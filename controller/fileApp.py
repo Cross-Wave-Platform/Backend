@@ -50,7 +50,7 @@ def upload_file(file, ageType, wave, surveyType):
     except:
         user_file.remove_failed_file(filename)
         return HTTPError('unknown error db', 406)
-    return HTTPResponse(f'successfully uploaded problem count={row} response={col}')
+    return HTTPResponse(f'上傳成功! 樣本數={row} 問卷題數={col}')
 
 
 @fileApp_api.route('/upload/surveyProblem', methods=['POST'])
