@@ -51,8 +51,15 @@ service_config = {
 create_dir(CWD / UPLOAD_PATH)
 create_dir(CWD / DOWNLOAD_PATH)
 
+report_config={
+    "sender":"kidsit.no.reply@gmail.com",
+    "sender_pass":"",
+    "receiver":"kidsit.no.reply@gmail.com",
+}
+
 total_config = {}
 total_config.update(app_config)
 total_config.update(repo_config)
 total_config.update(service_config)
+total_config.update(report_config)
 dump_config(total_config, CWD / "config")
