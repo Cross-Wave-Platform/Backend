@@ -88,7 +88,7 @@ class Upload_Files():
     def save_file_info(self, filename):
         survey_info = SurveyInfo(self.age_type, self.survey_type, self.wave, 1)
         manager = SavUpload()
-        manager.upload_sav(filename, survey_info)
+        return manager.upload_sav(filename, survey_info)
 
 
 class Upload_Problem():

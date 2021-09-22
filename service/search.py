@@ -58,6 +58,7 @@ class Search():
             question = {"problem_id":row[1], \
                         "topic":row[2], \
                         "class":row[3], \
+                        "subclass":row[4], \
                         "survey_id":set(), \
                         "exist":[], \
                         "exists":{}
