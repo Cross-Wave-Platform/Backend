@@ -69,7 +69,7 @@ class SearchManager(SQLManager):
 
         prob_class_op = (
             "SELECT prob_info.problem_id,prob_info.problem_name,prob_info.topic, "
-            "cls.class "
+            "cls.class,cls.subclass "
             "FROM dbo.class AS cls "
             f"INNER JOIN ({prob_info_op}) AS prob_info "
             "ON cls.class_id = prob_info.class_id ")
