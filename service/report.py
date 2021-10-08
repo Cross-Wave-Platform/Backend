@@ -6,6 +6,7 @@ from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
+from config.config import get_yaml_config
 import smtplib, os
 
 __all__=['Send_Email']
@@ -15,8 +16,8 @@ class Send_Email:
 		self.subject = subject
 		self.recipients = recipients
 		self.htmlbody = ''
-		self.sender = "kidsit.no.reply@gmail.com"
-		self.senderpass = 'xnfhsuyjwhgyzkhk'
+		self.sender = get_yaml_config('sender')
+		self.senderpass = get_yaml_config('sender_pass')
 		self.attachments = []
 		self.cwd = os.path.join(os.getcwd(),"storage/tmp_up")
 		if not os.path.exists(self.cwd): 

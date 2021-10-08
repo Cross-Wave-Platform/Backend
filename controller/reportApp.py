@@ -5,12 +5,13 @@ from service.report import Send_Email
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 from datetime import datetime
+from config.config import get_yaml_config
 
 __all__ = ['reportApp_api']
 
 reportApp_api = Blueprint('reportApp_api', __name__)
 
-admin_email = 'admin@gmail.com' ##TBC
+admin_email = get_yaml_config('receiver') ##TBC
 
 @reportApp_api.route('/quickReport', methods=['POST'])
 @login_required
