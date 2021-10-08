@@ -1,7 +1,24 @@
 from ..manager import SQLManager
 import pandas
 import pyreadstat
+from ..utils import TRANS_ATTRS
 
+def lower_meta(meta):
+    res={}
+    for org_k,trans_k in TRANS_ATTRS.items():
+        attr=getattr(meta,org_k)
+
+        if type(attr)==list:
+            res[trans_k] = [l.lower() for l in attr]
+        elif type(attr)==dict:
+            res[trans_k] = {k.lower():v for k,v in attr.items()}
+        else:
+            res[trans_k]= attr
+
+    if len(meta.notes):
+        res['note']=meta.notes[0]
+
+    return res
 
 class SurveyNotExists(Exception):
     pass
@@ -23,9 +40,15 @@ class SavUpload(SQLManager):
         return res.to_dict('records',dict)
 
     def upload_sav(self, sav_path: str, survey_info: SurveyInfo):
-        _, meta = pyreadstat.read_sav(sav_path, metadataonly=True)
-        # force lowercase
-        meta.column_names = list(map(lambda p: p.lower(), meta.column_names))
+        
+        # force lowercase and resave
+        df, meta = pyreadstat.read_sav(sav_path)  
+        df.columns= [c.lower() for c in df.columns]
+        trans_meta= lower_meta(meta)
+        pyreadstat.write_sav(df,sav_path,**trans_meta)
+        
+        # reload file
+        _ , meta = pyreadstat.read_sav(sav_path,metadataonly=True)
 
         survey_id = self.search_survey(survey_info)
 
@@ -37,9 +60,9 @@ class SavUpload(SQLManager):
             self.cursor.execute(open_release_op,
                                 params={"survey_id": survey_id})
 
-        self.add_survey_problem(meta, survey_id, survey_info.release)
+        col_count = self.add_survey_problem(meta, survey_id, survey_info.release)
 
-        return meta.number_rows,meta.number_columns
+        return meta.number_rows,col_count
 
     def search_survey(self, survey_info):
         search_op = (
@@ -82,3 +105,4 @@ class SavUpload(SQLManager):
         ]]
 
         self.bulk_insert(survey_problems, 'dbo.survey_problem')
+        return len(survey_problems.index)
