@@ -1,6 +1,6 @@
 import abc
 import pandas
-
+import re
 
 class MethodTypeError(ValueError):
     pass
@@ -9,6 +9,12 @@ class MethodTypeError(ValueError):
 class MethodInterface(abc.ABC):
     def __init__(self, method):
         self.method = method
+
+    @staticmethod
+    def re_split(s):
+        res = re.split('([-+]?\d+\.\d+)|([-+]?\d+)', s.strip())
+        res_list = [r.strip() for r in res if r is not None and r.strip() != '']
+        return res_list
 
     @abc.abstractmethod
     def concat_df(self, res, tmp, str_info):
@@ -31,7 +37,18 @@ class Union(MethodInterface):
         tmp_col_names = tmp.column_names
         tmp_col_labels = tmp.column_labels
 
-        res['org_types'].update(tmp_org_type)
+        for col, col_type in tmp_org_type.items():
+            expand=True
+            
+            if res['org_types'].get(col):
+                old_f,old_num = self.re_split(res['org_types'][col])
+                new_f,new_num = self.re_split(col_type)
+                if float(old_num)>=float(new_num):
+                    expand=False
+
+            if expand:
+                res['org_types'].update({col : col_type})
+
         for col, labels in tmp_var_labels.items():
             if res['var_labels'].get(col):
                 res['var_labels'][col].update(labels)
@@ -70,7 +87,17 @@ class Join(MethodInterface):
         tmp_col_labels = tmp.column_labels
 
         for col, col_type in tmp_org_type.items():
-            res['org_types'].update({self.repl_except(col, str_info) : col_type})
+            expand=True
+            col_repl = self.repl_except(col, str_info)
+            
+            if res['org_types'].get(col_repl):
+                old_f,old_num = self.re_split(res['org_types'][col_repl])
+                new_f,new_num = self.re_split(col_type)
+                if float(old_num)>=float(new_num):
+                    expand=False
+
+            if expand:
+                res['org_types'].update({col_repl : col_type})
 
         for col, labels in tmp_var_labels.items():
             res['var_labels'].update({f'{col}_{str_info}': labels})
