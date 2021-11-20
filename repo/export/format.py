@@ -41,7 +41,7 @@ class Csv(FormatInterface):
                 df[key] = pandas.to_timedelta(
                     (df[key] - bais), unit='s') + pandas.Timestamp('1970-1-1')
 
-        df.to_csv(csv_file_path, index=False)
+        df.to_csv(csv_file_path, index=False, encoding='utf-8-sig')
 
         final_meta = pandas.DataFrame(columns=['變項名稱', '變項標籤', '數值標籤'])
 
