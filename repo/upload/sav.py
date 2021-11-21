@@ -23,7 +23,8 @@ def lower_meta(meta):
 class SurveyNotExists(Exception):
     pass
 
-
+class ProblemLoss(Exception):
+    pass
 class SurveyInfo:
     def __init__(self, age_type: int, survey_type: int, wave: str,
                  release: int):
@@ -61,6 +62,9 @@ class SavUpload(SQLManager):
                                 params={"survey_id": survey_id})
 
         col_count = self.add_survey_problem(meta, survey_id, survey_info.release)
+
+        if col_count != meta.number_columns:
+            raise ProblemLoss
 
         return meta.number_rows,col_count
 

@@ -9,7 +9,7 @@ from repo.export.merge import SurveyNotFound
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 from .utils.auth_required import auth_required, AuthLevel
-from repo.upload.sav import SurveyNotExists
+from repo.upload.sav import SurveyNotExists, ProblemLoss
 from repo.upload.survey import ExcelError, SheetCountError, InvalidName, MissingSheet, ColumnNameError, DataError, ProblemCollision, ExcelError
 
 __all__ = ['fileApp_api']
@@ -47,9 +47,12 @@ def upload_file(file, ageType, wave, surveyType):
     except SurveyNotExists:
         user_file.remove_failed_file(filename)
         return HTTPError('survey not exists', 403)
+    except ProblemLoss:
+        return HTTPError('上傳變項數與解析後不符，請嘗試跟新項目對照表',409)
     except:
         user_file.remove_failed_file(filename)
         return HTTPError('unknown error db', 406)
+    
     return HTTPResponse(f'上傳成功! 樣本數={row} 變項數={col}')
 
 
