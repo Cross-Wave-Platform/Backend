@@ -98,7 +98,7 @@ class Upload_Problem():
     def get_file_folder(self):
         #get user folder path
         UPLOAD_FOLDER = get_yaml_config('upload_dir')
-        file_dir = os.path.join(UPLOAD_FOLDER,"/surveyProblem")
+        file_dir = os.path.join(UPLOAD_FOLDER,"surveyProblem")
         #create user folder if not exist
         if not os.path.exists(file_dir):
             os.makedirs(file_dir)
