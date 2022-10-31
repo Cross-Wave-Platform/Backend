@@ -1,4 +1,5 @@
 import pymssql
+import sqlalchemy
 from config.config import get_yaml_config
 
 
@@ -7,7 +8,17 @@ class SQLManager:
     def __init__(self):
         self.conn = None
         self.cursor = None
+        self.engine = None
+        self.get_engine()
         self.connect()
+
+    def get_engine(self):
+        config = get_yaml_config('mssql')
+
+        str_format = 'mssql+pymssql://{}:{}@{}/{}?charset=utf8'
+        connection_str = str_format.format(config['user'], config['password'], config['host'], config['database'])
+        self.engine = sqlalchemy.create_engine(connection_str)
+        print(self.engine.connect())
 
     def connect(self):
         config = get_yaml_config('mssql')
@@ -23,6 +34,7 @@ class SQLManager:
             self.conn.close()
             self.conn = None
             self.cursor = None
+            self.engine = None
 
     def __del__(self):
         self.close()
@@ -31,7 +43,7 @@ class SQLManager:
     def bulk_insert(self, df, table: str):
         tmp_dir = get_yaml_config('tmp_dir')
         file_name = table.split(".")[1]
-        file_path = f'{tmp_dir}/{file_name}.csv'
+        file_path = f'{tmp_dir}\{file_name}.csv'
 
         df.to_csv(file_path, index=False)
         insert_op = (

@@ -60,7 +60,7 @@ class SurveyUpload(SQLManager):
             surveys, columns=['age_type', 'survey_type', 'wave', 'release'])
         # get the current surveys
         command = ("SELECT * FROM survey;")
-        current_survey = pandas.read_sql(command, self.conn)
+        current_survey = pandas.read_sql(command, self.engine)
 
         # remove duplicates
         surveys = pandas.concat([
@@ -77,7 +77,7 @@ class SurveyUpload(SQLManager):
         # get all classes
         # get the current classes
         command = ("SELECT * FROM class;")
-        current_class = pandas.read_sql(command, self.conn)
+        current_class = pandas.read_sql(command, self.engine)
 
         classes = pandas.DataFrame(columns=['class', 'subclass'])
 
@@ -100,12 +100,12 @@ class SurveyUpload(SQLManager):
         self.bulk_insert(classes, 'dbo.class')
         # get the current classes
         command = ("SELECT * FROM class;")
-        current_class = pandas.read_sql(command, self.conn)
+        current_class = pandas.read_sql(command, self.engine)
 
         # get all problems
         # get the current problems
         command = ("SELECT * FROM problem;")
-        current_problem = pandas.read_sql(command, self.conn)
+        current_problem = pandas.read_sql(command, self.engine)
 
         problems = pandas.DataFrame(
             columns=['problem_name', 'topic', 'class', 'subclass'])
