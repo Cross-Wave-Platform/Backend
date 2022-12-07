@@ -10,7 +10,7 @@ class SearchManager(SQLManager):
         search_op = ("SELECT wave,age_type,survey_type "
                      "FROM dbo.survey "
                      "WHERE release = 1 ")
-        survey_df = pandas.read_sql(search_op, self.conn)
+        survey_df = pandas.read_sql(search_op, self.engine)
         survey_df = survey_df[survey_df['age_type'].isin(age_type)
                               & survey_df['survey_type'].isin(survey_type)]
         return survey_df
@@ -22,7 +22,7 @@ class SearchManager(SQLManager):
         survey_op = ("SELECT survey_id,age_type,survey_type,wave "
                      "FROM dbo.survey "
                      "WHERE release = 1 ")
-        survey_df = pandas.read_sql(survey_op, self.conn)
+        survey_df = pandas.read_sql(survey_op, self.engine)
         select_survey_df = survey_df[(
             survey_df['age_type'].isin(combo.age_types)
             & survey_df['survey_type'].isin(combo.survey_types)

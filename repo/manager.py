@@ -18,7 +18,6 @@ class SQLManager:
         str_format = 'mssql+pymssql://{}:{}@{}/{}?charset=utf8'
         connection_str = str_format.format(config['user'], config['password'], config['host'], config['database'])
         self.engine = sqlalchemy.create_engine(connection_str)
-        print(self.engine.connect())
 
     def connect(self):
         config = get_yaml_config('mssql')

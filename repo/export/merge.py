@@ -13,9 +13,10 @@ class SurveyNotFound(FileNotFoundError):
 
 
 class MergeManager(SQLManager):
-    def __init__(self, method_type: str, format_type: str):
+    def __init__(self, method_type: str, format_type: str, wave: str):
         self.method = MethodFactory(method_type)
         self.format = FormatFactory(format_type)
+        self.wave = wave
         super().__init__()
 
     @staticmethod
@@ -44,24 +45,72 @@ class MergeManager(SQLManager):
         res_df = pandas.DataFrame()
         res_meta = {'var_labels': {}, 'org_types': {}, 'prob_topic': {}}
 
-        for keys, prob_df in survey_group:
-            prob_df = prob_df.append({'problem_name': 'baby_id'},
-                                     ignore_index=True)
-            k_age, k_survey, k_wave = keys
-            file_path = os.path.join(upload_path, str(k_age), str(k_survey),
-                                     str(k_wave) + '.sav')
 
-            # check file exists
-            if not os.path.isfile(file_path):
-                raise SurveyNotFound
+        if self.method.method == 'left':
+            for keys, prob_df in survey_group:
+                k_age, k_survey, k_wave = keys
+                if k_wave == self.wave:
+                    unionMethod = MethodFactory('union')
+                    prob_df = prob_df.append({'problem_name': 'baby_id'},
+                                             ignore_index=True)
+                    
+                    file_path = os.path.join(upload_path, str(k_age), str(k_survey),
+                                             str(k_wave) + '.sav')
+    
+                    # check file exists
+                    if not os.path.isfile(file_path):
+                        raise SurveyNotFound
+    
+                    tmp_df, tmp_meta = pyreadstat.read_sav(
+                        file_path,
+                        usecols=prob_df['problem_name'].tolist(),
+                        disable_datetime_conversion=True)
+                    str_info = self.get_str_info(keys)
+                    res_df = unionMethod.concat_df(res_df, tmp_df, str_info)
+                    res_meta = unionMethod.concat_meta(res_meta, tmp_meta, str_info)
 
-            tmp_df, tmp_meta = pyreadstat.read_sav(
-                file_path,
-                usecols=prob_df['problem_name'].tolist(),
-                disable_datetime_conversion=True)
 
-            str_info = self.get_str_info(keys)
-            res_df = self.method.concat_df(res_df, tmp_df, str_info)
-            res_meta = self.method.concat_meta(res_meta, tmp_meta, str_info)
+            for keys, prob_df in survey_group:
+                k_age, k_survey, k_wave = keys
+                if k_wave != self.wave:
+                    prob_df = prob_df.append({'problem_name': 'baby_id'},
+                                             ignore_index=True)
+                    
+                    file_path = os.path.join(upload_path, str(k_age), str(k_survey),
+                                             str(k_wave) + '.sav')
+
+                    # check file exists
+                    if not os.path.isfile(file_path):
+                        raise SurveyNotFound
+
+                    tmp_df, tmp_meta = pyreadstat.read_sav(
+                        file_path,
+                        usecols=prob_df['problem_name'].tolist(),
+                        disable_datetime_conversion=True)
+                    str_info = self.get_str_info(keys)
+                    res_df = self.method.concat_df(res_df, tmp_df, str_info)
+                    res_meta = self.method.concat_meta(res_meta, tmp_meta, str_info)
+
+        else:
+            for keys, prob_df in survey_group:
+                k_age, k_survey, k_wave = keys
+                prob_df = prob_df.append({'problem_name': 'baby_id'},
+                                         ignore_index=True)
+                
+                file_path = os.path.join(upload_path, str(k_age), str(k_survey),
+                                         str(k_wave) + '.sav')
+
+                # check file exists
+                if not os.path.isfile(file_path):
+                    raise SurveyNotFound
+
+                tmp_df, tmp_meta = pyreadstat.read_sav(
+                    file_path,
+                    usecols=prob_df['problem_name'].tolist(),
+                    disable_datetime_conversion=True)
+                str_info = self.get_str_info(keys)
+                res_df = self.method.concat_df(res_df, tmp_df, str_info)
+                res_meta = self.method.concat_meta(res_meta, tmp_meta, str_info)
+
 
         self.format.write(res_df, res_meta, destination)

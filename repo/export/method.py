@@ -83,7 +83,7 @@ class Join(MethodInterface):
 
 class MethodFactory():
     def __new__(cls, method):
-        method_list = ['cross', 'inner', 'outer']
+        method_list = ['cross', 'inner', 'outer', 'left']
         if method == 'union':
             return Union(method)
         elif method in method_list:

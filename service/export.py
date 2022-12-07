@@ -16,11 +16,12 @@ class CompressError(Exception):
 
 
 class Export_Files():
-    def __init__(self, id, username, merge_method, file_format):
+    def __init__(self, id, username, merge_method, file_format, wave):
         self.id = id
         self.username = username
         self.merge_method = merge_method
         self.file_format = file_format
+        self.wave = wave
         self.merge_file = None
         self.facet = None
 
@@ -40,7 +41,7 @@ class Export_Files():
         '''save file to user export folder'''
         user_download_path = self.get_user_folder()
 
-        manager = MergeManager(self.merge_method, self.file_format)
+        manager = MergeManager(self.merge_method, self.file_format, self.wave)
         manager.merger(self.id, UPLOAD_FOLDER, user_download_path)
 
         if self.file_format == "sav":

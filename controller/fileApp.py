@@ -109,10 +109,12 @@ def file_wave():
 @fileApp_api.route('/export', methods=['GET'])
 @login_required  #tbc to be confirmed
 @auth_required(AuthLevel.REGULAR)
-@Request.args('mergeMethod', 'fileFormat')
-def export_file(mergeMethod, fileFormat):
+@Request.args('mergeMethod', 'fileFormat', 'wave')
+def export_file(mergeMethod, fileFormat, wave):
+    if wave == None:
+        wave = ''
     user_file = Export_Files(current_user.id, current_user.account_name,
-                             mergeMethod, fileFormat)
+                             mergeMethod, fileFormat, wave)
     ''' send file to user'''
     try:
         user_file.get_db_file()
