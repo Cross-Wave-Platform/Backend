@@ -36,7 +36,7 @@ class SurveyInfo:
 class SavUpload(SQLManager):
     def search_all_survey(self):
         command = "SELECT survey_id, age_type, survey_type, wave FROM survey;"
-        res = pandas.read_sql( command, self.engine)
+        res = pandas.read_sql( command, self.conn)
         return res.to_dict('records',dict)
 
     def upload_sav(self, sav_path: str, survey_info: SurveyInfo):
@@ -93,7 +93,7 @@ class SavUpload(SQLManager):
         survey_problems['problem_name'] = meta.column_names
 
         problems = pandas.read_sql(
-            'SELECT problem_name,problem_id FROM dbo.problem;', self.engine)
+            'SELECT problem_name,problem_id FROM dbo.problem;', self.conn)
         survey_problems = survey_problems.merge(problems,
                                                 how='inner',
                                                 on='problem_name')
