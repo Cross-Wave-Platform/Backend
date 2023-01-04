@@ -18,14 +18,19 @@ class AccountSQLManager(SQLManager):
                                     database=config['database'])
         self.cursor = self.conn.cursor(as_dict=asdict)
 
-    def add_account(self, username: str, hash_in: str, email: str):
-        insert_op = 'INSERT INTO dbo.account (account_name,nickname, password, email) VALUES (%(username)s,%(nickname)s, %(email)s, %(password)s)'
+    def add_account(self, username: str, hash_in: str, email: str, name: str, identity: str, phone: str, organization: str):
+        insert_op = 'INSERT INTO dbo.account (account_name, nickname, password, email, name, identity_num, phone, organization) VALUES (%(username)s, %(nickname)s, %(email)s, %(password)s, %(name)s, %(identity)s, %(phone)s, %(organization)s)'
+        print(insert_op)
         self.cursor.execute(
             insert_op, {
                 'username': username,
                 'nickname': username,
                 'password': hash_in,
-                'email': email
+                'email': email,
+                'name': name,
+                'identity': identity,
+                'phone': phone,
+                'organization': organization
             })
         self.conn.commit()
 

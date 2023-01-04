@@ -24,10 +24,10 @@ def login(username, password):
 
 
 @loginApp_api.route('/register', methods=['POST'])
-@Request.json('username: str', 'password: str', 'email: str')
-def signup(username, password, email):
+@Request.json('username: str', 'password: str', 'email: str', 'name: str', 'identity: str', 'phone: str', 'organization: str')
+def signup(username, password, email, name, identity, phone, organization):
     try:
-        Account.signup(username, password, email)
+        Account.signup(username, password, email, name, identity, phone, organization)
     except EmailUsed:
         return HTTPError('email used', 403)
     except AccountUsed:

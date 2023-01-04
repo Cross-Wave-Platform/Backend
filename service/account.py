@@ -56,7 +56,7 @@ class Account(UserMixin):
         return self.id
 
     @classmethod
-    def signup(cls, username, password, email):
+    def signup(cls, username, password, email, name, identity, phone, organization):
         if re.match(r'^[a-zA-Z0-9_\-]+$', username) is None:
             raise ValueError
         user = cls.get_by_email(email)
@@ -68,7 +68,7 @@ class Account(UserMixin):
         hash_password = hash_id(username, password)
 
         manager = AccountSQLManager()
-        manager.add_account(username, email, hash_password)
+        manager.add_account(username, email, hash_password, name, identity, phone, organization)
 
     @classmethod
     def login(cls, username, password):
