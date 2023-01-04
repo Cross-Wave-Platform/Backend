@@ -50,24 +50,23 @@ class MergeManager(SQLManager):
             for keys, prob_df in survey_group:
                 k_age, k_survey, k_wave = keys
                 if k_wave == self.wave:
-                    unionMethod = MethodFactory('union')
                     prob_df = prob_df.append({'problem_name': 'baby_id'},
                                              ignore_index=True)
                     
                     file_path = os.path.join(upload_path, str(k_age), str(k_survey),
                                              str(k_wave) + '.sav')
-    
+
                     # check file exists
                     if not os.path.isfile(file_path):
                         raise SurveyNotFound
-    
+
                     tmp_df, tmp_meta = pyreadstat.read_sav(
                         file_path,
                         usecols=prob_df['problem_name'].tolist(),
                         disable_datetime_conversion=True)
                     str_info = self.get_str_info(keys)
-                    res_df = unionMethod.concat_df(res_df, tmp_df, str_info)
-                    res_meta = unionMethod.concat_meta(res_meta, tmp_meta, str_info)
+                    res_df = self.method.concat_df(res_df, tmp_df, str_info)
+                    res_meta = self.method.concat_meta(res_meta, tmp_meta, str_info)
 
 
             for keys, prob_df in survey_group:
@@ -90,17 +89,7 @@ class MergeManager(SQLManager):
                     str_info = self.get_str_info(keys)
                     res_df = self.method.concat_df(res_df, tmp_df, str_info)
                     res_meta = self.method.concat_meta(res_meta, tmp_meta, str_info)
-
-
-            wave_name = res_df.at[0, "wave"]
-            
-            for i in range(len(res_df.columns.values)):
-                if res_df.columns.values[i] != "baby_id" and res_df.columns.values[i] != "wave":
-                    res_df.columns.values[i] = res_df.columns.values[i] + "_" + wave_name
-                elif res_df.columns.values[i] == "wave":
-                    break
-
-            # del res_df['wave']
+                    
 
         else:
             for keys, prob_df in survey_group:
