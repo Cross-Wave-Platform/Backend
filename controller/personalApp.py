@@ -78,6 +78,19 @@ def change_organization(newOrganization):
     return HTTPResponse('change organization success')
 
 
+@personalApp_api.route('/changeRelation', methods=['PUT'])
+@login_required
+@auth_required(AuthLevel.REGULAR)
+@Request.json('newRelation: int')
+def change_relation(newRelation):
+    try:
+        change = current_user.change_relation(newRelation)
+    except:
+        return HTTPError('unknown error', 406)
+    current_user.relation = change.relation
+    return HTTPResponse('change relation success')
+
+
 @personalApp_api.route('/loadInfo', methods=['GET'])
 def loadinfo():
     try:

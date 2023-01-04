@@ -54,12 +54,13 @@ class Account(UserMixin):
         self.name = user_info['name']
         self.phone = user_info['phone']
         self.organization = user_info['organization']
+        self.relation = user_info['relation']
 
     def get_id(self):
         return self.id
 
     @classmethod
-    def signup(cls, username, password, email, name, identity, phone, organization):
+    def signup(cls, username, password, email, name, identity, phone, organization, relation):
         if re.match(r'^[a-zA-Z0-9_\-]+$', username) is None:
             raise ValueError
         user = cls.get_by_email(email)
@@ -71,7 +72,7 @@ class Account(UserMixin):
         hash_password = hash_id(username, password)
 
         manager = AccountSQLManager()
-        manager.add_account(username, email, hash_password, name, identity, phone, organization)
+        manager.add_account(username, email, hash_password, name, identity, phone, organization, relation)
 
     @classmethod
     def login(cls, username, password):
@@ -114,6 +115,11 @@ class Account(UserMixin):
     def change_organization(self, new_organization):
         manager = AccountSQLManager()
         manager.change_organization(self.account_name, new_organization)
+        return self
+
+    def change_relation(self, new_relation):
+        manager = AccountSQLManager()
+        manager.change_relation(self.account_name, new_relation)
         return self
 
     def loadinfo(self):

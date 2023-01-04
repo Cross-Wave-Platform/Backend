@@ -18,8 +18,8 @@ class AccountSQLManager(SQLManager):
                                     database=config['database'])
         self.cursor = self.conn.cursor(as_dict=asdict)
 
-    def add_account(self, username: str, hash_in: str, email: str, name: str, identity: str, phone: str, organization: str):
-        insert_op = 'INSERT INTO dbo.account (account_name, nickname, password, email, name, identity_num, phone, organization) VALUES (%(username)s, %(nickname)s, %(email)s, %(password)s, %(name)s, %(identity)s, %(phone)s, %(organization)s)'
+    def add_account(self, username: str, hash_in: str, email: str, name: str, identity: str, phone: str, organization: str, relation: int):
+        insert_op = 'INSERT INTO dbo.account (account_name, nickname, password, email, name, identity_num, phone, organization, relation) VALUES (%(username)s, %(nickname)s, %(email)s, %(password)s, %(name)s, %(identity)s, %(phone)s, %(organization)s, %(relation)s)'
         print(insert_op)
         self.cursor.execute(
             insert_op, {
@@ -30,7 +30,8 @@ class AccountSQLManager(SQLManager):
                 'name': name,
                 'identity': identity,
                 'phone': phone,
-                'organization': organization
+                'organization': organization,
+                'relation': relation
             })
         self.conn.commit()
 
@@ -74,8 +75,16 @@ class AccountSQLManager(SQLManager):
         })
         self.conn.commit()
 
+    def change_relation(self, username: str, relation: int):
+        change_op = 'UPDATE dbo.account SET relation=%(relation)s WHERE account_name=%(username)s'
+        self.cursor.execute(change_op, {
+            'username': username,
+            'relation': relation
+        })
+        self.conn.commit()
+
     def loadinfo(self, username: str):
-        search_op = 'SELECT account_name, nickname, email, auth, name, phone, organization FROM dbo.account WHERE account_name=%(username)s'
+        search_op = 'SELECT account_name, nickname, email, auth, name, phone, organization, relation FROM dbo.account WHERE account_name=%(username)s'
         try:
             self.cursor.execute(search_op, {
                 'username': username,
