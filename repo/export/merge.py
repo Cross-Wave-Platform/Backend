@@ -91,6 +91,17 @@ class MergeManager(SQLManager):
                     res_df = self.method.concat_df(res_df, tmp_df, str_info)
                     res_meta = self.method.concat_meta(res_meta, tmp_meta, str_info)
 
+
+            wave_name = res_df.at[0, "wave"]
+            
+            for i in range(len(res_df.columns.values)):
+                if res_df.columns.values[i] != "baby_id" and res_df.columns.values[i] != "wave":
+                    res_df.columns.values[i] = res_df.columns.values[i] + "_" + wave_name
+                elif res_df.columns.values[i] == "wave":
+                    break
+
+            # del res_df['wave']
+
         else:
             for keys, prob_df in survey_group:
                 k_age, k_survey, k_wave = keys
