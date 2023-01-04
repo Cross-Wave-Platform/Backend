@@ -39,6 +39,45 @@ def change_nickname(newNickname):
     return HTTPResponse('change nickname success')
 
 
+@personalApp_api.route('/changeName', methods=['PUT'])
+@login_required
+@auth_required(AuthLevel.REGULAR)
+@Request.json('newName: str')
+def change_name(newName):
+    try:
+        change = current_user.change_name(newName)
+    except:
+        return HTTPError('unknown error', 406)
+    current_user.name = change.name
+    return HTTPResponse('change name success')
+
+
+@personalApp_api.route('/changePhone', methods=['PUT'])
+@login_required
+@auth_required(AuthLevel.REGULAR)
+@Request.json('newPhone: str')
+def change_phone(newPhone):
+    try:
+        change = current_user.change_phone(newPhone)
+    except:
+        return HTTPError('unknown error', 406)
+    current_user.phone = change.phone
+    return HTTPResponse('change phone success')
+
+
+@personalApp_api.route('/changeOrganization', methods=['PUT'])
+@login_required
+@auth_required(AuthLevel.REGULAR)
+@Request.json('newOrganization: str')
+def change_organization(newOrganization):
+    try:
+        change = current_user.change_organization(newOrganization)
+    except:
+        return HTTPError('unknown error', 406)
+    current_user.organization = change.organization
+    return HTTPResponse('change organization success')
+
+
 @personalApp_api.route('/loadInfo', methods=['GET'])
 def loadinfo():
     try:

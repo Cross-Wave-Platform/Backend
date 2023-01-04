@@ -50,8 +50,32 @@ class AccountSQLManager(SQLManager):
         })
         self.conn.commit()
 
+    def change_name(self, username: str, name: str):
+        change_op = 'UPDATE dbo.account SET name=%(name)s WHERE account_name=%(username)s'
+        self.cursor.execute(change_op, {
+            'username': username,
+            'name': name
+        })
+        self.conn.commit()
+
+    def change_phone(self, username: str, phone: str):
+        change_op = 'UPDATE dbo.account SET phone=%(phone)s WHERE account_name=%(username)s'
+        self.cursor.execute(change_op, {
+            'username': username,
+            'phone': phone
+        })
+        self.conn.commit()
+
+    def change_organization(self, username: str, organization: str):
+        change_op = 'UPDATE dbo.account SET organization=%(organization)s WHERE account_name=%(username)s'
+        self.cursor.execute(change_op, {
+            'username': username,
+            'organization': organization
+        })
+        self.conn.commit()
+
     def loadinfo(self, username: str):
-        search_op = 'SELECT account_name, nickname, email, auth FROM dbo.account WHERE account_name=%(username)s'
+        search_op = 'SELECT account_name, nickname, email, auth, name, phone, organization FROM dbo.account WHERE account_name=%(username)s'
         try:
             self.cursor.execute(search_op, {
                 'username': username,

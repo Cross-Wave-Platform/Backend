@@ -51,6 +51,9 @@ class Account(UserMixin):
         self.email = user_info['email']
         self.password = user_info['password']
         self.nickname = user_info['nickname']
+        self.name = user_info['name']
+        self.phone = user_info['phone']
+        self.organization = user_info['organization']
 
     def get_id(self):
         return self.id
@@ -96,6 +99,21 @@ class Account(UserMixin):
     def change_nickname(self, new_nickname):
         manager = AccountSQLManager()
         manager.change_nickname(self.account_name, new_nickname)
+        return self
+
+    def change_name(self, new_name):
+        manager = AccountSQLManager()
+        manager.change_name(self.account_name, new_name)
+        return self
+
+    def change_phone(self, new_phone):
+        manager = AccountSQLManager()
+        manager.change_phone(self.account_name, new_phone)
+        return self
+
+    def change_organization(self, new_organization):
+        manager = AccountSQLManager()
+        manager.change_organization(self.account_name, new_organization)
         return self
 
     def loadinfo(self):
