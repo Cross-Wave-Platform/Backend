@@ -28,6 +28,16 @@ class MergeManager(SQLManager):
 
     def merger(self, account_id: int, upload_path: str,
                destination: str) -> bool:
+        # get shop_cart survey_id
+        self.cursor.execute("SELECT DISTINCT survey_id FROM dbo.shop_cart WHERE account_id = %d", account_id)
+        rows = self.cursor.fetchall()
+
+        # insert download history
+        for row in rows:
+            self.cursor.execute("INSERT INTO dbo.download_history (account_id, survey_id, download_time) VALUES ('%d', '%d', getdate())"% (account_id, row[0]))
+
+        self.conn.commit()
+
         # get shop_cart info
         command = (
             "SELECT age_type, survey_type, wave, problem.problem_name "
