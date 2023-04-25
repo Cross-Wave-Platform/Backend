@@ -1,6 +1,6 @@
 from flask import Flask
 from service.account import login_manager
-from controller import loginApp_api, fileApp_api, personalApp_api, searchApp_api, adminApp_api, reportApp_api, historyApp_api
+from controller import loginApp_api, fileApp_api, personalApp_api, searchApp_api, adminApp_api, reportApp_api, historyApp_api, announcementApp_api
 from config.config import get_yaml_config
 
 app = Flask(__name__)
@@ -18,7 +18,8 @@ api2prefix = [
     (adminApp_api, '/adminApp'),
     (searchApp_api, '/searchApp'),
     (reportApp_api, '/reportApp'),
-    (historyApp_api, '/historyApp')
+    (historyApp_api, '/historyApp'),
+    (announcementApp_api, '/announcementApp')
 ]
 for api, prefix in api2prefix:
     app.register_blueprint(api, url_prefix=prefix)
