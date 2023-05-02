@@ -64,7 +64,7 @@ def list_announcement():
         announcement_list = Announcement.list_announcement()
     except:
         return HTTPError('unknown error', 406)
-    return HTTPResponse('query announcement success', data=announcement_list)
+    return HTTPResponse('list announcement success', data=announcement_list)
 
 
 @announcementApp_api.route('/queryAnnouncement', methods=['GET'])
@@ -78,4 +78,4 @@ def query_announcement(id):
         return HTTPError('Wrong Param Type', 405)
     except:
         return HTTPError('unknown error', 406)
-    return HTTPResponse('query announcement success', data={"id": announcement[0], "title": announcement[1], "contents": announcement[2]})
+    return HTTPResponse('query announcement success', data=announcement)

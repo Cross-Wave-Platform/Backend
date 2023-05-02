@@ -11,7 +11,8 @@ class AnnouncementManager(SQLManager):
         except:
             return None
         data = self.cursor.fetchone()
-        return data
+        index = ["id", "title", "contents"]
+        return dict(zip(index, data))
 
     def list_announcement(self):
         try:
@@ -47,3 +48,4 @@ class AnnouncementManager(SQLManager):
     def delete_announcement(self, id: int):
         delete_op = 'DELETE FROM dbo.announcement WHERE id=%(id)d'
         self.cursor.execute(delete_op, {'id': id})
+        self.conn.commit()
