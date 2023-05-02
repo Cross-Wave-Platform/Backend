@@ -19,7 +19,12 @@ class AnnouncementManager(SQLManager):
         except:
             return None
         data = self.cursor.fetchall()
-        return data
+        dictList = []
+        index = ["id", "title"]
+        for dataList in data:
+            dataDict = dict(zip(index, dataList))
+            dictList.append(dataDict)
+        return dictList
 
     def create_announcement(self, title: str, contents: str):
         insert_op = 'INSERT INTO dbo.announcement (title, contents) VALUES (%(title)s, %(contents)s)'
