@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_login import current_user, login_required
-from service.history import NotEnoughParams, History, WrongParamType
+from service.history import NotEnoughParams, History, WrongParamType, SendFail, Export_History
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 from .utils.auth_required import AuthLevel, auth_required
@@ -23,3 +23,19 @@ def getDownloadCount(surveyId, startDate, endDate):
 	except:
 		return HTTPError('unknown error', 406)
 	return HTTPResponse('ok', data={"downloadCount": count})
+
+
+@historyApp_api.route('/export', methods=['GET'])
+@login_required
+@auth_required(AuthLevel.ADMIN)
+def exportDownloadList():
+	downloadList = Export_History(current_user.account_name)
+	try:
+		downloadList.get_db_file()
+		res = downloadList.export_file_to_user()
+	except SendFail:
+		return HTTPError('Fail to send file', 406)
+	except:
+		return HTTPError('unknown error', 406)
+
+	return res
