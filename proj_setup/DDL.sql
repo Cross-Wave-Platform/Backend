@@ -62,6 +62,7 @@ CREATE TABLE dbo.account
     password VARCHAR( 25) NOT NULL,
     auth INT NOT NULL DEFAULT 2,
     last_combo VARCHAR( 800) NOT NULL DEFAULT '__',
+    validated BIT NOT NULL DEFAULT 0,
 
     CONSTRAINT PK_account PRIMARY KEY CLUSTERED ( account_id)
 );

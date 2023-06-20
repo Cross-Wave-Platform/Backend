@@ -1,6 +1,7 @@
 from flask import Blueprint
-from service.account import Account, AccountUsed, EmailUsed, UserNotFound, PasswordIncorrect
+from service.account import Account, AccountUsed, EmailUsed, UserNotFound, PasswordIncorrect, UserRegister
 from flask_login import login_user, logout_user, login_required
+from service.report import Send_Email
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
 
@@ -27,7 +28,7 @@ def login(username, password):
 @Request.json('username: str', 'password: str', 'email: str')
 def signup(username, password, email):
     try:
-        Account.signup(username, password, email)
+        s = Account.signup(username, password, email)
     except EmailUsed:
         return HTTPError('email used', 403)
     except AccountUsed:
@@ -36,6 +37,15 @@ def signup(username, password, email):
         return HTTPError('illegal characters in username', 405)
     except:
         return HTTPError('unknown error', 406)
+
+    mymail = Send_Email('Welcome to KIT waves, please verify your email.', [email])
+    try:
+        mymail.htmladd('<a href="http://localhost:8080/verify/' + s + '">驗證網址</a>')
+        #print('http://localhost:8080/verify/' + s)
+        mymail.send()
+    except Exception as e:
+        return HTTPError(str(e), 406)
+
     return HTTPResponse('signup success')
 
 @loginApp_api.route('/logout', methods=['POST'])
@@ -43,3 +53,13 @@ def signup(username, password, email):
 def logout():
     logout_user()
     return HTTPResponse('logout success')
+
+@loginApp_api.route('/user_confirm', methods=['POST'])
+@Request.json('token: str')
+def user_confirm(token):
+    user = UserRegister()
+    validated = user.validate_confirm_token(token)
+    if validated:
+        return HTTPResponse('Thands For Your Activate')
+    else:
+        return HTTPError('wrong token', 403)

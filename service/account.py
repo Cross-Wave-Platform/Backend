@@ -3,6 +3,10 @@ from hmac import compare_digest
 from repo.account import AccountSQLManager
 from repo.manager import SQLManager
 from flask_login import UserMixin, LoginManager
+from authlib.jose import jwt, JoseError
+from config.config import get_yaml_config
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
 import re
 
 __all__ = ['Account']
@@ -68,7 +72,9 @@ class Account(UserMixin):
         hash_password = hash_id(username, password)
 
         manager = AccountSQLManager()
-        manager.add_account(username, email, hash_password)
+        user_id = manager.add_account(username, email, hash_password)
+        register = UserRegister()
+        return register.create_confirm_token(user_id)
 
     @classmethod
     def login(cls, username, password):
@@ -114,3 +120,28 @@ class Account(UserMixin):
         manager = AccountSQLManager(asdict=as_dict)
         data = manager.get_by_email(email)
         return data
+
+class UserRegister():
+    def create_confirm_token(self, user_id):
+        header = {'alg': 'RS256'}
+        key = ''
+        with open(get_yaml_config('key_file'), 'rb') as f:
+            key = f.read()
+        priv_rsakey = load_pem_private_key(key, password=b'Passw0rd', backend=default_backend())
+        payload = {'user_id': int(user_id)}
+        s = jwt.encode(header, payload, priv_rsakey)
+        return s.decode('utf-8')
+
+    def validate_confirm_token(self, token):
+        key = ''
+        with open(get_yaml_config('key_file'), 'rb') as f:
+            key = f.read()
+        priv_rsakey = load_pem_private_key(key, password=b'Passw0rd', backend=default_backend())
+        try:
+            data = jwt.decode(token, priv_rsakey)  # 驗證
+        except JoseError:
+            return False
+
+        manager = AccountSQLManager()
+        manager.validate_account(data['user_id'])
+        return True

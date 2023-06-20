@@ -27,6 +27,15 @@ class AccountSQLManager(SQLManager):
                 'password': hash_in,
                 'email': email
             })
+        user_id = self.cursor.lastrowid
+        self.conn.commit()
+        return user_id
+
+    def validate_account(self, user_id: int):
+        change_op = 'UPDATE dbo.account SET validated=1 WHERE account_id=%(user_id)s'
+        self.cursor.execute(change_op, {
+            'user_id': user_id
+        })
         self.conn.commit()
 
     def change_password(self, username: str, hash_new: str):
