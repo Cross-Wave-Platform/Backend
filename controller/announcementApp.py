@@ -13,10 +13,10 @@ announcementApp_api = Blueprint('announcementApp_api', __name__)
 @announcementApp_api.route('/updateAnnouncement', methods=['PUT'])
 @login_required
 @auth_required(AuthLevel.ADMIN)
-@Request.json('id: int', 'title: str', 'contents: str')
-def update_announcement(id, title, contents):
+@Request.json('id: int', 'title: str', 'contents: str', 'pinned: bool')
+def update_announcement(id, title, contents, pinned):
     try:
-        Announcement.update_announcement(id, title, contents)
+        Announcement.update_announcement(id, title, contents, pinned)
     except NotEnoughParams:
         return HTTPError('Not enough params', 405)
     except WrongParamType:
@@ -29,10 +29,10 @@ def update_announcement(id, title, contents):
 @announcementApp_api.route('/createAnnouncement', methods=['POST'])
 @login_required
 @auth_required(AuthLevel.ADMIN)
-@Request.json('title: str', 'contents: str')
-def create_announcement(title, contents):
+@Request.json('title: str', 'contents: str', 'pinned: bool')
+def create_announcement(title, contents, pinned):
     try:
-        Announcement.create_announcement(title, contents)
+        Announcement.create_announcement(title, contents, pinned)
     except NotEnoughParams:
         return HTTPError('Not enough params', 405)
     except WrongParamType:

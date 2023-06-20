@@ -16,18 +16,18 @@ class WrongParamType(Exception):
 class Announcement():
 
     @classmethod
-    def create_announcement(cls, title, contents):
+    def create_announcement(cls, title, contents, pinned):
 
         manager = AnnouncementManager()
 
-        manager.create_announcement(title, contents)
+        manager.create_announcement(title, contents, pinned)
 
     @classmethod
-    def update_announcement(cls, id, title, contents):
+    def update_announcement(cls, id, title, contents, pinned):
 
         manager = AnnouncementManager()
 
-        manager.update_announcement(id, title, contents)
+        manager.update_announcement(id, title, contents, pinned)
 
     @classmethod
     def delete_announcement(cls, id):
