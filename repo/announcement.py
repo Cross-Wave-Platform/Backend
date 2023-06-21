@@ -16,12 +16,12 @@ class AnnouncementManager(SQLManager):
 
     def list_announcement(self):
         try:
-            self.cursor.execute("SELECT id, title FROM dbo.announcement ORDER BY pinned DESC, id DESC")
+            self.cursor.execute("SELECT id, title, pinned FROM dbo.announcement ORDER BY pinned DESC, id DESC")
         except:
             return None
         data = self.cursor.fetchall()
         dictList = []
-        index = ["id", "title"]
+        index = ["id", "title", "pinned"]
         for dataList in data:
             dataDict = dict(zip(index, dataList))
             dictList.append(dataDict)
