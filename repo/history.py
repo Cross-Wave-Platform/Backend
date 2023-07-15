@@ -1,6 +1,6 @@
 import pandas
 from .manager import SQLManager
-from .utils import SURVEY_TYPE, AGE_TYPE
+from .utils import SURVEY_TYPE_CHT, AGE_TYPE_CHT
 
 
 class HistoryManager(SQLManager):
@@ -20,7 +20,7 @@ class HistoryManager(SQLManager):
 
         download_history = pandas.read_sql(command, self.conn)
 
-        download_history['survey_type'].replace(SURVEY_TYPE.inv, inplace=True)
-        download_history['age_type'].replace(AGE_TYPE.inv, inplace=True)
+        download_history['survey_type'].replace(SURVEY_TYPE_CHT.inv, inplace=True)
+        download_history['age_type'].replace(AGE_TYPE_CHT.inv, inplace=True)
 
         return download_history
