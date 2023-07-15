@@ -1,5 +1,6 @@
 import pandas
 from .manager import SQLManager
+from .utils import SURVEY_TYPE_CHT, AGE_TYPE_CHT
 
 
 class HistoryManager(SQLManager):
@@ -18,5 +19,8 @@ class HistoryManager(SQLManager):
             "INNER JOIN dbo.account ON alpha.account_id = account.account_id;")
 
         download_history = pandas.read_sql(command, self.conn)
+
+        download_history['survey_type'].replace(SURVEY_TYPE_CHT.inv, inplace=True)
+        download_history['age_type'].replace(AGE_TYPE_CHT.inv, inplace=True)
 
         return download_history
