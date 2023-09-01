@@ -1,9 +1,11 @@
 {
 	"info": {
-		"_postman_id": "66172351-136f-4611-9178-aa8c76f1ceee",
+		"_postman_id": "3cab223a-bc97-4127-80fb-080dcaa066f2",
 		"name": "KIT",
 		"description": "# age_type:int\n1. teacher\n2. parent\n3. friend\n\n# survey_type:int\n1. small\n2. big\n\n# wave(aka 月齡):int\njust number",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25183339",
+		"_collection_link": "https://kids-in-taiwan.postman.co/workspace/Kids-In-Taiwan~d2d82b54-6c9f-49a7-b20c-ee2ec2468da1/collection/25183339-3cab223a-bc97-4127-80fb-080dcaa066f2?action=share&creator=25183339&source=collection_link"
 	},
 	"item": [
 		{
@@ -30,7 +32,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"{{USERNAME}}\",\r\n    \"password\": \"{{PASSWORD}}\",\r\n    \"email\": \"{{EMAIL}}\"\r\n}",
+							"raw": "{\r\n    \"username\": \"andrew\",\r\n    \"password\": \"andrew\",\r\n    \"email\": \"40847023s@gapps.ntnu.edu.tw\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -51,13 +53,54 @@
 					"response": []
 				},
 				{
+					"name": "registerVerify",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"console.log(\"click that will be sent: \"+data.username);\r",
+									"pm.environment.set(\"{{username}}\", data.username);\r",
+									"pm.environment.set(\"{{password}}\", data.password);\r",
+									"pm.environment.set(\"{{email}}\", data.email);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"token\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0NX0.d9V1d6MFTND8sTTiS22CJggcAFFiz9KtQGjYAFj1p_qGGOjcUGkH5yiBzC6gWtQzjahDz5Lc6wCOh8-cozMv8DhBp1DqT0Jrqo-9euYn0vJt0-Nz3gxNiZ8roIUI2PHEq44xcodPf1-CNFgsjK3YvV0KI2f6--YFEk1FLGymxV_phZLlCktgpakXc7bP9RkpwhVsHTwNc8rtz-hpFJYxlQwlCRZaTGhojhrhjTzVIdAm6zsSArnGUOp9gab95G-xRYZH3ruDbv3E06ztwztb45JiPto7SwreqdTWaJjRnImu4rx7XcSFITlr7lQtg_NIvhmBj4ObJDK5ADuKv8tIqA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/loginApp/user_confirm",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"loginApp",
+								"user_confirm"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "login",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"{{USERNAME}}\",\r\n    \"password\": \"{{PASSWORD}}\"\r\n}",
+							"raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"admin\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -102,7 +145,7 @@
 			"name": "personalApp",
 			"item": [
 				{
-					"name": "changepassword",
+					"name": "changePassword",
 					"request": {
 						"method": "PUT",
 						"header": [],
@@ -116,13 +159,166 @@
 							}
 						},
 						"url": {
-							"raw": "{{BASE_URL}}/personalApp/changepassword",
+							"raw": "{{BASE_URL}}/personalApp/changePassword",
 							"host": [
 								"{{BASE_URL}}"
 							],
 							"path": [
 								"personalApp",
-								"changepassword"
+								"changePassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "changeNickname",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newNickname\":\"newNickname\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/personalApp/changeNickname",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"personalApp",
+								"changeNickname"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "changeName",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newName\":\"newName\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/personalApp/changeName",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"personalApp",
+								"changeName"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "changePhone",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newPhone\":\"0912345678\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/personalApp/changePhone",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"personalApp",
+								"changePhone"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "changeOrganization",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newOrganization\":\"newOrganization\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/personalApp/changeOrganization",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"personalApp",
+								"changeOrganization"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "changeRelation",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newRelation\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/personalApp/changeRelation",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"personalApp",
+								"changeRelation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "loadInfo",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/personalApp/loadInfo",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"personalApp",
+								"loadInfo"
 							]
 						}
 					},
@@ -318,6 +514,131 @@
 			"name": "fileApp",
 			"item": [
 				{
+					"name": "upload/sav",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "KIT3月齡組第2波6月齡親友_final.sav"
+								},
+								{
+									"key": "ageType",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "surveyType",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "wave",
+									"value": "6",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/fileApp/upload/sav",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"fileApp",
+								"upload",
+								"sav"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "upload/surveyProblem",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/stp96/Downloads/KIT3月齡組第1波問卷編碼簿_final.xlsx"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/fileApp/upload/surveyProblem",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"fileApp",
+								"upload",
+								"surveyProblem"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fileWave",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/fileApp/fileWave",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"fileApp",
+								"fileWave"
+							]
+						},
+						"description": "## mergeMethod: str\n- inner\n- union\n\n## fileFormat: str\n- sav\n- csv\n\n### must send after storeProblem"
+					},
+					"response": []
+				},
+				{
+					"name": "export",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/fileApp/export?mergeMethod=left&fileFormat=sav&wave=M03",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"fileApp",
+								"export"
+							],
+							"query": [
+								{
+									"key": "mergeMethod",
+									"value": "left"
+								},
+								{
+									"key": "fileFormat",
+									"value": "sav"
+								},
+								{
+									"key": "wave",
+									"value": "M03"
+								}
+							]
+						},
+						"description": "## mergeMethod: str\n- inner\n- union\n\n## fileFormat: str\n- sav\n- csv\n\n### must send after storeProblem"
+					},
+					"response": []
+				},
+				{
 					"name": "upload",
 					"request": {
 						"method": "POST",
@@ -348,15 +669,54 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:5000/fileApp/upload",
-							"protocol": "http",
+							"raw": "{{BASE_URL}}/fileApp/upload",
 							"host": [
-								"localhost"
+								"{{BASE_URL}}"
 							],
-							"port": "5000",
 							"path": [
 								"fileApp",
 								"upload"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "reportApp",
+			"item": []
+		},
+		{
+			"name": "historyApp",
+			"item": [
+				{
+					"name": "surveyDownloadCount",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/historyApp/surveyDownloadCount?surveyId=1&startDate=2023-03-01&endDate=2023-03-29",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"historyApp",
+								"surveyDownloadCount"
+							],
+							"query": [
+								{
+									"key": "surveyId",
+									"value": "1"
+								},
+								{
+									"key": "startDate",
+									"value": "2023-03-01"
+								},
+								{
+									"key": "endDate",
+									"value": "2023-03-29"
+								}
 							]
 						}
 					},
@@ -368,32 +728,179 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:5000/fileApp/export?mergeMethod=inner&fileFormat=sav",
-							"protocol": "http",
+							"raw": "{{BASE_URL}}/historyApp/export",
 							"host": [
-								"localhost"
+								"{{BASE_URL}}"
 							],
-							"port": "5000",
 							"path": [
-								"fileApp",
+								"historyApp",
 								"export"
-							],
-							"query": [
-								{
-									"key": "mergeMethod",
-									"value": "inner"
-								},
-								{
-									"key": "fileFormat",
-									"value": "sav"
-								}
 							]
-						},
-						"description": "## mergeMethod: str\n- inner\n- union\n\n## fileFormat: str\n- sav\n- csv\n\n### must send after storeProblem"
+						}
 					},
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "announcementApp",
+			"item": [
+				{
+					"name": "listAnnouncement",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/announcementApp/listAnnouncement",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"announcementApp",
+								"listAnnouncement"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "queryAnnouncement",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/announcementApp/queryAnnouncement?id=19",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"announcementApp",
+								"queryAnnouncement"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "19"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createAnnouncement",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"test title 2\",\r\n    \"contents\": \"test contents 2\",\r\n    \"pinned\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/announcementApp/createAnnouncement",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"announcementApp",
+								"createAnnouncement"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateAnnouncement",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 19,\r\n    \"title\": \"update title 2\",\r\n    \"contents\": \"update contents 2\",\r\n    \"pinned\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/announcementApp/updateAnnouncement",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"announcementApp",
+								"updateAnnouncement"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteAnnouncement",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 18\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/announcementApp/deleteAnnouncement",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"announcementApp",
+								"deleteAnnouncement"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SRDA Email Verify",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test@email.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://srdaadj.survey.sinica.edu.tw/api/mail_status",
+					"protocol": "https",
+					"host": [
+						"srdaadj",
+						"survey",
+						"sinica",
+						"edu",
+						"tw"
+					],
+					"path": [
+						"api",
+						"mail_status"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
