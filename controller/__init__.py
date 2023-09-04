@@ -6,6 +6,7 @@ from .adminApp import *
 from .reportApp import *
 from .historyApp import *
 from .announcementApp import *
+from .pictureApp import *
 
 __all__ = [
     *loginApp.__all__,
@@ -16,4 +17,5 @@ __all__ = [
     *reportApp.__all__,
     *historyApp.__all__,
     *announcementApp.__all__,
+    *pictureApp.__all__,
 ]

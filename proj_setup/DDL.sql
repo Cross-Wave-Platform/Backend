@@ -115,6 +115,11 @@ CREATE TABLE dbo.announcement (
     pinned BIT NOT NULL DEFAULT 0
 );
 
+CREATE TABLE dbo.picture (
+    id INT NOT NULL,
+    picture IMAGE
+);
+
 GO
 
 USE master;
