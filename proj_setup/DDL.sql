@@ -112,7 +112,13 @@ CREATE TABLE dbo.announcement (
     id int IDENTITY(1,1) PRIMARY KEY,
     title nvarchar(100) NOT NULL,
     contents nvarchar(300),
+    modifyDate DATETIME DEFAULT NULL,
     pinned BIT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE dbo.picture (
+    id INT NOT NULL,
+    picture IMAGE
 );
 
 GO
