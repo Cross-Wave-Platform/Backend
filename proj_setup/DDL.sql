@@ -101,7 +101,7 @@ CREATE TABLE dbo.survey_problem
     CONSTRAINT FK_survey_problem_problem FOREIGN KEY ( problem_id) REFERENCES dbo.problem ( problem_id) ON DELETE CASCADE
 );
 
-CREATE TABLE dbo.survey_problem
+CREATE TABLE dbo.download_history
 (
     account_id INT NOT NULL,
     survey_id INT NOT NULL,
@@ -112,7 +112,13 @@ CREATE TABLE dbo.announcement (
     id int IDENTITY(1,1) PRIMARY KEY,
     title nvarchar(100) NOT NULL,
     contents nvarchar(300),
+	modifyDate DATETIME DEFAULT NULL,
     pinned BIT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE dbo.picture (
+    id INT NOT NULL,
+    picture IMAGE
 );
 
 GO
