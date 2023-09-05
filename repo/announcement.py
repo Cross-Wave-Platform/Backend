@@ -16,7 +16,7 @@ class AnnouncementManager(SQLManager):
 
     def list_announcement(self):
         try:
-            self.cursor.execute("SELECT id, title, format([modifyDate], 'yyyy-MM-dd') modifyDate, pinned FROM dbo.announcement ORDER BY pinned DESC, modifyDate DESC")
+            self.cursor.execute("SELECT id, title, format([modifyDate], 'yyyy-MM-dd') modDate, pinned FROM dbo.announcement ORDER BY pinned DESC, modifyDate DESC")
         except:
             return None
         data = self.cursor.fetchall()
