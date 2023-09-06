@@ -13,7 +13,7 @@ pictureApp_api = Blueprint('pictureApp_api', __name__)
 @login_required
 @auth_required(AuthLevel.ADMIN)
 @Request.files('picture')
-@Request.json('id:int')
+@Request.form('id')
 def input_picture(id,picture):
     try:
         Picture.input_picture(id,picture)
@@ -30,7 +30,7 @@ def input_picture(id,picture):
 @login_required
 @auth_required(AuthLevel.ADMIN)
 @Request.files('picture')
-@Request.json('id:int')
+@Request.form('id:int')
 def update_picture(id, picture):
     try:
         Picture.update_picture(id, picture)
@@ -46,7 +46,7 @@ def update_picture(id, picture):
 @pictureApp_api.route('/deletePicture', methods=['DELETE'])
 @login_required
 @auth_required(AuthLevel.ADMIN)
-@Request.json('id: int')
+@Request.json('id')
 def delete_picture(id):
     try:
         Picture.delete_picture(id)

@@ -5,7 +5,7 @@ from .manager import SQLManager
 class PictureManager(SQLManager):
 
     def input_picture(self, id:int , picture: bytes):
-        insert_op = 'INSERT INTO dbo.picture (id , picture) VALUES (%(id)d, %(picture)s)'
+        insert_op = 'INSERT INTO dbo.picture (id , picture) VALUES (%(id)d, %(picture)d)'
         self.cursor.execute(
             insert_op, {
                 'id': id,
