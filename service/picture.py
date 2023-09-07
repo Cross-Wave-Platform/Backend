@@ -4,7 +4,6 @@ from werkzeug.utils import secure_filename
 import base64
 import json
 from flask import send_file
-from repo.picture import PictureManager
 from config.config import get_yaml_config
 
 __all__ = ['Picture']
@@ -29,31 +28,28 @@ class Picture():
         picture.save(file_path)
 
     @classmethod
-    def update_picture(cls, id, picture):
-
-        manager = PictureManager()
-
-        manager.update_picture(id, picture)
-
-    @classmethod
     def delete_picture(cls, id):
 
-        manager = PictureManager()
-
-        manager.delete_picture(id)
+        UPLOAD_FOLDER = get_yaml_config('upload_dir')
+        filename = secure_filename(str(id) + ".jpg")
+        file_path = os.path.join(UPLOAD_FOLDER, 'picture' , filename)
+        os.remove(file_path)
 
     @classmethod
     def list_picture(cls):
 
         UPLOAD_FOLDER = get_yaml_config('upload_dir')
-        file_path = os.path.join(UPLOAD_FOLDER, 'picture', '1.jpg')
         picture_list = []
 
-        with open(file_path, 'rb') as f:
-            imageData = f.read()
-            base64Data = base64.b64encode(imageData)
-            base64Data = base64Data.decode('utf-8')
-            picture_list.append(base64Data)
+        for i in range(1,5):
+            filename = secure_filename(str(i) + ".jpg")
+            file_path = os.path.join(UPLOAD_FOLDER, 'picture',filename)
+            if(os.path.exists(file_path)): 
+                with open(file_path, 'rb') as f:
+                    imageData = f.read()
+                    base64Data = base64.b64encode(imageData)
+                    base64Data = base64Data.decode('utf-8')
+                    picture_list.append(base64Data)
 
         return picture_list
 
