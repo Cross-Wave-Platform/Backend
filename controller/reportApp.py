@@ -21,7 +21,7 @@ def upload_file(title, content):
         title = "No title"
     if not content:
         content = "No content"
-    mymail = Send_Email(title+datetime.now().strftime(' %Y/%m/%d %H:%M:%S'),[admin_email])
+    mymail = Send_Email('【跨波次平台問題回報】'+title+datetime.now().strftime(' %Y/%m/%d %H:%M:%S'),[admin_email])
     try:
         mymail.htmladd(content)
         mymail.addattach(request.files.getlist('file'))   
