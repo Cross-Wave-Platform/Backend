@@ -55,7 +55,8 @@ class Csv(FormatInterface):
                                      for p in tmp_dict.items())
             temp = pandas.DataFrame([[key, item, sum_dict]],
                                     columns=['變項名稱', '變項標籤', '數值標籤'])
-            final_meta = final_meta.append(temp)
+            final_meta = pandas.concat([final_meta, temp], ignore_index=True)
+            # final_meta = final_meta.append(temp)
 
         with pandas.ExcelWriter(xlsx_file_path) as writer:
             final_meta.to_excel(writer,

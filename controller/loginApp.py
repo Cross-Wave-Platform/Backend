@@ -1,5 +1,5 @@
 from flask import Blueprint
-from service.account import Account, AccountUsed, EmailUsed, UserNotFound, PasswordIncorrect
+from service.account import Account, AccountUsed, EmailUsed, EmailNotSRDA, UserNotFound, PasswordIncorrect
 from flask_login import login_user, logout_user, login_required
 from .utils.response import HTTPResponse, HTTPError
 from .utils.request import Request
@@ -30,6 +30,8 @@ def signup(username, password, email):
         Account.signup(username, password, email)
     except EmailUsed:
         return HTTPError('email used', 403)
+    except EmailNotSRDA:
+        return HTTPError('email havn\'t registered on SRDA', 403)
     except AccountUsed:
         return HTTPError('account exists', 404)
     except ValueError:

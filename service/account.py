@@ -1,9 +1,11 @@
 from .utils import hash_id
 from hmac import compare_digest
+from config.config import get_yaml_config
 from repo.account import AccountSQLManager
 from repo.manager import SQLManager
 from flask_login import UserMixin, LoginManager
 import re
+import requests
 
 __all__ = ['Account']
 
@@ -31,6 +33,8 @@ def user_loader(user_id):
 class EmailUsed(ValueError):
     pass
 
+class EmailNotSRDA(ValueError):
+    pass
 
 class AccountUsed(ValueError):
     pass
@@ -62,6 +66,16 @@ class Account(UserMixin):
         user = cls.get_by_email(email)
         if user is not None:
             raise EmailUsed
+        
+        # check if email enrolled in SRDA
+        url = get_yaml_config('url')
+        response = requests.post(url,
+                                 headers={'Content-Type':'application/json'},
+                                 json={'email': email})
+        user = response.json()['result']
+        if user is not True:
+            raise EmailNotSRDA
+
         user = cls.get_by_username(username)
         if user is not None:
             raise AccountUsed

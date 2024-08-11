@@ -60,8 +60,10 @@ class MergeManager(SQLManager):
             for keys, prob_df in survey_group:
                 k_age, k_survey, k_wave = keys
                 if k_wave == self.wave:
-                    prob_df = prob_df.append({'problem_name': 'baby_id'},
-                                             ignore_index=True)
+                    new_row = pandas.DataFrame([{'problem_name': 'baby_id'}])
+                    prob_df = pandas.concat([prob_df, new_row], ignore_index=True)
+                    # prob_df = prob_df.append({'problem_name': 'baby_id'},
+                    #                          ignore_index=True)
                     
                     file_path = os.path.join(upload_path, str(k_age), str(k_survey),
                                              str(k_wave) + '.sav')
@@ -82,8 +84,10 @@ class MergeManager(SQLManager):
             for keys, prob_df in survey_group:
                 k_age, k_survey, k_wave = keys
                 if k_wave != self.wave:
-                    prob_df = prob_df.append({'problem_name': 'baby_id'},
-                                             ignore_index=True)
+                    new_row = pandas.DataFrame([{'problem_name': 'baby_id'}])
+                    prob_df = pandas.concat([prob_df, new_row], ignore_index=True)
+                    # prob_df = prob_df.append({'problem_name': 'baby_id'},
+                    #                          ignore_index=True)
                     
                     file_path = os.path.join(upload_path, str(k_age), str(k_survey),
                                              str(k_wave) + '.sav')
@@ -104,8 +108,10 @@ class MergeManager(SQLManager):
         else:
             for keys, prob_df in survey_group:
                 k_age, k_survey, k_wave = keys
-                prob_df = prob_df.append({'problem_name': 'baby_id'},
-                                         ignore_index=True)
+                new_row = pandas.DataFrame([{'problem_name': 'baby_id'}])
+                prob_df = pandas.concat([prob_df, new_row], ignore_index=True)
+                # prob_df = prob_df.append({'problem_name': 'baby_id'},
+                #                          ignore_index=True)
                 
                 file_path = os.path.join(upload_path, str(k_age), str(k_survey),
                                          str(k_wave) + '.sav')
